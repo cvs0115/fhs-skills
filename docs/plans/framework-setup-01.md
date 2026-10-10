@@ -71,3 +71,10 @@ spec, research and reviewed plan under the `r365-inventory` slug.
 
 The skills, their rules (`skills/fhs-skills/SKILL.md`), `shared/config.json`, the hub and plan
 page data shapes, payroll on Windows, and the artifacts as the source of truth for status.
+
+## Bootstrap exception (owner decision, 2026-10-10)
+
+Plan review r1 left one major: this change was built before its plan was approved. The owner
+granted a one-time exception, because this is the change that creates the plan-before-build rule.
+Every other finding in reviews diff-r1, diff-r2 and 01-r1 was fixed on this branch. From the next
+change on (starting with R365 inventory), the rule applies with no exceptions.
