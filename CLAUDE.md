@@ -46,7 +46,8 @@ Owner rules for *running* the skills (passwords, money, one yes per change) live
    ask for a screenshot, report or export instead.
 3. **Written plan** before any non-trivial build. It names the files, the done-check, the served
    tree and what stays. It does not authorize the build by itself.
-4. **Cross-model review.** `scripts/review.sh <plan-or-branch>` runs cursor-agent read-only on a
+4. **Cross-model review.** `scripts/review.sh docs/plans/<file>.md` (a plan) or
+   `scripts/review.sh --diff feat/<name>` (a branch, run inside its worktree) runs cursor-agent read-only on a
    non-Claude model and writes the verdict to `docs/reviews/`. APPROVE builds. APPROVE AFTER
    FIXES or REJECT goes back to the writer, and the fix is reviewed again. Review the plan
    before the build and the diff before the merge. A missing or wrong served tree is a major.
@@ -82,7 +83,10 @@ Owner rules for *running* the skills (passwords, money, one yes per change) live
 ## Subagents
 
 - Researcher (read-only), Planner (writes one plan file), Builder (one worktree branch), Verifier
-  (fresh context, reports only). Prompts: `app-framework/agents/`. Reviewer = `scripts/review.sh`.
+  (fresh context, reports only). Reviewer = `scripts/review.sh`. Base prompts are in
+  `app-framework/agents/`. Substitute before you use one: `main`, not `develop`. The hub db, not
+  `docs/board.md` or `docs/decisions.md`. Worktrees under `/root/fhs-skills-wt/`. A builder never
+  edits the hub.
 - Build in series for now: one builder at a time. Two builders only if they share no files.
 - Every brief names this file, the hub project, the decisions that bind it, the output path and
   the report to return. Subagents don't see the chat.
