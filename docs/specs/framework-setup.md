@@ -17,7 +17,9 @@
 ## Done when
 
 1. Every non-trivial skill change from here on has a plan file and a non-Claude review verdict in `docs/`.
-2. No build happens in the served checkout (`/root/fhs-skills`): builds happen in worktrees under `/root/fhs-skills-wt/`.
+2. No build happens in the served checkout (`/root/fhs-skills`): ~~builds happen in worktrees under `/root/fhs-skills-wt/`.~~
+   **Changed 2026-10-10 (owner):** builds are done by Grok agents running as the unprivileged user `fhsbuild`, in clones under
+   `/srv/fhs-build/<name>`. Claude writes the plan, the task file (`docs/prompts/`) and the test plan (`docs/tests/`). A fresh Grok session runs the tests.
 3. The first project run this way (R365 inventory/food cost) reaches its Phase 0 audit summary
    with a spec, a research note and a reviewed plan.
 
