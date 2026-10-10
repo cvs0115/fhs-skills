@@ -5,7 +5,8 @@
 # Writes docs/reviews/<name>.md and prints the verdict. REVIEW_MODEL overrides the model.
 set -euo pipefail
 
-REPO=/root/fhs-skills
+# Runs in the checkout it is called from (a worktree reviews its own branch files).
+REPO="$(git rev-parse --show-toplevel)"
 MODEL="${REVIEW_MODEL:-gpt-5.6-sol-high}"
 case "$MODEL" in claude-*|*sonnet*|*opus*|*fable*|*haiku*)
   echo "REVIEW_MODEL=$MODEL is a Claude model; the reviewer must be a different family." >&2; exit 2;;
