@@ -41,9 +41,15 @@ own npm cache are allowed, to read `--help` output. They're run with `--yes`, an
 1. `docs/research/browser-stack.md` answers every question in the task file, each with its source:
    a command and its output, or a URL.
 2. Every answer is either confirmed, or marked `(?)` with what's needed to confirm it.
-3. `git diff --name-only main...feat/browser-research-01` shows only the note and `tech-stack.md`. The baseline taken at the start
-   (listeners, installed packages, `~/.cache/ms-playwright`) matches the end state, and no fhsbuild process matches
-   `playwright|chrom|Xvfb|x11vnc|websockify|mcp`.
+3. `git diff --name-only main...feat/browser-research-01` shows only the note and `tech-stack.md`. The installed-package list and
+   `~/.cache/ms-playwright` match the baseline taken at the start. No viewer process (Xvfb, x11vnc, websockify, noVNC) and no `fhsbuild`
+   listener exist outside the research agent's own process tree.
+   **Amended 2026-10-10 (after review browser-research-01-diff-r1):** the first wording also compared every listener on the server
+   and every process matching `playwright|chrom|mcp`. Other agents run in parallel (root-owned Cursor workers open localhost ports),
+   and the Cursor agent itself starts `@playwright/mcp` and `chrome-devtools-mcp` children, so those are ambient and excluded. The
+   researcher's own task-file tests 3–4 used the old wording, and their failures came from those ambient processes. The test plan
+   `docs/tests/browser-research-01.md` carries the same correction (commits `ec85d32` and `f5aa284`). The tester reads the committed
+   test plan, or a byte-identical copy of it in `/srv/fhs-build/reports/`.
 
 ## Test plan
 
