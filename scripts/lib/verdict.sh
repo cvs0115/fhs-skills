@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
 # verdict <review.md>: print APPROVE, APPROVE AFTER FIXES, REJECT, or NONE.
+# First "## Verdict" wins. On the first non-empty line after it: strip leading
+# spaces, then one leading "**" if present. The result must be an exact token,
+# optional closing "**", then "." or end of line. Anything else is NONE.
 # Meant to be sourced. When run directly, prints the verdict for the given file.
 
 verdict() {
-  local file="$1" line="" seen=0 content=""
+  local file="$1" line="" seen=0 content="" token="" rest=""
   if [[ ! -f "$file" ]]; then
     echo NONE
     return 0
@@ -18,23 +21,24 @@ verdict() {
       continue
     fi
     content="$line"
-    while [[ "$content" == [[:space:]]* || "$content" == \** ]]; do
-      if [[ "$content" == [[:space:]]* ]]; then
-        content="${content#"${content%%[![:space:]]*}"}"
-      else
-        content="${content#\*}"
+    content="${content#"${content%%[![:space:]]*}"}"
+    [[ -z "$content" ]] && continue
+    if [[ "${content:0:2}" == "**" ]]; then
+      content="${content:2}"
+    fi
+    for token in "APPROVE AFTER FIXES" "REJECT" "APPROVE"; do
+      if [[ "$content" == "$token"* ]]; then
+        rest="${content#"$token"}"
+        if [[ "${rest:0:2}" == "**" ]]; then
+          rest="${rest:2}"
+        fi
+        if [[ -z "$rest" || "${rest:0:1}" == "." ]]; then
+          echo "$token"
+          return 0
+        fi
       fi
     done
-    [[ -z "$content" ]] && continue
-    if [[ "$content" == "APPROVE AFTER FIXES"* ]]; then
-      echo "APPROVE AFTER FIXES"
-    elif [[ "$content" == REJECT* ]]; then
-      echo REJECT
-    elif [[ "$content" == APPROVE* ]]; then
-      echo APPROVE
-    else
-      echo NONE
-    fi
+    echo NONE
     return 0
   done < "$file"
   echo NONE

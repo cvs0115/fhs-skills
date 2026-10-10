@@ -29,6 +29,10 @@ check_verdict "$FIX/review-approve-after-fixes.md" "APPROVE AFTER FIXES" "verdic
 check_verdict "$FIX/review-reject.md" "REJECT" "verdict-reject"
 check_verdict "$FIX/review-none.md" "NONE" "verdict-none"
 check_verdict "$FIX/review-bold.md" "APPROVE AFTER FIXES" "verdict-bold"
+check_verdict "$FIX/review-approved-typo.md" "NONE" "verdict-approved-typo"
+check_verdict "$FIX/review-approve-nodot.md" "APPROVE" "verdict-approve-nodot"
+check_verdict "$FIX/review-approvex.md" "NONE" "verdict-approvex"
+check_verdict "$FIX/review-reject-typo.md" "NONE" "verdict-reject-typo"
 check_verdict "$ROOT/scripts/tests/fixtures/does-not-exist.md" "NONE" "verdict-missing"
 
 # --- throwaway repo -------------------------------------------------------
@@ -59,6 +63,7 @@ set_docs() {
     approve) cp "$FIX/review-approve.md" "$FHS_REPO/docs/reviews/zz-01.md" ;;
     after) cp "$FIX/review-approve-after-fixes.md" "$FHS_REPO/docs/reviews/zz-01.md" ;;
     reject) cp "$FIX/review-reject.md" "$FHS_REPO/docs/reviews/zz-01.md" ;;
+    approved-typo) cp "$FIX/review-approved-typo.md" "$FHS_REPO/docs/reviews/zz-01.md" ;;
     noreview) ;;
     notask)
       cp "$FIX/review-approve.md" "$FHS_REPO/docs/reviews/zz-01.md"
@@ -100,6 +105,9 @@ expect_exit 3 prepare-after-fixes bash scripts/build.sh prepare docs/plans/zz-01
 
 set_docs reject
 expect_exit 3 prepare-reject bash scripts/build.sh prepare docs/plans/zz-01.md aa --check-only
+
+set_docs approved-typo
+expect_exit 3 prepare-approved-typo bash scripts/build.sh prepare docs/plans/zz-01.md aa --check-only
 
 set_docs noreview
 expect_exit 3 prepare-no-review bash scripts/build.sh prepare docs/plans/zz-01.md aa --check-only
