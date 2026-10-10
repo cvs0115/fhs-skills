@@ -1,5 +1,7 @@
 # Ops task · ops-01 · Bootstrap the locked-down builder user `fhsbuild`
 
+> **Historical:** run before framework-setup-03. Models now per `CLAUDE.md` Roles.
+
 > **For the Ops agent (Grok 4.7 High in cursor-agent, running as root, WITHOUT `--force`).** The owner
 > approves every command you run. Show each command before you run it. This file is your whole assignment.
 > Start: `agent --model grok-4.7-high --workspace /root/fhs-skills`, then tell it "Do the task in docs/prompts/ops-01-bootstrap.md".

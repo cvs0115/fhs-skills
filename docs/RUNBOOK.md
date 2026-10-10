@@ -8,13 +8,14 @@ send the named report to Claude.
 
 | Who | Start it with | Model |
 |---|---|---|
-| **Ops** (root steps; it asks you before every command) | `agent --model grok-4.7-high --workspace /root/fhs-skills` | Grok 4.7 High |
-| **Builder** (locked-down user, runs freely in its clone) | `sudo -u fhsbuild -H /srv/fhs-build/.local/bin/agent --model grok-4.7-high --force --workspace /srv/fhs-build/<plan>` | Grok 4.7 High |
-| **Tester** (same command, a **new** session) | same as Builder | Grok 4.7 High |
-| **Reviewer** (started for you by `scripts/review.sh`, read-only) | — | GPT-5.6 Sol (`gpt-5.6-sol-high`) |
+| **Ops** (root steps) | `agent --model composer-2.5 --workspace /root/fhs-skills` | Composer 2.5 |
+| **Builder** (locked-down user, runs freely in its clone) | `sudo -u fhsbuild -H /srv/fhs-build/.local/bin/agent --model composer-2.5 --force --workspace /srv/fhs-build/<plan>` | Composer 2.5 |
+| **Researcher** (same, for research tasks) | same, with `--model cursor-grok-4.6-high` | Cursor Grok 4.6 High |
+| **Tester** (same command, a **new** session) | same as Builder | Composer 2.5 |
+| **Reviewer** (started for you by `scripts/review.sh`, read-only) | — | Cursor Grok 4.6 Extra High for plans and Composer's code; Composer 2.5 for Grok's research |
 
-Why GPT reviews: it runs inside Cursor too. It's a different model from both the planner (Claude) and the
-builder (Grok), so nobody grades their own work.
+All of these are your included Cursor models (owner, 2026-10-10). The reviewer is never the writer's model family, so nobody grades
+their own work. Until framework-setup-03 merges, `review.sh` still runs GPT-5.6. That's its last use.
 
 ## Rows
 

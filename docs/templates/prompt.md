@@ -1,9 +1,9 @@
 # Agent task · <plan-name> · <build | research | test>
 
-> **For the coding agent (Grok 4.7 High in cursor-agent).** This file is your whole assignment.
+> **For the coding agent (Composer 2.5 via `agent`; Cursor Grok 4.6 High for research tasks).** This file is your whole assignment.
 > Read it top to bottom, then do it. You don't see the planner's conversation and don't need it.
-> Written by Claude (planner), reviewed with its plan by GPT-5.6 (`docs/reviews/<plan-name>.md`: APPROVE).
-> Hand-off (see docs/RUNBOOK.md): start `sudo -u fhsbuild -H /srv/fhs-build/.local/bin/agent --model grok-4.7-high --force --workspace /srv/fhs-build/<name>`
+> Written by Claude (planner), reviewed with its plan (`docs/reviews/<plan-name>.md`: APPROVE).
+> Hand-off (see docs/RUNBOOK.md): start `sudo -u fhsbuild -H /srv/fhs-build/.local/bin/agent --model composer-2.5 --force --workspace /srv/fhs-build/<name>` (research: `--model cursor-grok-4.6-high`)
 > and tell it "Do the task in docs/prompts/<plan-name>.md".
 
 ## Context
@@ -44,7 +44,7 @@ Restaurant365, ADP RUN, NCR, Dropbox). <One paragraph: what this task is for, in
 
 ## When done
 
-1. Commit on `feat/<name>`. End the message with `Co-Authored-By: Grok 4.7 High (cursor-agent)`.
+1. Commit on `feat/<name>`. End the message with `Co-Authored-By: <your model> (cursor agent)`, e.g. `Composer 2.5`, as the last line.
 2. Write your report to `/srv/fhs-build/reports/<name>.md` (outside the repo):
 
 ```text

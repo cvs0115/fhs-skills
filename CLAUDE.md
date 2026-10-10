@@ -55,7 +55,7 @@ Owner rules for *running* the skills (passwords, money, one yes per change) live
    FIXES or REJECT goes back to the writer, and the fix is reviewed again. Review the plan
    before the build and the diff before the merge. A missing or wrong served tree is a major.
    An approved plan may end with no build.
-5. **Build** by a Grok agent from the task file, in its own clone (`scripts/build.sh prepare`), never in `/root/fhs-skills` (see Served trees).
+5. **Build** by a Composer agent from the task file (research by a Cursor Grok agent), in its own clone (`scripts/build.sh prepare`), never in `/root/fhs-skills` (see Served trees).
 6. **Verify by the real outcome.** Run it against a real week folder or a real R365 or Toast
    screen and compare the numbers. A clean run or a written file proves nothing. The writer
    doesn't grade its own work.
@@ -91,17 +91,19 @@ Owner rules for *running* the skills (passwords, money, one yes per change) live
 | Role | Who | Writes |
 |---|---|---|
 | Planner | Claude | specs, plans, task files (`docs/prompts/`), test plans (`docs/tests/`), the runbook, hub; no code, no ops |
-| Ops | cursor-agent `grok-4.7-high` as root, **without `--force`** (the owner approves every command), from `docs/prompts/ops-*.md` | commits docs and reviews, creates the user, clones, fetches, runs `build.sh`/`review.sh`, runs root-only test cases, merges after an APPROVE |
-| Reviewer | cursor-agent `gpt-5.6-sol-high`, `--mode plan`, as root, read-only | one verdict file |
-| Builder and Tester | cursor-agent `grok-4.7-high`, `--force`, as user `fhsbuild` in `/srv/fhs-build/<name>` | commits on `feat/<name>` in its clone; a report outside the repo |
-| Researcher | the same Grok setup, with a research prompt; writes only its research note | `docs/research/<file>` in its clone |
-| Tester | a fresh Grok 4.7 High session (never the builder's), from `docs/tests/<plan>.md`; shell, Playwright (server browser) or Chrome on the Windows PC | a results file outside the repo |
+| Ops | `agent --model composer-2.5` as root (owner-approved commands, or headless when the owner delegates approval to Claude), from `docs/prompts/ops-*.md` | commits docs and reviews, creates the user, clones, fetches, runs `build.sh`/`review.sh`, runs root-only test cases, merges after an APPROVE |
+| Reviewer | `scripts/review.sh`, read-only (`--mode plan`): Claude's plans and Composer's code → `cursor-grok-4.6-xhigh`; Grok's research → `composer-2.5`. Never the writer's family. (Until framework-setup-03 merges, review.sh still runs GPT-5.6.) | one verdict file |
+| Builder and Tester | `agent --model composer-2.5 --force`, as user `fhsbuild` in `/srv/fhs-build/<name>` | commits on `feat/<name>` in its clone; a report outside the repo |
+| Researcher | `agent --model cursor-grok-4.6-high --force` as `fhsbuild`, with a research prompt; writes only its research note | `docs/research/<file>` in its clone |
+| Tester | a fresh `composer-2.5` session (never the builder's), from `docs/tests/<plan>.md`; shell, Playwright (server browser) or Chrome on the Windows PC | a results file outside the repo |
 
 - Claude writes specs, plans, task files (`docs/prompts/<plan>.md`, form `docs/templates/prompt.md`) and test plans
   (`docs/tests/<plan>.md`, form `docs/templates/test-plan.md`). Claude doesn't write code or scripts.
-- A fresh Grok session (never the builder's) runs the test plan. Browser tests use the server's Playwright browser when it exists, otherwise Chrome on the Windows PC.
+- A fresh Composer session (never the builder's) runs the test plan. Browser tests use the server's Playwright browser when it exists, otherwise Chrome on the Windows PC.
 - Once a plan is APPROVE, commit its plan, task file, test plan and review to `main` before `scripts/build.sh prepare` (prepare checks them in the committed tree).
-- The owner hands each task file to a Grok 4.7 High agent running as `fhsbuild` in the clone that `scripts/build.sh prepare` made.
+- Models (owner decision 2026-10-10: included Cursor models only): Composer 2.5 builds, tests and runs ops; Cursor Grok 4.6 High researches;
+  Cursor Grok 4.6 Extra High reviews Claude's plans and Composer's code; Composer 2.5 reviews Grok's research. GPT, Sonnet and grok-4.7 aren't used.
+- Each task file is handed to its agent (Composer, or Cursor Grok for research) running as `fhsbuild` in the clone that `scripts/build.sh prepare` made.
 - No builder-written code runs as root until a diff review of it is APPROVE.
 - The Ops agent commits every review file to `main` right after it's written (docs only). Before a new review of the same
   subject, the earlier file is renamed `<name>-rN.md`, so every verdict is kept.

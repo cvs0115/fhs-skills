@@ -1,5 +1,7 @@
 # Ops task · ops-00 · Finish planning: review framework-setup-02, then commit the planning docs
 
+> **Historical:** run before framework-setup-03. Models now per `CLAUDE.md` Roles.
+
 > **For the Ops agent (Grok 4.7 High in cursor-agent, running as root, WITHOUT `--force`).** The owner
 > approves every command you run. Show each command before you run it. This file is your whole
 > assignment. You don't see the planner's conversation.

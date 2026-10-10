@@ -1,8 +1,8 @@
 # Ops task · ops-cycle · Take one approved plan from clone to merge
 
-> **For the Ops agent (Grok 4.7 High via `agent`, running as root, WITHOUT `--force`).** The owner approves
-> every command you run. Show each command before you run it. This file is your whole assignment.
-> Start: `agent --model grok-4.7-high --workspace /root/fhs-skills`, then tell it
+> **For the Ops agent (Composer 2.5 via `agent`, running as root).** Without `--force` the owner approves every command;
+> when the owner has delegated approval to Claude, Claude runs you headless and checks your report. Show each command before you run it. This file is your whole assignment.
+> Start: `agent --model composer-2.5 --workspace /root/fhs-skills`, then tell it
 > "Do the task in docs/prompts/ops-cycle.md for plan <PLAN>" (e.g. `framework-setup-02`).
 
 ## Context
@@ -10,10 +10,13 @@
 `/root/fhs-skills` is the master repo. Its `main` checkout is **live**: server Claude sessions load `skills/`
 from it. Builder and tester agents (Grok) run as the locked-down user `fhsbuild` in their own clone under
 `/srv/fhs-build/`. They can't touch `/root`. You do the root-side steps around them: prepare the clone,
-collect the branch, run the GPT-5.6 reviews, run any root-only test cases, and merge. **No code written by a
+collect the branch, run the reviews, run any root-only test cases, and merge. **No code written by a
 builder runs as root until a diff review of it is APPROVE** (section D before E).
 
-Set at the start, and reuse: `PLAN=<plan name>` and `NAME=$PLAN` (the clone and branch name; `feat/$NAME`).
+Set at the start, and reuse: `PLAN=<plan name>` and `NAME=$PLAN` (the clone and branch name; `feat/$NAME`), and
+`ROLE=build` or `ROLE=research` (from the plan: research plans produce a research note). For research: `WRITER=grok`; otherwise `WRITER=composer`.
+After framework-setup-03 merges: always pass `--role $ROLE` to `build.sh prepare` and `--writer $WRITER` to every `review.sh --diff`, so research
+written by Grok is reviewed by Composer and builds written by Composer are reviewed by Cursor Grok. Never let a reviewer match the writer's family.
 `R=/root/fhs-skills` · `B=/srv/fhs-build` · `AGENT=/srv/fhs-build/.local/bin/agent`
 
 ## Read first
@@ -48,7 +51,8 @@ owner to send it to Claude. Don't fix code, plans or tests yourself.
 ## B · Hand-offs for the owner (you don't run the agents)
 
 Tell the owner, word for word, and wait for each one to finish:
-1. **Builder:** run `sudo -u fhsbuild -H $AGENT --model grok-4.7-high --force --workspace $B/$NAME`
+1. **Builder:** run the `Start agent:` line that `build.sh prepare` printed (Composer 2.5 for builds, Cursor Grok 4.6 High for research), e.g.
+   `sudo -u fhsbuild -H $AGENT --model composer-2.5 --force --workspace $B/$NAME`
    and tell it: `Do the task in docs/prompts/$PLAN.md`
    Done when `$B/reports/$NAME.md` exists. Check: `cat $B/reports/$NAME.md`. Stop if it reports failed tests or "stopped".
 2. **Tester (a new session, not the builder's):** run the same command again, and tell it:
@@ -65,7 +69,7 @@ git -C $R diff --name-only main...feat/$NAME
 ```
 Check the file list against the plan's "Files the builder may edit". Stop on anything extra.
 
-## D · Code review gate (GPT-5.6, using the trusted `review.sh` already on `main`)
+## D · Code review gate (using the trusted `review.sh` already on `main`)
 
 Pick the next free review number N (`-diff-r1` first, then `-diff-r2`…): `ls $R/docs/reviews/ | grep "^$NAME-diff"`.
 
@@ -85,7 +89,7 @@ Then keep it and commit it (docs only):
 cd $R && mv docs/reviews/$NAME-diff.md docs/reviews/$NAME-diff-rN.md
 git add docs/reviews/$NAME-diff-rN.md && git commit -m "Diff review rN for $NAME
 
-Co-Authored-By: Grok 4.7 High (agent, ops)"
+Co-Authored-By: Composer 2.5 (agent, ops)"
 sed -n '/^## Verdict/,/^## /p' docs/reviews/$NAME-diff-rN.md | sed -n '3p'
 ```
 Not APPROVE → stop (the stop rule). The builder fixes it in a new round, starting again at B.1 with the same clone.
@@ -116,7 +120,7 @@ If E didn't run and the branch didn't change, D's APPROVE is the final review.
 cd $R && git status --short                      # expect empty
 git merge --no-ff feat/$NAME -m "Merge $NAME (reviewed: docs/reviews/$NAME-diff-rN.md; tests: ALL PASS)
 
-Co-Authored-By: Grok 4.7 High (agent, builder)"
+Co-Authored-By: <builder model> (agent, builder)"
 git status --short                               # expect empty
 ls -l /root/.claude/skills/                      # both fhs-* links resolve into $R/skills
 python3 -m py_compile skills/*/scripts/*.py && echo COMPILE-OK

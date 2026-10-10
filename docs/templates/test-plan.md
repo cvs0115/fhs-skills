@@ -1,6 +1,6 @@
 # Test plan · <plan-name>
 
-> **For the tester agent (Grok 4.7 High in cursor-agent, a fresh session, not the one that built it).**
+> **For the tester agent (Composer 2.5 via `agent`, a fresh session, not the one that built it).**
 > This file is your whole assignment. Run every case, record real evidence, and judge each one
 > PASS, FAIL or BLOCKED. Don't fix anything. If something fails, that's the result.
 > Hand-off: the owner tells you "Run the test plan in docs/tests/<plan-name>.md".
@@ -46,7 +46,7 @@ and move on.
 Write `/srv/fhs-build/reports/<name>-test.md` (outside the repo):
 
 ```text
-Test plan: <plan-name> · Branch: feat/<name> at <commit> · Tester: grok-4.7-high (fresh session)
+Test plan: <plan-name> · Branch: feat/<name> at <commit> · Tester: composer-2.5 (fresh session)
 | ID | Result | Evidence (trimmed output or screenshot path) | Note |
 Totals: PASS <n> · FAIL <n> · BLOCKED <n>
 Verdict: ALL PASS | FAILURES (list IDs) | BLOCKED (list IDs and what's needed)
