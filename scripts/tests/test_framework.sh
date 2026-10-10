@@ -140,6 +140,16 @@ fi
 # --- 4. collect with no report -------------------------------------------
 expect_exit 3 collect-no-report bash scripts/build.sh collect zz
 
+# --- collect upload-pack safe.directory -----------------------------------
+if grep -F -q -- '--upload-pack=' scripts/build.sh \
+  && grep -F -q -- '-c safe.directory=$FHS_BUILD_ROOT/$name -c safe.directory=$FHS_BUILD_ROOT/$name/.git' scripts/build.sh \
+  && ! grep -F -q -- "safe.directory='*'" scripts/build.sh \
+  && ! grep -F -q -- 'safe.directory=*' scripts/build.sh; then
+  pass "collect-uses-upload-pack-safe-dir"
+else
+  fail "collect-uses-upload-pack-safe-dir" "upload-pack safe.directory check failed"
+fi
+
 # --- 5. review.sh ---------------------------------------------------------
 expect_exit 2 review-model-grok env REVIEW_MODEL=grok-4.7-high bash scripts/review.sh --check-only docs/plans/zz-01.md
 expect_exit 2 review-model-claude env REVIEW_MODEL=claude-x bash scripts/review.sh --check-only docs/plans/zz-01.md

@@ -115,8 +115,9 @@ cmd_collect() {
     echo "missing report: $report" >&2
     exit 3
   fi
-  git -C "$FHS_REPO" -c safe.directory="$FHS_BUILD_ROOT/$name" \
-    fetch "$FHS_BUILD_ROOT/$name" "feat/$name:feat/$name"
+  git -C "$FHS_REPO" fetch \
+    --upload-pack="git -c safe.directory=$FHS_BUILD_ROOT/$name -c safe.directory=$FHS_BUILD_ROOT/$name/.git upload-pack" \
+    "$FHS_BUILD_ROOT/$name" "feat/$name:feat/$name"
   echo "$report"
   echo "Next: scripts/review.sh --diff feat/$name"
 }
