@@ -93,7 +93,7 @@ user), stop and ask the owner. Don't fall back to running Grok as root.
   of the branch under `/root/fhs-skills-wt/review-<name>` (root, read-only review). They require the builder report
   `/srv/fhs-build/reports/<name>.md` and the tester report `<name>-test.md`, and pass both to the reviewer. A `trap` removes the
   worktree and the `.tmp` output on success and on failure.
-- `scripts/tests/test_framework.sh` (new) and `scripts/tests/fixtures/` (new): fixture reviews for
+- `scripts/tests/test_framework.sh` (new) and `scripts/tests/fixtures/` (new; fix round 3 adds four verdict-typo fixtures): fixture reviews for
   all three verdicts and a missing verdict; fixture plans with and without an APPROVE.
 - `CLAUDE.md`: the "Subagents" section becomes "Roles" (the table above). Loop step 5 = `scripts/build.sh`.
   Claude writes plans and prompts, not code. Add the prompt form `docs/templates/prompt.md` to "Where things live".

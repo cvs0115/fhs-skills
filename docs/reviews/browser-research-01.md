@@ -4,7 +4,7 @@
 
 ## Verdict
 
-APPROVE. The research may proceed as planned.
+APPROVE. Verification may resume as planned.
 
 ## Majors
 

@@ -25,7 +25,10 @@ Owner rules for *running* the skills (passwords, money, one yes per change) live
 | Spec per skill or project | `docs/specs/<slug>.md` (form: `docs/templates/spec.md`) |
 | Research findings (what a system really does) | `docs/research/<slug>-<topic>.md` |
 | Written plans | `docs/plans/<slug>-<nn>.md` (form: `docs/templates/plan.md`) |
+| Task files for coding agents | `docs/prompts/<plan>.md` (form: `docs/templates/prompt.md`) |
+| Test plans for tester agents | `docs/tests/<plan>.md` (form: `docs/templates/test-plan.md`) |
 | Review verdicts | `docs/reviews/<plan-file-name>[-diff].md` (form: `docs/templates/review.md`) |
+| Agent reports | `/srv/fhs-build/reports/<name>.md` and `<name>-test.md` (not in git) |
 | System facts (menus, paths, owners) | `skills/fhs-skills/references/tech-stack.md` |
 | Store facts and owner rules | `shared/config.json` |
 | The framework itself (reference, don't edit) | `app-framework/` |
@@ -52,7 +55,7 @@ Owner rules for *running* the skills (passwords, money, one yes per change) live
    FIXES or REJECT goes back to the writer, and the fix is reviewed again. Review the plan
    before the build and the diff before the merge. A missing or wrong served tree is a major.
    An approved plan may end with no build.
-5. **Build** on a branch in a worktree, never in `/root/fhs-skills` itself (see Served trees).
+5. **Build** by a Grok agent from the task file, in its own clone (`scripts/build.sh prepare`), never in `/root/fhs-skills` (see Served trees).
 6. **Verify by the real outcome.** Run it against a real week folder or a real R365 or Toast
    screen and compare the numbers. A clean run or a written file proves nothing. The writer
    doesn't grade its own work.
@@ -62,9 +65,12 @@ Owner rules for *running* the skills (passwords, money, one yes per change) live
 
 - **Server sessions:** `/root/.claude/skills/fhs-*` are symlinks to `/root/fhs-skills/skills/`.
   Whatever is checked out in `/root/fhs-skills` on `main` is live immediately. So:
-  - build in a worktree: `git worktree add /root/fhs-skills-wt/<name> -b feat/<name> main`;
+  - builds happen in `/srv/fhs-build/<name>` clones owned by fhsbuild; reviews use temporary worktrees under `/root/fhs-skills-wt/`;
   - merging into `main` is the release for server sessions;
   - never leave `/root/fhs-skills` on a feature branch or with half-done edits under `skills/`.
+- **Windows desktop (runtime only):** development happens only on dev-lxc-1. Skills that need desktop-only apps (Dropbox,
+  NCR downloads, other Windows software) are deployed to the desktop as a copy of reviewed `main`. Every plan names where its
+  skill runs (server, desktop or both).
 - **Windows sessions (payroll):** the Windows copy is a mirror and stays live until it is
   refreshed. A refresh is its own OK from the owner, and so is any change to a running payroll.
 - **Scheduled runs** (later, server move plan): enabling a schedule is a separate OK.
@@ -80,16 +86,28 @@ Owner rules for *running* the skills (passwords, money, one yes per change) live
 - A conflict with an earlier decision is a question: quote both and ask
   (`app-framework/questions/09-change-conflicts.md`). Never route around it.
 
-## Subagents
+## Roles
 
-- Researcher (read-only), Planner (writes one plan file), Builder (one worktree branch), Verifier
-  (fresh context, reports only). Reviewer = `scripts/review.sh`. Base prompts are in
-  `app-framework/agents/`. Substitute before you use one: `main`, not `develop`. The hub db, not
-  `docs/board.md` or `docs/decisions.md`. Worktrees under `/root/fhs-skills-wt/`. A builder never
-  edits the hub.
-- Build in series for now: one builder at a time. Two builders only if they share no files.
-- Every brief names this file, the hub project, the decisions that bind it, the output path and
-  the report to return. Subagents don't see the chat.
+| Role | Who | Writes |
+|---|---|---|
+| Planner | Claude | specs, plans, task files (`docs/prompts/`), test plans (`docs/tests/`), the runbook, hub; no code, no ops |
+| Ops | cursor-agent `grok-4.7-high` as root, **without `--force`** (the owner approves every command), from `docs/prompts/ops-*.md` | commits docs and reviews, creates the user, clones, fetches, runs `build.sh`/`review.sh`, runs root-only test cases, merges after an APPROVE |
+| Reviewer | cursor-agent `gpt-5.6-sol-high`, `--mode plan`, as root, read-only | one verdict file |
+| Builder and Tester | cursor-agent `grok-4.7-high`, `--force`, as user `fhsbuild` in `/srv/fhs-build/<name>` | commits on `feat/<name>` in its clone; a report outside the repo |
+| Researcher | the same Grok setup, with a research prompt; writes only its research note | `docs/research/<file>` in its clone |
+| Tester | a fresh Grok 4.7 High session (never the builder's), from `docs/tests/<plan>.md`; shell, Playwright (server browser) or Chrome on the Windows PC | a results file outside the repo |
+
+- Claude writes specs, plans, task files (`docs/prompts/<plan>.md`, form `docs/templates/prompt.md`) and test plans
+  (`docs/tests/<plan>.md`, form `docs/templates/test-plan.md`). Claude doesn't write code or scripts.
+- A fresh Grok session (never the builder's) runs the test plan. Browser tests use the server's Playwright browser when it exists, otherwise Chrome on the Windows PC.
+- Once a plan is APPROVE, commit its plan, task file, test plan and review to `main` before `scripts/build.sh prepare` (prepare checks them in the committed tree).
+- The owner hands each task file to a Grok 4.7 High agent running as `fhsbuild` in the clone that `scripts/build.sh prepare` made.
+- No builder-written code runs as root until a diff review of it is APPROVE.
+- The Ops agent commits every review file to `main` right after it's written (docs only). Before a new review of the same
+  subject, the earlier file is renamed `<name>-rN.md`, so every verdict is kept.
+- After the builder's report: `scripts/build.sh collect <name>`; the tester runs the test plan; then `scripts/review.sh --diff feat/<name>`
+  (the reviewer reads both reports); merge on APPROVE with every pre-merge test PASS. Post-merge cases are verified after the merge; a failure opens a fix plan.
+- Base prompts for other roles are in `app-framework/agents/`. Substitute `main` for `develop` and the hub db for `docs/board.md`/`docs/decisions.md`.
 
 ## Repo rules
 

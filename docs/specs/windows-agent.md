@@ -8,6 +8,14 @@
   NCR downloads), and the Windows copy of the skills that payroll runs from. Server agents can't reach it.
 - **Today:** the owner works in Windows Claude sessions, and the Windows skill copy is refreshed by hand.
 
+## Development vs runtime (owner, 2026-10-10)
+
+- **Development** happens only on dev-lxc-1 (plans, Grok builds, tests, reviews, the master repo).
+- **Runtime** can be the server **or the owner's Windows desktop**: some apps (Dropbox, NCR downloads, other desktop software) only
+  live on the desktop. A skill that needs them is **deployed** to `C:\Users\mayur\.claude\skills\` as a copy of the reviewed
+  server `main`. Each deploy is the mirror refresh, a separate owner OK.
+- Every plan says where its skill runs (server, desktop, or both) and, for desktop, which Windows apps it needs.
+
 ## Who runs it
 
 - The owner starts a cursor-agent (Grok 4.7 High) on the PC and hands it a task file, the same way as on the server.
