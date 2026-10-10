@@ -20,7 +20,7 @@ builder (Grok), so nobody grades their own work.
 
 | # | Agent | Tell it | Gate before the next row | If the gate fails, send Claude |
 |---|---|---|---|---|
-| 1 | Ops | `Do the task in docs/prompts/ops-00-finish-planning.md` | the review of framework-setup-02 is APPROVE, and the planning docs are committed on `main` | `/root/fhs-skills-ops-00.md` and the review file it names |
+| 1 | Ops | `Do the task in docs/prompts/ops-00-finish-planning.md` | the review of framework-setup-02 is APPROVE, and the planning docs are committed on `main` | `/srv/fhs-build/reports/ops-00-finish-planning.md` and the review file it names |
 | 2 | Ops | `Do the task in docs/prompts/ops-01-bootstrap.md`. **You** run the one login command it gives you | `fhsbuild` exists, it's signed in to Cursor, and every isolation check fails as it should | `/srv/fhs-build/reports/ops-01-bootstrap.md` |
 | 3 | Ops | `Do the task in docs/prompts/ops-cycle.md for plan framework-setup-02`. It will tell you when to start the Builder and the Tester | merged on `main`, tests ALL PASS, diff review APPROVE | `/srv/fhs-build/reports/framework-setup-02-ops.md` (+ `-test.md`) |
 | 3a | Builder (when Ops says) | `Do the task in docs/prompts/framework-setup-02.md` | its report exists in `/srv/fhs-build/reports/` | that report |
