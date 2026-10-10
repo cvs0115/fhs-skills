@@ -36,11 +36,11 @@ Claude keeps both current. Build order for the store functions: `docs/specs/stor
 | 4 | ✅ merged `74fb39a` | Researcher / Tester | browser-research-01: how to run a server browser | 12/12, review APPROVE |
 | 5 | ✅ merged `545863b` | Researcher / Tester | windows-research-01: how a PC agent works with the server | 14/14, review APPROVE |
 | 6 | ✅ merged `b79e362` | Ops / Builder / Tester | framework-setup-03: included Cursor models only (Composer builds, Cursor Grok reviews) | 10/10, review APPROVE |
-| 7 | ⏳ plan review | Claude → Builder → Ops | **browser-02**: the server browser you watch and sign in to (`docs/plans/browser-02.md`). Your G1–G4 answers recorded | plan APPROVE → build → tests → code review → Ops installs (your approved list) → merge |
-| 8 | ⏳ waits on row 7 | **You** | Open the browser viewer (`ssh -L 6080:localhost:6080 dev-lxc-1`, then http://localhost:6080) and sign in to R365 and Toast | signed in |
-| 9 | ⏳ plan review | Root agent captures → Researcher → Tester | **store-audit-122-01**: read-only audit of every 122 function in R365 + Toast (`docs/plans/store-audit-122-01.md`) | audit merged; it decides the next builds |
-| 10 | ⏳ waits on **you** | **You**, on the Windows PC | Answer the 6-item PC checklist (Claude will ask in a question pane) | answers recorded |
-| 11 | ✅ plan approved | Builder → Ops → you on the PC | **windows-agent-02**: the PC agent, push hook, mirror refresh, report transfer (`docs/plans/windows-agent-02.md`) | needs row 10; each PC step is your OK |
+| 7 | ⏸ parked | — | **browser-02** server browser: parked (owner, 2026-10-10: desktop first). Returns only when an unattended job needs it | — |
+| 8 | ⏳ waits on **you** | **You**, on the Windows PC | Answer the 6-item PC checklist and the 3 Windows-agent decisions (Claude asks in a question pane) | answers recorded |
+| 9 | ✅ plan approved | Builder → Ops → you on the PC | **windows-agent-02**: the PC agent, push hook, mirror refresh, report transfer (`docs/plans/windows-agent-02.md`) | needs row 8; each PC step is your OK |
+| 10 | ⏳ after 9 | **You**, on the PC | Sign in once to R365 and Toast in the Cursor agent's Playwright browser on your PC (it keeps the login) | signed in |
+| 11 | ⏳ re-planning | PC Cursor agent captures (Composer) → Researcher (Cursor Grok High) → Tester | **store-audit-122-01**: read-only audit of every 122 function in R365 + Toast, run on your PC (`docs/plans/store-audit-122-01.md`, being reworked for the desktop) | audit merged; it decides the next builds |
 | 12+ | later | Claude plans each | store functions in order: items/vendors → e-invoices → recipes + menu mapping → counts → cash & deposits → food cost → daily flash → scheduling/OT → delivery → 878 migration. Each skips or shrinks based on the row 9 audit | per plan |
 
 How every build row runs (Ops follows `docs/prompts/ops-cycle.md`): plan review → `build.sh prepare` → Builder → fresh Tester →
@@ -49,5 +49,5 @@ How every build row runs (Ops follows `docs/prompts/ops-cycle.md`): plan review 
 ## Good to know
 
 - Rows 1–2 are one-time. Every plan after that is: Ops runs `ops-cycle.md`, and Ops tells you when to start the Builder and the Tester.
-- Browser tests run through the server's browser once row 7 is done, or Chrome on your PC until then.
-- Nothing so far has touched Toast, R365, ADP, the Windows skill copy, or payroll. Row 9 is the first to *read* R365 and Toast, and it never changes anything.
+- Browser work runs on your PC: the Cursor agent + Playwright (included models) for long runs, and Claude in Chrome for quick tasks with you there.
+- Nothing so far has touched Toast, R365, ADP, the Windows skill copy, or payroll. Row 11 is the first to *read* R365 and Toast, and it never changes anything.

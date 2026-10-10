@@ -1,5 +1,9 @@
 # Plan · browser-02 · A browser on the server that the owner can see and agents can drive
 
+> **PARKED (owner, 2026-10-10): desktop first, server later.** Interactive browser work runs on the owner's PC (Cursor agent +
+> Playwright, where the owner signs in once). This plan comes back only when an unattended, scheduled job needs a server browser.
+> Kept for the record; not reviewed or built.
+
 2026-10-10. Plan only, not approved. Don't build from it until `docs/reviews/browser-02.md` holds an APPROVE.
 The reviewer checks this plan, its task file `docs/prompts/browser-02.md`, and its test plan `docs/tests/browser-02.md` together.
 It replaces the draft `docs/plans/browser-01.md` (REJECT in `docs/reviews/browser-01-r1.md`).
