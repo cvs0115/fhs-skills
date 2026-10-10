@@ -342,7 +342,7 @@ Installed `Xvfb -help` lists `-listen string` and `-nolisten string`. The local 
 
 **Lighter alternatives.**
 
-- Chromium remote debugging (`--cdp-endpoint` exists on this MCP) plus a DevTools tab. Fewer packages, and nothing new to apt-install. Trade-off: it is not a normal mouse-driven picture of the browser, which is what the owner needs in order to sign in. A second CDP client can drive the same browser. Not tried here.
+- Chromium remote debugging (`--cdp-endpoint` exists on this MCP) plus a DevTools tab. Fewer packages, and nothing new to apt-install. Trade-off: it is not a normal mouse-driven picture of the browser, which is what the owner needs in order to sign in. A second CDP client can drive the same browser. Chrome's DevTools notes for Chrome 63 (`https://developer.chrome.com/blog/new-in-devtools-63`, section "Multi-client remote debugging support") say multiple remote debugging clients work by default: two WebSocket protocol clients can connect to the same tab at the same time, and a protocol client can run beside DevTools. Not tried here.
 - SSH X11 forwarding of the headed Chrome window. No VNC packages. Trade-off: the owner needs an X server on the PC, and they do not "open a web page" as the spec requires. Not tried here.
 - `websockify --run-once` (same man page: "handle a single WebSocket connection and exit") limits the viewer to one connection, then the proxy exits. Trade-off: the owner must reconnect by restarting the proxy; it does not stop a second MCP client.
 
@@ -476,9 +476,21 @@ That config URL returned `200`, 29554 bytes. The only `https://` host in it is `
 
 `challenges.cloudflare.com` is what curl was shown instead of Toast. Treat it as a CDN Cloudflare may use, not as the login app. `--allowed-origins` will not hold this list as a boundary (section 1).
 
+Namespace and identifier URIs found in page source (for example `www.w3.org` in `xmlns=`) are not hosts the page loads, so they stay off the allow-list.
+
+**T6b re-check (2026-10-10).** `curl -sL --max-redirs 8 --max-time 25` with a Chrome user agent, then `grep -oE 'https?://[a-zA-Z0-9.-]+' | sort -u`, on `https://fhs4021089.restaurant365.com/`, `https://www.toasttab.com/`, and the ADP sign-in URL above. Every host in that output:
+
+- `localhost` (`http://localhost` on R365) — the `REACT_LOCALHOST` dev setting above. Not a load. Off the allow-list.
+- `cdn.pendo.io`, `cdn.restaurant365.io`, `faro-collector-prod-us-east-3.grafana.net` — on the allow-list.
+- `challenges.cloudflare.com` (Toast) — the Cloudflare block page above. Off the allow-list.
+- `synerg.adp.com` — on the allow-list.
+- `www.w3.org` (`http://www.w3.org` on ADP) — the SVG namespace `xmlns="http://www.w3.org/2000/svg"`. Not a load. Off the allow-list.
+
 ## Summary: recommended stack, pinned versions, open `(?)` items
 
 **Stack to plan from.** One systemd system unit as a dedicated user (not root, not `fhsbuild`). Headed Chrome for Testing on Xvfb display `:99` with `-nolisten tcp`. `x11vnc -listen localhost` and a password file. `websockify --web=/usr/share/novnc` bound to `127.0.0.1` only, aimed at the VNC port. Playwright MCP `@playwright/mcp@0.0.83` on `127.0.0.1` with an explicit `--user-data-dir` under the unit's `ReadWritePaths`, `--sandbox` (the build's default is `--no-sandbox`), and `--shared-browser-context` so Claude and cursor-agent see one login. Register Claude with `claude mcp add --transport http --scope user` and cursor-agent with `url` in `~/.cursor/mcp.json`. Refuse a second driver at a localhost proxy or with a stdio flock; the MCP server will not do it. Owner reaches noVNC through an SSH tunnel. Nothing listens except on loopback.
+
+**Finding for the build plan.** The Cursor agent itself starts `@playwright/mcp` and `chrome-devtools-mcp` as child processes. Tester T11 in `/srv/fhs-build/reports/browser-research-01-test.md` saw `npm exec @playwright/mcp@latest` and `npm exec chrome-devtools-mcp@1.2.0`, parented by that session's `cursor-agent`.
 
 **Pins.**
 
