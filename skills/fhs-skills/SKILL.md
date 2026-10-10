@@ -20,7 +20,14 @@ way, one checked step at a time.
 New skills follow the same pattern: name starts with `fhs-`, read the shared config, never duplicate
 store facts, add a row here and a pointer in the owner's memory.
 
+## Master copy: git repo `/root/fhs-skills` on dev-lxc-1 (since 2026-10-09)
+Edit skills, config and page sources there and commit; the Windows copies are a mirror until the
+server move plan (https://claude.ai/artifact/GFkh25pzJTaHWD36dHnWNG) finishes. If you're in a Windows
+session and must change a skill, make the same change on the server and commit it. Secrets live only
+in the server's `.env`, filled in by the owner. Server clock is UTC: schedule in Eastern time.
+
 ## Shared home (Dropbox): `C:\Users\mayur\DropboxCS\Dropbox\CMVK Food Services\fhs-skills\`
+(Payroll still reads Dropbox from Windows; the server copy of config/tracker lives in the repo's `shared/`.)
 - `config.json` - stores (names, POS, R365 location, ADP company, Toast ids), staff rules, store hours,
   check thresholds, Dropbox root, pay period anchor. **One config for every fhs skill** - read it, edit
   it when the owner gives a new rule, never copy store facts into a skill.
