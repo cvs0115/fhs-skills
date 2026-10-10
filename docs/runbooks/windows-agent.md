@@ -55,7 +55,7 @@ No extra install: Claude Code is already there. Confirm Claude in Chrome for bro
 
 ## D3 — Test push
 
-From the clone, create branch `feat/win-hello`, add a small file under `docs/`, push. Confirm on the server. Ask Ops to delete the test branch server-side when done.
+From the clone, create branch `feat/win-hello`, add `docs/zz-win-hello.md`, push. Confirm on the server. Ask Ops to delete the test branch server-side when done.
 
 **Rollback:** Ops deletes the branch; your local branch can be deleted locally.
 

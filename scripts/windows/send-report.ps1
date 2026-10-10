@@ -28,13 +28,18 @@ if ($Name -notmatch '^[A-Za-z0-9._-]{1,120}$') {
 
 $remoteInbox = "/root/fhs-skills/inbox/$Name"
 
-ssh $SshHost "test ! -e $remoteInbox"
-if ($LASTEXITCODE -ne 0) {
-    Write-Error "Remote file already exists: $remoteInbox"
+$sshCheckOutput = (ssh $SshHost "test ! -e $remoteInbox" 2>&1 | ForEach-Object { $_.ToString() }) -join ''
+$sshCheckExit = $LASTEXITCODE
+if ($sshCheckExit -eq 1 -and [string]::IsNullOrWhiteSpace($sshCheckOutput)) {
+    Write-Host "Remote file already exists: $Name"
     exit 2
 }
+if ($sshCheckExit -ne 0) {
+    Write-Host "SSH check failed (exit ${sshCheckExit}): $sshCheckOutput"
+    exit 3
+}
 
-scp -O -LiteralPath $Path "${SshHost}:${remoteInbox}"
+scp -O $Path "${SshHost}:${remoteInbox}"
 if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 $localHash = (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash

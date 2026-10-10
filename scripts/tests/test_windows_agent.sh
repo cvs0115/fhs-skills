@@ -276,6 +276,29 @@ else
   fail S6 "bash -n syntax error"
 fi
 
+S7_FAIL=0
+for f in "$WIN/refresh-mirror.ps1" "$WIN/send-report.ps1"; do
+  while IFS= read -r line; do
+    if [[ "$line" == *"scp "* || "$line" == *"ssh "* ]]; then
+      if [[ "$line" == *"-LiteralPath"* ]]; then
+        S7_FAIL=1
+      fi
+    fi
+  done < "$f"
+done
+if [[ $S7_FAIL -eq 0 ]]; then
+  pass S7
+else
+  fail S7 "scp/ssh line passes -LiteralPath to native command"
+fi
+
+if grep -q 'exit 2' "$WIN/send-report.ps1" && grep -q 'exit 3' "$WIN/send-report.ps1" \
+  && grep 'scp -O' "$WIN/send-report.ps1" | grep -qv '\-LiteralPath'; then
+  pass S8
+else
+  fail S8 "send-report.ps1 missing exit 2/3 or scp -O still uses -LiteralPath"
+fi
+
 if [[ $FAILS -eq 0 ]]; then
   exit 0
 fi
