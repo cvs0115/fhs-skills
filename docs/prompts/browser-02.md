@@ -14,7 +14,8 @@ and two small doc edits. **You install nothing and run nothing as root.** After 
 
 Facts to build from (from `docs/research/browser-stack.md`, on `main`):
 - `@playwright/mcp@0.0.83`, with `playwright` and `playwright-core` at `1.64.0-alpha-1790635538000`. The bin is `cli.js`.
-- Chrome for Testing `155.0.8059.12`, Playwright revision `1247`. Pass `--browser chromium --sandbox` (this build adds `--no-sandbox` unless `--sandbox`).
+- Chrome for Testing `155.0.8059.12`, Playwright revision `1247`. Pass `--browser chromium --sandbox`. With `--browser chromium`, this build adds
+  `--no-sandbox` unless `--sandbox` is passed; with no `--browser`, the sandbox stays on (research section 2, `validateBrowserConfig`).
 - `--shared-browser-context` shares one browser and one context between HTTP clients. `--host 127.0.0.1 --port 8931` serves `/mcp`
   (streamable) and `/sse`. `--user-data-dir` is the persistent profile.
 - When `DISPLAY` is unset on Linux, the MCP runs headless. Set `DISPLAY=:99`.
@@ -44,8 +45,9 @@ Facts to build from (from `docs/research/browser-stack.md`, on `main`):
    `table inet fhs_browser { }` and `delete table inet fhs_browser`, so reloading it is idempotent.
 3. **`scripts/browser/package.json` + `package-lock.json`:** `"private": true`, the dependency `"@playwright/mcp": "0.0.83"` (exact). Generate the
    lock with `npm install --package-lock-only`. Check that the lock resolves `playwright-core` to `1.64.0-alpha-1790635538000`.
-4. **`scripts/browser/install.sh`** (bash, `set -euo pipefail`, root-only except `--dry-run`): the plan's 7 root steps, in order, each one
-   printed as `STEP n: <what>` before it runs. Idempotent: skip what's already done, and say so. Details:
+4. **`scripts/browser/install.sh`** (bash, `set -euo pipefail`, root-only except `--dry-run`): exactly the 7 steps, in the order the plan lists
+   under "Files the builder may edit" → `install.sh` (1 check password, 2 apt, 3 user, 4 /opt + npm + Chrome, 5 cookie + vnc-pass,
+   6 units + firewall + daemon-reload + enable/start, 7 MCP registration), each printed as `STEP n: <what>` before it runs. Idempotent: skip what's already done, and say so. Details:
    - Read `FHS_VNC_PASSWORD` from `${FHS_ENV:-/root/fhs-skills/.env}`. Exit 3 with a clear message if it's empty. Never echo it.
    - Write `vnc-pass` (0600) and the Xauthority cookie (`xauth -f ... add :99 . $(mcookie)`, 0600), both owned by `fhs-browser`.
    - `/opt/fhs-browser`: root-owned 0755. `npm ci --omit=dev` with the copied `package.json`/`package-lock.json`. Chrome:
@@ -84,7 +86,8 @@ Facts to build from (from `docs/research/browser-stack.md`, on `main`):
 ## Tests (run every one, record the real output)
 
 1. `bash scripts/tests/test_browser.sh; echo exit=$?` → all PASS, `exit=0`
-2. `bash scripts/browser/install.sh --dry-run` → `STEP 1` … `STEP 7` in order, nothing executed
+2. `bash scripts/browser/install.sh --dry-run` → `STEP 1` … `STEP 7` in the plan's order (check password, apt, user, /opt+npm+Chrome,
+   cookie+vnc-pass, units+firewall, MCP), nothing executed
 3. `bash scripts/tests/test_framework.sh; echo exit=$?` → still all PASS (nothing in it changed)
 4. `grep -rnE '0\.0\.0\.0|--no-sandbox|-localhost|novnc_proxy|@latest' scripts/browser/` → no output
 5. `git diff --name-only main...HEAD` → only allowed files; `git diff --check main...HEAD` and `git status --short` → no output

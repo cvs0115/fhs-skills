@@ -15,7 +15,7 @@ R365 or Toast was changed. Plan: `docs/plans/store-audit-122-01.md` · Researche
 | Env | Where | How |
 |---|---|---|
 | shell | `/srv/fhs-build/store-audit-122-01` on `feat/store-audit-122-01`, as `fhsbuild` | read files; run commands; edit nothing |
-| browser-server | the server Playwright MCP browser, with the owner already signed in | read-only; snapshot before each click |
+| browser-server | the server `fhs-browser` MCP (per the plan's pre-start gate), with the owner already signed in. Never Cursor's own built-in browser MCP | read-only; snapshot before each click |
 | owner | the owner answers, and you write down exactly what they say | — |
 
 Browser rules: never type credentials; navigation and report viewing only; never click Save, Submit, Approve, Post, Import, Map, Edit,
@@ -39,7 +39,7 @@ Delete, Create, New, Add, Sync, Run, Send, Email or Pay. If a login or MFA promp
 | T7 | shell | Read the researcher report's "Pages visited" and "Forbidden actions taken" | "Forbidden actions taken: none"; no visited page is an edit, new, import or mapping action URL | quotes |
 | T8 | shell | If the researcher agent's MCP or tool log is readable (e.g. under `/srv/fhs-build/.cursor/` for this workspace), grep it for click targets named Save, Submit, Approve, Post, Import, Map, Delete, Create, Sync | no such click. If no log is readable, mark BLOCKED (no log), not FAIL | output |
 
-## Owner cases (BLOCKED until the owner answers; they don't gate the merge, they feed the plans)
+## Post-merge verification (not a gate; owner cases. A "something changed" answer opens a fix plan)
 
 | ID | Env | Steps | Expected | Evidence |
 |---|---|---|---|---|

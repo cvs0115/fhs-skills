@@ -12,6 +12,19 @@ It replaces the draft `docs/plans/browser-01.md` (REJECT in `docs/reviews/browse
   Cursor Grok 4.6 Extra High reviews (framework-setup-03, **also a prerequisite**). Owner rules: agents never type usernames or passwords,
   never click anything that moves money or submits, one yes per Toast/R365/ADP change (`skills/fhs-skills/SKILL.md`).
 
+## Pre-build gate (owner decisions, recorded on the hub before this plan's review)
+
+The plan is written for the recommended answer to each item. Each answer is logged in the hub `log` (kind `decision`) **before** the
+plan review. If an answer differs from the recommendation, Claude revises the plan and it's reviewed again. The evidence stays on the
+hub, not in this file.
+
+| # | Decision | Recommended (what this plan assumes) |
+|---|---|---|
+| G1 | One yes for the root step list under "Live systems touched", and `FHS_VNC_PASSWORD` set in `.env` | yes. The yes covers the list; Ops still shows each command |
+| G2 | Lock between root's own agents | advisory lock for v1; a single-session proxy later (`browser-03`) |
+| G3 | The login user for the SSH tunnel | `root`. The nft rule allows uids `0` and `fhs-browser` only |
+| G4 | Who may drive the browser for research and test tasks (the store audit needs it; `fhsbuild` is blocked here by design) | a **root agent session** drives the browser read-only and saves screenshots, page text and exports; the `fhsbuild` researcher writes from those files (owner, 2026-10-10) |
+
 ## Verdict
 
 Build.
@@ -81,10 +94,18 @@ Server (dev-lxc-1) only. Your Windows desktop only opens `http://localhost:6080/
 - `scripts/browser/units/fhs-browser-{xvfb,x11vnc,novnc,mcp,firewall}.service` (new)
 - `scripts/browser/firewall.nft` (new)
 - `scripts/browser/package.json`, `scripts/browser/package-lock.json` (new; `npm install --package-lock-only` as fhsbuild, pins as above)
-- `scripts/browser/install.sh` (new): idempotent, root-only, `--dry-run` prints every step without doing it. Steps: apt-install the three
-  pinned packages; create the user; create `/opt/fhs-browser` (root-owned, 0755) and run `npm ci --omit=dev` there; install Chrome rev 1247 into
-  `/opt/fhs-browser/ms-playwright`; write the Xauthority cookie and vnc-pass; copy the units to `/etc/systemd/system/` and `firewall.nft` to
-  `/opt/fhs-browser/`; `systemctl daemon-reload`; enable and start the units in order; register MCP for root (merging). It prints `sha256sum` of every installed file.
+- `scripts/browser/install.sh` (new): idempotent, root-only, `--dry-run` prints every step without doing it (and works as non-root). It prints
+  `STEP n: <what>` before each step, in exactly this order:
+  1. check `FHS_VNC_PASSWORD` is set (exit 3 if empty; never echo it)
+  2. apt-install the three pinned packages
+  3. create the `fhs-browser` user
+  4. create `/opt/fhs-browser` (root-owned, 0755), `npm ci --omit=dev` there, install Chrome rev 1247 into `/opt/fhs-browser/ms-playwright`
+  5. write the Xauthority cookie and `vnc-pass` (0600, fhs-browser)
+  6. copy the units to `/etc/systemd/system/` and `firewall.nft` to `/opt/fhs-browser/`; `systemctl daemon-reload`; enable and start
+     the firewall unit first, then the four others
+  7. register MCP for root (merging)
+
+  It ends with `sha256sum` of every installed file. The plan's "Live systems touched" list is the same work, grouped for the owner's yes.
 - `scripts/browser/uninstall.sh` (new): stops and disables the units, removes them and the nft table, removes the MCP entries, and removes
   `/opt/fhs-browser`. Keeps `/var/lib/fhs-browser` unless `--reset-profile` is given (that's a profile reset; it signs out of every site).
   Keeps the apt packages unless `--purge-packages`.
@@ -121,14 +142,18 @@ Rollback: `scripts/browser/uninstall.sh` (and `--purge-packages` / `--reset-prof
 
 ## Done-check (real outcome)
 
-1. **Shell (Tester):** `bash scripts/tests/test_browser.sh` passes. `install.sh --dry-run` shows the 7 steps.
+1. **Shell (Tester):** `bash scripts/tests/test_browser.sh` passes. `install.sh --dry-run` shows `STEP 1`…`STEP 7` in the order above.
 2. **Listeners (Ops):** `ss -ltnp` shows 5900, 6080 and 8931 bound to `127.0.0.1` only, owned by `fhs-browser` processes.
 3. **Isolation (Ops):**
    - `sudo -u fhsbuild curl -s -m5 http://127.0.0.1:8931/mcp` is refused (connection refused or reset).
-   - `sudo -u fhsbuild env DISPLAY=:99 xdpyinfo` fails.
-   - `ps -o user= -C chrome` shows only `fhs-browser`.
+   - `sudo -u fhsbuild cat /var/lib/fhs-browser/Xauthority` → Permission denied (no X cookie, so no display access).
+   - `sudo -u fhsbuild test -S /tmp/.X11-unix/X99 && echo VISIBLE || echo HIDDEN` → `HIDDEN` (Xvfb's socket is in its private /tmp).
+     Whether Xvfb also opens an abstract-namespace socket that fhsbuild could reach is `(?)`. Without the cookie it can't connect either way.
+   - Our browser: `pgrep -a -f -- '--user-data-dir=/var/lib/fhs-browser/profile'` → every match is owned by `fhs-browser` (`ps -o user= -p <pid>`).
+     Other Chrome processes (Cursor's own per-session Playwright MCP, run by root or fhsbuild agents) are ambient and are ignored.
 4. **Hardening read-back (Ops):** `status.sh` prints the effective `ProtectSystem`, `ProtectHome`, `PrivateTmp`, `NoNewPrivileges`.
-   - The Chrome process command line contains no `--no-sandbox`, and its log has no "Chromium sandboxing failed".
+   - Our Chrome (the processes with `--user-data-dir=/var/lib/fhs-browser/profile`) has no `--no-sandbox` in its command line, and
+     `journalctl -u fhs-browser-mcp` has no "Chromium sandboxing failed".
    - If the LXC silently disables a hardening option, that's recorded as a finding (not a failure) in `docs/runbooks/browser.md`.
    - A sandbox failure **is** a failure. It stops the plan and goes back to Claude.
 5. **Owner sees it:** the owner runs `ssh -L 6080:127.0.0.1:6080 dev-lxc-1` on the PC, opens `http://localhost:6080/vnc.html`, enters the VNC
@@ -136,8 +161,9 @@ Rollback: `scripts/browser/uninstall.sh` (and `--purge-packages` / `--reset-prof
 6. **Claude drives it:** a Claude session (root) calls the `fhs-browser` MCP. It navigates to the Toast login URL (`memory/login-urls.md`) and
    takes a snapshot. The page title it reports matches what the owner sees in noVNC (a Cloudflare check page is an acceptable, recorded result).
 7. **Login and restart:** the owner signs in to R365 in noVNC. Then `systemctl restart fhs-browser-mcp`, and the agent opens the R365 home page.
-   It's either still signed in, or the runbook records (with the cookie expiry seen in the profile) that R365 uses session-only cookies and
-   needs a sign-in after each restart.
+   Either outcome passes, as long as the Tester records which one happened, with the evidence (still signed in, or the R365 sign-in page plus
+   the cookie expiry seen in the profile). If R365 needs a sign-in after each restart, Claude adds that note to `docs/runbooks/browser.md`
+   in a docs commit after the merge (post-merge case P3). The reviewed branch isn't changed for it.
 8. **Second client, documented reality:** a second root client connects and is **accepted**, and shares the page. The test records that, and
    CLAUDE.md states the advisory rule. A non-root client is refused (check 3).
 9. **Post-merge:** Ops re-runs `install.sh` from `main`. The installed files' sha256 match `main`'s, all units are active, and checks 2 and 6 still pass.
@@ -145,11 +171,13 @@ Rollback: `scripts/browser/uninstall.sh` (and `--purge-packages` / `--reset-prof
 ## Sequence (no builder-written code runs as root before a code review APPROVE)
 
 1. Prerequisites merged: `browser-research-01`, `framework-setup-03`.
-2. Plan review (Cursor Grok Extra High) APPROVE. Commit the plan, task file, test plan and review to `main`.
+2. Pre-build gate G1–G4 answered by the owner on 2026-10-10 (all as recommended: list approved, advisory lock, root tunnel user, root agent captures) and logged on the hub. Plan review (Cursor Grok Extra High) APPROVE. Commit the plan, task file, test plan and review to `main`.
+   (`ROLE=build`, `WRITER=composer` in `docs/prompts/ops-cycle.md`.)
 3. `scripts/build.sh prepare docs/plans/browser-02.md browser-02 --role build`; the Builder (Composer 2.5, `fhsbuild`) builds.
 4. A fresh Tester (Composer 2.5) runs the shell cases.
-5. Ops collects (`build.sh collect browser-02`).
-6. **Code review gate:** `review.sh --diff feat/browser-02` (writer composer → reviewer Cursor Grok Extra High) APPROVE.
+5. Ops collects (`build.sh collect browser-02 --role build`).
+6. **Code review gate:** `review.sh --diff feat/browser-02 --writer composer` (reviewer Cursor Grok Extra High) APPROVE. Before any
+   re-review, the earlier review file is renamed to the next `-rN` / `-diff-rN` and committed, so no verdict is overwritten.
 7. The owner gives one yes for the root step list above, and fills `FHS_VNC_PASSWORD`.
 8. Ops runs `install.sh` from a root worktree of the reviewed branch, then done-checks 2–4. The owner does 5 and 7; Claude does 6 and 8.
 9. The Tester records every case to final. **Final review** APPROVE. Merge. Done-check 9.
@@ -168,9 +196,7 @@ Rollback: `scripts/browser/uninstall.sh` (and `--purge-packages` / `--reset-prof
 
 ## Owner decisions this plan needs
 
-- **One yes** for the root step list (installs, a new system user, units, a firewall table, MCP registration), and set `FHS_VNC_PASSWORD` in `.env`.
-- **Lock:** accept an advisory lock between root's own agents for v1 (recommended), or ask for a single-session localhost proxy now (`browser-03`).
-- **SSH user for the tunnel:** the nft rule allows uid 0 and `fhs-browser`. If you SSH in as a user other than root, that uid gets added.
+See "Pre-build gate" (G1–G4) above.
 
 ## Open `(?)` (carried from the research; each one is settled by a done-check, not assumed)
 
@@ -178,8 +204,17 @@ Rollback: `scripts/browser/uninstall.sh` (and `--purge-packages` / `--reset-prof
 - Whether `ProtectSystem`/`ProtectHome`/`PrivateTmp`/`JoinsNamespaceOf` take effect in this container (done-check 4, `systemctl show`).
 - Whether R365, Toast and ADP keep logins across a browser restart (done-check 7).
 - Toast's login page behind Cloudflare in a real browser (done-check 6).
-- Research fix round 3 (the scoped sandbox wording) wasn't merged when this plan was written. This plan passes `--browser chromium --sandbox`
-  explicitly, so it doesn't depend on that wording.
+- The research's scoped sandbox wording (fix round 3): `--browser chromium` adds `--no-sandbox` unless `--sandbox` is passed; with no
+  `--browser`, the sandbox stays on. This plan passes `--browser chromium --sandbox` explicitly (research section 2, `validateBrowserConfig`).
+- **G4, browser access for research and test agents.** By design here, only root and `fhs-browser` can reach the browser, so a `fhsbuild`
+  researcher or tester can't drive it. Options, for a decision before `store-audit-122-01` runs:
+  - (a) A root agent session drives the browser read-only (Cursor Grok researcher or Composer tester as root, without `--force`), and the
+    `fhsbuild` agent only writes the note from saved screenshots and page text.
+  - (b) A separate unprivileged user (e.g. `fhs-audit`) added to the nft allow-list, with MCP registered for it. Its agents can then drive the
+    signed-in browser, but so can any code run as that user.
+  - (c) Allow `fhsbuild`. Not recommended: every builder would get the owner's signed-in sessions.
+
+  This plan doesn't pick one. If (b) is chosen, it changes the nft allow-list and the MCP registration here, and the plan is revised before review.
 
 ## What stays
 

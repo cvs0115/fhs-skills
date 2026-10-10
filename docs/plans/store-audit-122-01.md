@@ -9,6 +9,17 @@ The reviewer checks this plan, its task file `docs/prompts/store-audit-122-01.md
   tester and ops `composer-2.5`).
 - **Depends on:** `browser-02` merged (the server browser with Playwright MCP and noVNC), and the owner signed in to R365 and Toast in it.
 
+## Pre-start gate: browser access for the researcher and tester (unresolved)
+
+`browser-02` lets only root and `fhs-browser` reach the browser. `fhsbuild` is blocked on purpose, so a `fhsbuild` researcher or tester
+can't drive it as written. Before this plan is reviewed, the owner picks one of browser-02's G4 (answered 2026-10-10: a root agent session captures, the fhsbuild researcher writes) options, and it's logged on the hub:
+- (a) **Recommended:** a root agent session drives the browser read-only and saves screenshots, page text and exports. The `fhsbuild` researcher
+  writes the note from those files.
+- (b) A separate browsing user is added to browser-02's allow-list.
+- (c) Allow `fhsbuild` (not recommended).
+
+This plan, its task file and its test plan are then revised to match, and reviewed.
+
 ## Verdict
 
 Build (a research note plus one `tech-stack.md` section, no code).
@@ -28,8 +39,11 @@ Server (dev-lxc-1), through the server browser (Playwright MCP). No Windows desk
 - `docs/research/store-audit-122.md` (new)
 - `skills/fhs-skills/references/tech-stack.md`: one new section `## Store 122 audit (<date>)`, added lines only, confirmed facts
   only, each one line with a pointer to the audit note's section.
-- Outside the repo, only: `/srv/fhs-build/reports/store-audit-122-01.md` (report), `/srv/fhs-build/reports/store-audit-122-shots/*.png`
-  (screenshots), `/srv/fhs-build/reports/store-audit-122-01-test.md` (tester's results).
+- Outside the repo, only:
+  - `/srv/fhs-build/reports/store-audit-122-01.md` (report)
+  - `/srv/fhs-build/reports/store-audit-122-shots/*.png` (screenshots; the tester's are `test-<case>.png`)
+  - `/srv/fhs-build/reports/store-audit-122-exports/*` (read-only report exports, owner OK 2026-10-10)
+  - `/srv/fhs-build/reports/store-audit-122-01-test.md` (tester's results)
 
 ## Files the researcher must not edit
 
@@ -57,7 +71,20 @@ Server (dev-lxc-1), through the server browser (Playwright MCP). No Windows desk
 2. Every "in place" and "partial" row names a screenshot that exists under `/srv/fhs-build/reports/store-audit-122-shots/`.
 3. A fresh Composer tester re-checks 5 claims in the server browser, read-only, and gets the same result.
 4. The `tech-stack.md` diff is added lines only, in one new section.
-5. No write action: the researcher's report lists every page visited, none is a forbidden action, and the owner confirms nothing changed.
+5. No write action: the researcher's report lists every page visited, and none is a forbidden action (pre-merge, tester T7/T8).
+   The owner's confirmation that nothing changed is post-merge verification (O1). It doesn't gate the merge, and a "something changed"
+   answer opens a fix plan.
+
+## Sequence and flags
+
+`ROLE=research`, `WRITER=grok` (`docs/prompts/ops-cycle.md`):
+1. `build.sh prepare docs/plans/store-audit-122-01.md store-audit-122-01 --role research`
+2. The Researcher (Cursor Grok 4.6 High) researches
+3. A fresh Composer tester tests
+4. `build.sh collect store-audit-122-01 --role research`
+5. `review.sh --diff feat/store-audit-122-01 --writer grok`. The reviewer is `composer-2.5`, never Grok. It must be APPROVE.
+
+Before any re-review, the earlier review file is renamed to the next `-rN` / `-diff-rN` and committed. No research code runs as root.
 
 ## Test plan
 

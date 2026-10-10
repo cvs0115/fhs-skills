@@ -13,6 +13,7 @@
 
 - **The owner** signs in to R365 and Toast once in the server browser (noVNC), and answers what the screens can't show.
 - **The Researcher** (`cursor-grok-4.6-high`) reads screens through the server Playwright MCP, read-only, and writes the audit note.
+  How a research agent reaches the browser (browser-02 blocks `fhsbuild`) is a pre-start gate in the plan (browser-02 G4 (answered 2026-10-10: a root agent session captures, the fhsbuild researcher writes)).
 - **The Tester** (`composer-2.5`, a fresh session) re-checks a sample. **The Reviewer** of the research is `composer-2.5`.
 
 ## Done when

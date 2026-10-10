@@ -14,7 +14,8 @@ tell, with evidence and who owns it. The planner uses your note to decide what t
 ## Where you work
 
 - Workspace `/srv/fhs-build/store-audit-122-01`. First: `git checkout -b feat/store-audit-122-01`.
-- Browser: the server Playwright MCP (already registered for your agent). The owner has signed in to R365 and Toast in it.
+- Browser: the server Playwright MCP, as set up by the pre-start gate in the plan (browser-02 G4). The owner has signed in to R365 and Toast in it.
+  If you have no `fhs-browser` MCP tools, stop and report it. Don't use Cursor's own built-in browser MCP, because it has no logins.
 - Screenshots go to `/srv/fhs-build/reports/store-audit-122-shots/` (create it), named `<ID>-<system>-<short-page>.png`,
   e.g. `F4-r365-menu-item-mapping.png`, `F8-toast-deposits.png`.
 
@@ -77,7 +78,8 @@ pointer to the note's section. Change nothing else in that file.
 ## You may edit only
 
 - `docs/research/store-audit-122.md` (new), and `skills/fhs-skills/references/tech-stack.md` (the one new section)
-- Outside the repo: `/srv/fhs-build/reports/store-audit-122-01.md` and `/srv/fhs-build/reports/store-audit-122-shots/*.png`
+- Outside the repo: `/srv/fhs-build/reports/store-audit-122-01.md`, `/srv/fhs-build/reports/store-audit-122-shots/*.png`, and
+  `/srv/fhs-build/reports/store-audit-122-exports/*` (read-only report exports)
 
 ## You must not
 
