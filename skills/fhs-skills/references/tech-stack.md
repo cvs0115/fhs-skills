@@ -45,3 +45,14 @@ Weekly count (R365 mobile) --> actual usage --> AvT + COGS --> food-cost check -
 - Does Firehouse corporate push a master item list / recipes into R365? (?)
 - 878 store hours: assumed same as 122 (10 AM-9 PM).
 - 878 move to Toast + R365: date unknown.
+
+## Windows agent (research 2026-10-10)
+- Cursor's Windows install command is `irm 'https://cursor.com/install?win32=true' | iex`, and the documented command is `agent`. See `docs/research/windows-agent.md` section 1.
+- The Cursor CLI reference lists `-p`, `--mode`, `--sandbox`, and `--workspace`, with no Windows exception. See `docs/research/windows-agent.md` section 1.
+- Windows OpenSSH reads `%userprofile%\.ssh\config`. Git for Windows should use that client ("Use external OpenSSH", or `core.sshCommand` set to `C:/Windows/System32/OpenSSH/ssh.exe`). See `docs/research/windows-agent.md` section 2.
+- The clone command is `git clone dev-lxc-1:/root/fhs-skills` (git's scp-like URL; path from `CLAUDE.md`). Not run from the PC. See `docs/research/windows-agent.md` section 2.
+- Unset `receive.denyCurrentBranch` refuses an update of the checked-out branch on a non-bare repo (default `refuse`). Proven on a throwaway repo. See `docs/research/windows-agent.md` section 3.
+- The `pre-receive` hook in the research note accepts a fast-forward of `refs/heads/feat/win-[a-z0-9-]+` and refuses `main`, `feat/other`, a force-push, a delete, and `feat/win-Upper_Case`. See `docs/research/windows-agent.md` section 3.
+- Git for Windows' installer defaults `core.autocrlf` to `true` (checkout CRLF). See `docs/research/windows-agent.md` section 4.
+- `inbox/` is gitignored (`.gitignore` line 2). A report copy is `scp` to `dev-lxc-1:/root/fhs-skills/inbox/` plus a SHA-256 compare of `Get-FileHash` and `sha256sum`. See `docs/research/windows-agent.md` section 5.
+- This server has `/usr/bin/sha256sum` (GNU coreutils 9.4). See `docs/research/windows-agent.md` section 5.
