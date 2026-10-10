@@ -1,0 +1,21 @@
+#!/bin/sh
+# pre-receive: allow only fast-forward updates of refs/heads/feat/win-[a-z0-9-]+
+zero=0000000000000000000000000000000000000000
+while read -r oldrev newrev refname; do
+  printf '%s\n' "$refname" | LC_ALL=C grep -Eq '^refs/heads/feat/win-[a-z0-9-]+$'
+  if [ "$?" -ne 0 ]; then
+    echo "refused: $refname does not match refs/heads/feat/win-[a-z0-9-]+" >&2
+    exit 1
+  fi
+  if [ "$newrev" = "$zero" ]; then
+    echo "refused: delete of $refname is not allowed" >&2
+    exit 1
+  fi
+  if [ "$oldrev" != "$zero" ]; then
+    if ! git merge-base --is-ancestor "$oldrev" "$newrev"; then
+      echo "refused: non-fast-forward update of $refname" >&2
+      exit 1
+    fi
+  fi
+done
+exit 0
