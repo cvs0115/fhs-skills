@@ -1,0 +1,4 @@
+- [Payroll rules](payroll-rules.md) — Toast→ADP RUN biweekly process, Miguel 100-hr rule, shared Cashier login tip redistribution
+- [Payroll skill](payroll-skill.md) — fhs-payroll-adp skill: shared Dropbox config, week folders, 878 on NCR
+- [fhs-skills library](tech-stack-agent.md) — fhs-* skill library; fhs-skills front door; shared home Dropbox\CMVK Food Services\fhs-skills
+- [Login URLs](login-urls.md) — Toast and R365 login/start URLs (no credentials); more R365 sites may be added

@@ -1,0 +1,65 @@
+{
+  "_comment": "Payroll rules. 'defaults' apply to every store; each entry under 'stores' overrides them. Names are matched loosely (case, comma order and '(id)' are ignored). Edit as staff changes.",
+
+  "archive_root": "C:\\Users\\mayur\\DropboxCS\\Dropbox\\CMVK Food Services\\Locations",
+  "pay_period_anchor": "2026-09-21",
+
+  "defaults": {
+    "tip_receiver_jobs": ["Shift Leader", "Team Member", "ASM - Hourly", "Bev Attend"],
+    "non_employee_accounts": [],
+    "shared_logins": [],
+    "exclude_from_payroll": [],
+    "fixed_100_hour_employees": [],
+    "biweekly_salary": {},
+    "checks": {
+      "store_open": "10:00 AM",
+      "store_close": "9:00 PM",
+      "open_buffer_minutes": 60,
+      "close_buffer_minutes": 60,
+      "auto_clockout_times": ["2:00 AM"],
+      "max_shift_hours": 12,
+      "min_shift_hours": 0.75,
+      "unusual_vs_typical_ratio": 2.0,
+      "alone_after_minutes": 15,
+      "pattern_min_count": 3,
+      "crosscheck_tolerance_hours": 0.1,
+      "tip_validation_tolerance": 1.00
+    }
+  },
+
+  "stores": {
+    "122": {
+      "name": "Cary 1",
+      "pos": "toast_r365",
+      "toast_location": "00122 - Cary 1",
+      "toast_restaurant_group_id": "900000028346197274",
+      "r365_location": "CARY 1",
+      "r365_tip_rule": "Cary1  Tip Rule",
+      "adp_company": "Firehouse Subs 122",
+      "shared_logins": ["Cashier1 Cashier1", "Cashier2 Cashier2"],
+      "non_employee_accounts": ["KIOSK - 550, KIOSK"],
+      "exclude_from_payroll": ["Cary NC", "SURATI, MAYURIBEN"],
+      "fixed_100_hour_employees": ["Miguel Cabanzo Huerta"],
+      "_salary_comment": "Biweekly salary from ADP ($1,375 as of 10/4/2026), used for the over-100-hr bonus. Update if ADP changes.",
+      "biweekly_salary": {"Miguel Cabanzo Huerta": 1375.00},
+      "adp_notes": [
+        "Miguel Cabanzo: 80 hrs on the salary line + Bonus. Only flag him if under 100 hrs.",
+        "Kevin Teruel-Olvera: one line, do not split ASM / Shift Leader.",
+        "SURATI, MAYURI: salary, nothing entered.",
+        "Iris Brower (seasonal), Khushi + Vivek Surati (part-time): $0 unless they have hours."
+      ]
+    },
+    "878": {
+      "name": "Camden Square",
+      "pos": "ncr",
+      "_pos_comment": "Still on NCR (Aloha). Moving to Toast + R365 later - then switch pos to toast_r365 and fill in the Toast/R365 fields.",
+      "r365_location": "CAMDEN SQUARE",
+      "adp_company": "Firehouse Subs 878",
+      "_hours_comment": "Same store hours as 122 (10 AM - 9 PM, 1-hr buffers) per owner 10/7/2026.",
+      "adp_notes": [
+        "SURATI, MAYURI: salary in ADP, nothing entered. No other salaried or special-rule staff at 878.",
+        "Owner wants discrepancies flagged, not auto-decided (e.g. punches with no hours, heavy OT)."
+      ]
+    }
+  }
+}

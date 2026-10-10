@@ -1,0 +1,199 @@
+<title>FHS Skills Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a station board. Header strip, then projects as the main board, with library + questions + log beside it on wide screens. */
+:root {
+  --bg: #f6f5f3; --surface: #ffffff; --fg: #1f1d1b; --muted: #6b6560; --line: #e2ded9;
+  --accent: #b3261e; --accent-soft: #f7e3e1;
+  --ok: #2f7a4a; --ok-soft: #e2f1e7; --warn: #9a6400; --warn-soft: #fbefd6;
+  --idle: #6b6560; --idle-soft: #eeebe7; --info: #2c5d8a; --info-soft: #e1ecf6;
+  --display: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --body: "IBM Plex Sans", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #161514; --surface: #201e1c; --fg: #ece8e3; --muted: #a39c95; --line: #34302d;
+  --accent: #ef6a5f; --accent-soft: #3a1f1c;
+  --ok: #6cc28d; --ok-soft: #1c3226; --warn: #e6b04f; --warn-soft: #3a2e17;
+  --idle: #a39c95; --idle-soft: #2b2826; --info: #7fb2e0; --info-soft: #1b2b3a; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #161514; --surface: #201e1c; --fg: #ece8e3; --muted: #a39c95; --line: #34302d;
+  --accent: #ef6a5f; --accent-soft: #3a1f1c;
+  --ok: #6cc28d; --ok-soft: #1c3226; --warn: #e6b04f; --warn-soft: #3a2e17;
+  --idle: #a39c95; --idle-soft: #2b2826; --info: #7fb2e0; --info-soft: #1b2b3a; color-scheme: dark }
+
+body { background: var(--bg); color: var(--fg); font: 15px/1.5 var(--body); }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 28px 20px 48px; display: grid; gap: 28px; }
+header { display: grid; gap: 6px; border-bottom: 3px solid var(--accent); padding-bottom: 14px; }
+.eyebrow { font: 500 12px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+h1 { font: 700 40px/1 var(--display); letter-spacing: .01em; margin: 0; text-wrap: balance; }
+h2 { font: 700 22px/1.1 var(--display); letter-spacing: .02em; text-transform: uppercase; margin: 0 0 12px; }
+.sub { color: var(--muted); max-width: 70ch; margin: 0; }
+.sync { font: 12px var(--mono); color: var(--muted); }
+.grid { display: grid; grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr); gap: 28px; align-items: start; }
+@media (max-width: 860px) { .grid { grid-template-columns: minmax(0, 1fr); } }
+.col { display: grid; gap: 28px; min-width: 0; }
+
+.summary { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 14px; }
+.board { display: grid; gap: 10px; }
+.proj { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 14px 16px; display: grid; gap: 8px; border-left: 4px solid var(--idle); }
+.proj[data-s="in progress"] { border-left-color: var(--info); }
+.proj[data-s="waiting on owner"] { border-left-color: var(--warn); }
+.proj[data-s="done"] { border-left-color: var(--ok); }
+.proj[data-s="blocked"] { border-left-color: var(--accent); }
+.proj-top { display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; justify-content: space-between; }
+.proj-title { font-weight: 600; font-size: 16px; }
+.store { font: 12px var(--mono); color: var(--muted); }
+.kv { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 2px 12px; font-size: 14px; }
+.kv dt { color: var(--muted); }
+.kv dd { margin: 0; }
+.proj-foot { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; font: 12px var(--mono); color: var(--muted); }
+a { color: var(--accent); }
+a:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.chip { display: inline-flex; align-items: center; gap: 6px; font: 500 12px/1 var(--mono); padding: 5px 8px; border-radius: 999px; background: var(--idle-soft); color: var(--idle); white-space: nowrap; }
+.chip::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.chip[data-s="in progress"] { background: var(--info-soft); color: var(--info); }
+.chip[data-s="waiting on owner"] { background: var(--warn-soft); color: var(--warn); }
+.chip[data-s="done"], .chip[data-s="live"] { background: var(--ok-soft); color: var(--ok); }
+.chip[data-s="blocked"] { background: var(--accent-soft); color: var(--accent); }
+
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 16px; }
+.lib { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+.lib li { display: grid; gap: 2px; }
+.lib .name { font: 500 14px var(--mono); display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.lib .role { color: var(--muted); font-size: 14px; }
+.lib .wave { font: 500 11px var(--mono); letter-spacing: .06em; text-transform: uppercase; color: var(--accent); }
+.qs { margin: 0; padding-left: 20px; display: grid; gap: 10px; }
+.qs .proj-tag { font: 12px var(--mono); color: var(--muted); display: block; }
+.qs .ans { color: var(--ok); font-size: 14px; }
+.log { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.log li { display: grid; grid-template-columns: 74px minmax(0, 1fr); gap: 10px; font-size: 14px; }
+.log time { font: 12px/1.6 var(--mono); color: var(--muted); }
+.log .k { font: 500 11px var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--accent); margin-right: 6px; }
+.empty { color: var(--muted); font-size: 14px; margin: 0; }
+.notice { font-size: 14px; color: var(--warn); background: var(--warn-soft); padding: 10px 12px; border-radius: 6px; }
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">CMVK Food Services · Firehouse Subs 122 Cary 1 · 878 Camden Square</span>
+    <h1>FHS Skills Hub</h1>
+    <p class="sub">Every fhs skill and setup project in one place. Claude sessions update this board as they finish steps, so it always shows what's done, what's next, and what's waiting on you.</p>
+    <span class="sync" id="sync">Connecting…</span>
+  </header>
+
+  <div id="notice" class="notice" hidden></div>
+
+  <div class="grid">
+    <section class="col" aria-labelledby="h-proj">
+      <div>
+        <h2 id="h-proj">Projects</h2>
+        <div class="summary" id="summary"></div>
+        <div class="board" id="projects"><p class="empty">Projects appear here when a Claude session records one. Nothing yet.</p></div>
+      </div>
+    </section>
+
+    <aside class="col">
+      <section class="panel" aria-labelledby="h-q">
+        <h2 id="h-q">Waiting on you</h2>
+        <ol class="qs" id="questions"><li class="empty">No open questions.</li></ol>
+      </section>
+      <section class="panel" aria-labelledby="h-lib">
+        <h2 id="h-lib">Skill library</h2>
+        <ul class="lib" id="skills"><li class="empty">Skills appear here once recorded.</li></ul>
+      </section>
+      <section class="panel" aria-labelledby="h-log">
+        <h2 id="h-log">Decisions &amp; activity</h2>
+        <ul class="log" id="log"><li class="empty">No activity yet.</li></ul>
+      </section>
+    </aside>
+  </div>
+</div>
+
+<script>
+(function () {
+  const STATUS_ORDER = ["blocked", "waiting on owner", "in progress", "not started", "done"];
+  const state = { projects: [], skills: [], questions: [], log: [] };
+  const $ = (id) => document.getElementById(id);
+  const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
+  const chip = (s) => { const c = el("span", "chip", s || "not started"); c.dataset.s = s || "not started"; return c; };
+  const fmtDate = (iso) => { if (!iso) return ""; const d = new Date(iso); return isNaN(d) ? iso : d.toLocaleDateString(undefined, { month: "short", day: "numeric" }); };
+
+  function renderProjects() {
+    const box = $("projects"); box.replaceChildren();
+    const list = [...state.projects].sort((a, b) =>
+      STATUS_ORDER.indexOf(a.status) - STATUS_ORDER.indexOf(b.status) || (a.order ?? 99) - (b.order ?? 99));
+    const sum = $("summary"); sum.replaceChildren();
+    const counts = {};
+    list.forEach((p) => { counts[p.status] = (counts[p.status] || 0) + 1; });
+    STATUS_ORDER.forEach((s) => { if (counts[s]) { const c = chip(`${counts[s]} ${s}`); c.dataset.s = s; sum.append(c); } });
+    if (!list.length) { box.append(el("p", "empty", "Projects appear here when a Claude session records one. Nothing yet.")); return; }
+    list.forEach((p) => {
+      const card = el("article", "proj"); card.dataset.s = p.status || "not started";
+      const top = el("div", "proj-top");
+      const t = el("div"); t.append(el("div", "proj-title", p.title), el("div", "store", p.store ? `Store ${p.store}` : ""));
+      top.append(t, chip(p.status));
+      const kv = el("dl", "kv");
+      [["Now", p.step], ["Next", p.next], ["Waiting on", p.waitingOn]].forEach(([k, v]) => {
+        if (v && v !== "-") { kv.append(el("dt", null, k), el("dd", null, v)); }
+      });
+      const foot = el("div", "proj-foot");
+      const left = el("span", null, p.updatedAt ? `Updated ${fmtDate(p.updatedAt)}${p.updatedBy ? " · " + p.updatedBy : ""}` : "");
+      foot.append(left);
+      if (p.planUrl) { const a = el("a", null, "Open build plan →"); a.href = p.planUrl; a.target = "_blank"; a.rel = "noopener"; foot.append(a); }
+      card.append(top);
+      if (kv.childElementCount) card.append(kv);
+      card.append(foot);
+      box.append(card);
+    });
+  }
+
+  function renderSkills() {
+    const box = $("skills"); box.replaceChildren();
+    if (!state.skills.length) { box.append(el("li", "empty", "Skills appear here once recorded.")); return; }
+    [...state.skills].sort((a, b) => (a.order ?? 99) - (b.order ?? 99)).forEach((s) => {
+      const li = el("li"); const n = el("div", "name", s.name); n.append(chip(s.status));
+      if (s.wave) n.append(el("span", "wave", s.wave));
+      li.append(n, el("div", "role", s.role || "")); box.append(li);
+    });
+  }
+
+  function renderQuestions() {
+    const box = $("questions"); box.replaceChildren();
+    const open = state.questions.filter((q) => q.status !== "answered").sort((a, b) => (a.order ?? 99) - (b.order ?? 99));
+    const done = state.questions.filter((q) => q.status === "answered").slice(-3);
+    if (!open.length && !done.length) { box.append(el("li", "empty", "No open questions.")); return; }
+    open.forEach((q) => { const li = el("li"); li.append(el("span", "proj-tag", q.project || ""), document.createTextNode(q.text)); box.append(li); });
+    done.forEach((q) => { const li = el("li"); li.append(el("span", "proj-tag", (q.project || "") + " · answered"), document.createTextNode(q.text)); li.append(el("div", "ans", q.answer || "")); box.append(li); });
+  }
+
+  function renderLog() {
+    const box = $("log"); box.replaceChildren();
+    const entries = state.log.slice().sort((a, b) => String(b.at).localeCompare(String(a.at))).slice(0, 25);
+    if (!entries.length) { box.append(el("li", "empty", "No activity yet.")); return; }
+    entries.forEach((e) => {
+      const li = el("li"); const t = el("time", null, fmtDate(e.at)); t.dateTime = e.at || "";
+      const body = el("div"); if (e.kind) body.append(el("span", "k", e.kind));
+      body.append(document.createTextNode(e.text + (e.project ? ` (${e.project})` : "")));
+      li.append(t, body); box.append(li);
+    });
+  }
+
+  function setSync(text) { $("sync").textContent = text; }
+
+  async function start() {
+    const db = await claude.use("db");
+    if (!db) { setSync("Live data isn't available in this view. Open the hub on claude.ai while signed in."); return; }
+    const onErr = (e) => { const n = $("notice"); n.hidden = false; n.textContent = "Live updates stopped. Reload the page to reconnect."; console.warn(e); };
+    const stamp = () => setSync("Live · last change " + new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" }));
+    const docs = (snap) => snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+    db.collection("projects").onSnapshot((s) => { state.projects = docs(s); renderProjects(); stamp(); }, onErr);
+    db.collection("skills").onSnapshot((s) => { state.skills = docs(s); renderSkills(); stamp(); }, onErr);
+    db.collection("questions").onSnapshot((s) => { state.questions = docs(s); renderQuestions(); stamp(); }, onErr);
+    db.collection("log").onSnapshot((s) => { state.log = s.docs.flatMap((d) => (d.data().entries || [])); renderLog(); stamp(); }, onErr);
+  }
+  start();
+})();
+</script>

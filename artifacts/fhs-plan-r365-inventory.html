@@ -1,0 +1,166 @@
+<title>R365 Inventory Build Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a phase ladder. Header with goal and progress rail, then phases top to bottom, notes at the end. */
+:root {
+  --bg: #f6f5f3; --surface: #ffffff; --fg: #1f1d1b; --muted: #6b6560; --line: #e2ded9;
+  --accent: #b3261e; --accent-soft: #f7e3e1;
+  --ok: #2f7a4a; --ok-soft: #e2f1e7; --warn: #9a6400; --warn-soft: #fbefd6;
+  --idle: #6b6560; --idle-soft: #eeebe7; --info: #2c5d8a; --info-soft: #e1ecf6;
+  --display: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --body: "IBM Plex Sans", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #161514; --surface: #201e1c; --fg: #ece8e3; --muted: #a39c95; --line: #34302d;
+  --accent: #ef6a5f; --accent-soft: #3a1f1c;
+  --ok: #6cc28d; --ok-soft: #1c3226; --warn: #e6b04f; --warn-soft: #3a2e17;
+  --idle: #a39c95; --idle-soft: #2b2826; --info: #7fb2e0; --info-soft: #1b2b3a; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #161514; --surface: #201e1c; --fg: #ece8e3; --muted: #a39c95; --line: #34302d;
+  --accent: #ef6a5f; --accent-soft: #3a1f1c;
+  --ok: #6cc28d; --ok-soft: #1c3226; --warn: #e6b04f; --warn-soft: #3a2e17;
+  --idle: #a39c95; --idle-soft: #2b2826; --info: #7fb2e0; --info-soft: #1b2b3a; color-scheme: dark }
+
+body { background: var(--bg); color: var(--fg); font: 15px/1.55 var(--body); }
+.wrap { max-width: 860px; margin: 0 auto; padding: 28px 20px 48px; display: grid; gap: 24px; }
+header { display: grid; gap: 8px; border-bottom: 3px solid var(--accent); padding-bottom: 16px; }
+.eyebrow { font: 500 12px/1 var(--mono); letter-spacing: .08em; text-transform: uppercase; color: var(--muted); display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; }
+h1 { font: 700 38px/1.05 var(--display); margin: 0; text-wrap: balance; }
+h2 { font: 700 22px/1.1 var(--display); letter-spacing: .02em; text-transform: uppercase; margin: 0; }
+.goal { margin: 0; max-width: 68ch; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; font: 12px var(--mono); color: var(--muted); }
+a { color: var(--accent); }
+a:focus-visible, summary:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.rail { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 4px; }
+.rail span { height: 8px; border-radius: 2px; background: var(--idle-soft); }
+.rail span[data-s="in progress"] { background: var(--info); }
+.rail span[data-s="waiting on owner"] { background: var(--warn); }
+.rail span[data-s="done"] { background: var(--ok); }
+.rail span[data-s="blocked"] { background: var(--accent); }
+
+.chip { display: inline-flex; align-items: center; gap: 6px; font: 500 12px/1 var(--mono); padding: 5px 8px; border-radius: 999px; background: var(--idle-soft); color: var(--idle); white-space: nowrap; }
+.chip::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.chip[data-s="in progress"] { background: var(--info-soft); color: var(--info); }
+.chip[data-s="waiting on owner"] { background: var(--warn-soft); color: var(--warn); }
+.chip[data-s="done"] { background: var(--ok-soft); color: var(--ok); }
+.chip[data-s="blocked"] { background: var(--accent-soft); color: var(--accent); }
+
+.phases { display: grid; gap: 10px; }
+.phase { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; border-left: 4px solid var(--idle-soft); }
+.phase[data-s="in progress"] { border-left-color: var(--info); }
+.phase[data-s="waiting on owner"] { border-left-color: var(--warn); }
+.phase[data-s="done"] { border-left-color: var(--ok); }
+.phase[data-s="blocked"] { border-left-color: var(--accent); }
+.phase summary { list-style: none; cursor: pointer; padding: 14px 16px; display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 12px; align-items: center; }
+.phase summary::-webkit-details-marker { display: none; }
+.pnum { font: 700 22px/1 var(--display); color: var(--muted); }
+.ptitle { font-weight: 600; }
+.pgoal { color: var(--muted); font-size: 14px; }
+.pbody { padding: 0 16px 16px 62px; display: grid; gap: 12px; }
+@media (max-width: 520px) { .pbody { padding-left: 16px; } .phase summary { grid-template-columns: 26px minmax(0, 1fr); } .phase summary .chip { grid-column: 2; justify-self: start; } }
+.steps { margin: 0; padding: 0; list-style: none; display: grid; gap: 6px; }
+.steps li { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 8px; font-size: 14px; }
+.box { width: 14px; height: 14px; margin-top: 3px; border: 1.5px solid var(--muted); border-radius: 3px; display: grid; place-items: center; font-size: 11px; line-height: 1; color: var(--surface); }
+.steps li[data-done="true"] .box { background: var(--ok); border-color: var(--ok); }
+.steps li[data-done="true"] .txt { color: var(--muted); }
+.label { font: 500 11px var(--mono); letter-spacing: .07em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 2px; }
+.check, .result { font-size: 14px; }
+.result { background: var(--ok-soft); padding: 8px 10px; border-radius: 4px; }
+.notes { margin: 0; padding: 0; list-style: none; display: grid; gap: 10px; }
+.notes li { display: grid; grid-template-columns: 74px minmax(0, 1fr); gap: 10px; font-size: 14px; }
+.notes time { font: 12px/1.6 var(--mono); color: var(--muted); }
+.notes .k { font: 500 11px var(--mono); text-transform: uppercase; letter-spacing: .06em; color: var(--accent); margin-right: 6px; }
+.empty { color: var(--muted); font-size: 14px; margin: 0; }
+.notice { font-size: 14px; color: var(--warn); background: var(--warn-soft); padding: 10px 12px; border-radius: 6px; }
+</style>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow"><span id="store">Firehouse Subs · Store 122 Cary 1</span><a id="hub" href="https://claude.ai/artifact/3sTTMm7cFeFZxPT3Kcgnqc" target="_blank" rel="noopener">← FHS Skills Hub</a></span>
+    <h1 id="title">R365 Inventory &amp; Food Cost</h1>
+    <p class="goal" id="goal">Loading the plan…</p>
+    <div class="rail" id="rail" aria-hidden="true"></div>
+    <div class="meta"><span id="status"></span><span id="updated"></span><span id="sync">Connecting…</span></div>
+  </header>
+
+  <div id="notice" class="notice" hidden></div>
+
+  <section aria-labelledby="h-ph" style="display:grid;gap:12px">
+    <h2 id="h-ph">Phases</h2>
+    <div class="phases" id="phases"><p class="empty">Phases appear here once a Claude session writes the plan.</p></div>
+  </section>
+
+  <section aria-labelledby="h-n" style="display:grid;gap:12px">
+    <h2 id="h-n">Notes &amp; decisions</h2>
+    <ul class="notes" id="notes"><li class="empty">No notes yet.</li></ul>
+  </section>
+</div>
+
+<script>
+(function () {
+  const state = { meta: null, phases: [], notes: [] };
+  const $ = (id) => document.getElementById(id);
+  const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
+  const chip = (s) => { const c = el("span", "chip", s || "not started"); c.dataset.s = s || "not started"; return c; };
+  const fmtDate = (iso) => { if (!iso) return ""; const d = new Date(iso); return isNaN(d) ? iso : d.toLocaleDateString(undefined, { month: "short", day: "numeric" }); };
+  const openIds = new Set();
+
+  function renderMeta() {
+    const m = state.meta; if (!m) return;
+    if (m.title) $("title").textContent = m.title;
+    if (m.store) $("store").textContent = m.store;
+    $("goal").textContent = m.goal || "";
+    $("status").replaceChildren(chip(m.status));
+    $("updated").textContent = m.updatedAt ? `Updated ${fmtDate(m.updatedAt)}${m.updatedBy ? " · " + m.updatedBy : ""}` : "";
+  }
+
+  function renderPhases() {
+    const box = $("phases");
+    box.querySelectorAll("details[open]").forEach((d) => openIds.add(d.dataset.id));
+    box.querySelectorAll("details:not([open])").forEach((d) => openIds.delete(d.dataset.id));
+    box.replaceChildren();
+    const list = [...state.phases].sort((a, b) => (a.order ?? 99) - (b.order ?? 99));
+    const rail = $("rail"); rail.replaceChildren();
+    list.forEach((p) => { const s = el("span"); s.dataset.s = p.status || "not started"; rail.append(s); });
+    if (!list.length) { box.append(el("p", "empty", "Phases appear here once a Claude session writes the plan.")); return; }
+    list.forEach((p) => {
+      const d = el("details", "phase"); d.dataset.s = p.status || "not started"; d.dataset.id = p.id;
+      if (openIds.has(p.id) || (!openIds.size && (p.status === "in progress" || p.status === "waiting on owner"))) d.open = true;
+      const s = el("summary");
+      const mid = el("div"); mid.append(el("div", "ptitle", p.title), el("div", "pgoal", p.goal || ""));
+      s.append(el("span", "pnum", String(p.order ?? "")), mid, chip(p.status));
+      const body = el("div", "pbody");
+      if (Array.isArray(p.steps) && p.steps.length) {
+        const ul = el("ul", "steps");
+        p.steps.forEach((st) => { const li = el("li"); li.dataset.done = !!st.done; const b = el("span", "box", st.done ? "✓" : ""); li.append(b, el("span", "txt", st.text)); ul.append(li); });
+        body.append(ul);
+      }
+      if (p.check) { const c = el("div", "check"); c.append(el("span", "label", "Done when"), document.createTextNode(p.check)); body.append(c); }
+      if (p.result) { const r = el("div", "result"); r.append(el("span", "label", "Result"), document.createTextNode(p.result)); body.append(r); }
+      if (p.updatedAt) body.append(el("span", "label", "Updated " + fmtDate(p.updatedAt)));
+      d.append(s, body); box.append(d);
+    });
+  }
+
+  function renderNotes() {
+    const box = $("notes"); box.replaceChildren();
+    const list = state.notes.slice().sort((a, b) => String(b.at).localeCompare(String(a.at)));
+    if (!list.length) { box.append(el("li", "empty", "No notes yet.")); return; }
+    list.forEach((n) => { const li = el("li"); const t = el("time", null, fmtDate(n.at)); t.dateTime = n.at || ""; const b = el("div"); if (n.kind) b.append(el("span", "k", n.kind)); b.append(document.createTextNode(n.text)); li.append(t, b); box.append(li); });
+  }
+
+  async function start() {
+    const db = await claude.use("db");
+    if (!db) { $("sync").textContent = "Live data isn't available in this view. Open the plan on claude.ai while signed in."; $("goal").textContent = ""; return; }
+    const onErr = (e) => { const n = $("notice"); n.hidden = false; n.textContent = "Live updates stopped. Reload the page to reconnect."; console.warn(e); };
+    const stamp = () => { $("sync").textContent = "Live"; };
+    db.doc("plan/meta").onSnapshot((s) => { state.meta = s.exists ? s.data() : null; if (!s.exists) $("goal").textContent = "This plan hasn't been written yet."; renderMeta(); stamp(); }, onErr);
+    db.collection("phases").onSnapshot((s) => { state.phases = s.docs.map((d) => ({ id: d.id, ...d.data() })); renderPhases(); stamp(); }, onErr);
+    db.collection("notes").onSnapshot((s) => { state.notes = s.docs.flatMap((d) => d.data().entries || []); renderNotes(); stamp(); }, onErr);
+  }
+  start();
+})();
+</script>
