@@ -131,8 +131,6 @@ Options:
                                         carries an image consists of the image
                                         parts alone, without the text part.
                                         Defaults to "allow".
-  --no-sandbox                          disable the sandbox for all process
-                                        types that are normally sandboxed.
   --no-webmcp                           do not collect or expose the tools that
                                         a page registers through the WebMCP API.
   --output-dir <path>                   path to the directory for automatically
@@ -191,6 +189,8 @@ Options:
   -h, --help                            display help for command
 ```
 
+The block above is that command's output except the `--no-sandbox` help lines, quoted here: `--no-sandbox` is "disable the sandbox for all process types that are normally sandboxed." The `--sandbox` help line is still in the paste. The launch default that adds `--no-sandbox` is `--browser chromium` (section 3).
+
 Flags the task asked for:
 
 | Need | Flag |
@@ -205,7 +205,7 @@ Flags the task asked for:
 
 Both origin flags say they do not serve as a security boundary and do not affect redirects. `--allowed-hosts` is a separate check on the HTTP `Host` header of the MCP server, not on sites the browser may open.
 
-Commander option inspection (same unpacked package, no server started) shows `--no-sandbox` is the negation of `--sandbox` (both attribute name `sandbox`; `--no-sandbox` has `negate: true`).
+Commander option inspection (same unpacked package, no server started) shows `--no-sandbox` is the negation of `--sandbox` (both attribute name `sandbox`; `--no-sandbox` has `negate: true`). The launch default that adds `--no-sandbox` is `--browser chromium` (section 3).
 
 **What `--port` actually serves.** In `playwright-core/lib/coreBundle.js` from this install, the embedded source path is `packages/playwright-core/src/tools/utils/mcp/http.ts`. `installHttpTransport` sends any path starting with `/sse` to `handleSSE` (a new `SSEServerTransport("/sse", res)` on `GET`, stored in an `sseSessions` Map). Every other path goes to `handleStreamable` (`StreamableHTTPServerTransport`, sessions in a `streamableSessions` Map). So one port serves both SSE (`GET /sse`) and streamable HTTP (the README's `/mcp` path is not special-cased; it simply does not start with `/sse`). If `--port` is omitted, `start()` uses stdio (`StdioServerTransport`) and does not listen. The README section "Standalone MCP server" in `@playwright/mcp@0.0.83` says:
 
@@ -287,7 +287,7 @@ Tool packages in that same object (fonts and Xvfb, not Chromium .so packages): `
 
 | Check | Value | Meaning |
 |---|---|---|
-| `/proc/self/status` and `/proc/1/status` `NoNewPrivs` | `0` | `proc_pid_status(5)`: the `no_new_privs` bit (`prctl(2)` `PR_SET_NO_NEW_PRIVS`). `0` means execve can still honor setuid and file capabilities. It does not force `--no-sandbox`. |
+| `/proc/self/status` and `/proc/1/status` `NoNewPrivs` | `0` | `proc_pid_status(5)`: the `no_new_privs` bit (`prctl(2)` `PR_SET_NO_NEW_PRIVS`). `0` means execve can still honor setuid and file capabilities. It does not force `--no-sandbox` for `--browser chromium` or for any other browser. |
 | `/proc/self/status` and `/proc/1/status` `Seccomp` | `2` | `proc_pid_status(5)`: `2` is `SECCOMP_MODE_FILTER`. PID 1 has it too, with `Seccomp_filters: 1`, so the filter is the container's, inherited, not something added only around this shell. |
 | `/proc/sys/kernel/unprivileged_userns_clone` | `1` (file present) | Unprivileged user namespaces are switched on. Confirmed in practice: `unshare --user --map-root-user id` printed `uid=0(root) gid=0(root) groups=0(root)` and exited 0. `user_namespaces(7)`: since Linux 3.8 an unprivileged process may create a user namespace, and other namespaces can then be created with `CAP_SYS_ADMIN` in that namespace. |
 | `/proc/sys/kernel/apparmor_restrict_unprivileged_userns` | `0` | Ubuntu documents `1` as turning the restriction on and `0` as turning it off (`https://ubuntu.com/blog/ubuntu-23-10-restricted-unprivileged-user-namespaces`). AppArmor is enabled (`/sys/module/apparmor/parameters/enabled` is `Y`) but this restriction is off. |
@@ -296,16 +296,17 @@ Tool packages in that same object (fonts and Xvfb, not Chromium .so packages): `
 | `unshare --mount /bin/true` | `Operation not permitted` | This user cannot make a mount namespace directly. |
 | `unshare --user --map-root-user --mount /bin/true` | exit 0 | A mount namespace works inside a user namespace. |
 
-**What that means for `--no-sandbox`.** Chromium's user-namespace sandbox needs an unprivileged user namespace. Those sysctls and the `unshare --user` test say the kernel allows that for `fhsbuild`. `NoNewPrivs=0` does not block it. `ptrace_scope=1` is the Ubuntu default and is not, by itself, a reason to pass `--no-sandbox`. The existing seccomp filter (mode 2, one filter on PID 1) might still reject a syscall Chromium's sandbox needs. The filter rules were not dumped. Whether a real Chromium stays up with sandboxing on is `(?)`. Confirm by launching once with `--sandbox` and reading the log. Playwright rewrites a failure that mentions `No usable sandbox!` or `crbug.com/357670` or `crbug.com/638180` into `Chromium sandboxing failed!` and tells you to configure the environment or set `chromiumSandbox: false` (same bundle, `doRewriteStartupLog`).
+**What that means for `--no-sandbox`.** Chromium's user-namespace sandbox needs an unprivileged user namespace. Those sysctls and the `unshare --user` test say the kernel allows that for `fhsbuild`. `NoNewPrivs=0` does not block it. `ptrace_scope=1` is the Ubuntu default and is not, by itself, a reason to pass `--no-sandbox` for `--browser chromium` or for any other browser. The existing seccomp filter (mode 2, one filter on PID 1) might still reject a syscall Chromium's sandbox needs. The filter rules were not dumped. Whether a real Chromium stays up with sandboxing on is `(?)`. Confirm by launching once with `--sandbox` and reading the log. Playwright rewrites a failure that mentions `No usable sandbox!` or `crbug.com/357670` or `crbug.com/638180` into `Chromium sandboxing failed!` and tells you to configure the environment or set `chromiumSandbox: false` (same bundle, `doRewriteStartupLog`).
 
-**This Playwright build turns the sandbox off unless asked.** In Chromium `_innerDefaultArgs` in the same bundle:
+**What this Playwright build passes for the sandbox.** Re-read 2026-10-10 from the unpacked `@playwright/mcp@0.0.83` file `/srv/fhs-build/.npm/_npx/381cec31605a419a/node_modules/playwright-core/lib/coreBundle.js` (same bytes as `/srv/fhs-build/.npm/_npx/9833c18b2d85bc59/node_modules/playwright-core/lib/coreBundle.js`). The MCP entry is `resolveCLIConfigForMCP` (lines 74221–74231): `configFromCLIOptions`, then `validateBrowserConfig`. `defaultConfig` (lines 74656–74660) sets `browser.launchOptions` to `{}` and does not set `browserName` or `chromiumSandbox`. Unset `PLAYWRIGHT_MCP_SANDBOX` and `PLAYWRIGHT_MCP_BROWSER` stay `void 0` (`envToBoolean` and `envToString`, lines 74634–74642). A browser was not launched.
 
-```text
-if (options.chromiumSandbox !== true)
-  chromeArguments.push("--no-sandbox");
-```
+`validateBrowserConfig` is at lines 74297–74310 in embedded `packages/playwright-core/src/tools/mcp/config.ts`. When `browser.browserName` is missing, lines 74299–74302 set it to `"chromium"` and, when `launchOptions.channel` is unset, set `channel` to `"chrome"`. On Linux, when `chromiumSandbox` is still unset, lines 74304–74307 set it to `channel !== void 0 && channel !== "chromium" && channel !== "chrome-for-testing"`. On any other platform lines 74308–74309 set `chromiumSandbox` to true. This host is Linux, so the channel line is the one that runs. `configFromCLIOptions` (lines 74371–74372) sets `launchOptions.chromiumSandbox = cliOptions.sandbox` only when `cliOptions.sandbox !== void 0`, and the CLI merge happens before `validateBrowserConfig`, so an explicit flag is kept. `resolveBrowserParam` (lines 74350–74351) maps `--browser chromium` to `{ browserName: "chromium", channel: "chrome-for-testing" }`. With no `--browser` the default branch returns `{}` (line 74361). `Chromium._innerDefaultArgs` in embedded `packages/playwright-core/src/server/chromium/chromium.ts` (bundle lines 44615–44616) pushes `--no-sandbox` when `options.chromiumSandbox !== true`. The same test is in `packages/playwright-core/src/server/bidi/bidiChromium.ts` at bundle lines 44818–44819. That push is how `--browser chromium` gets `--no-sandbox` on Linux. An explicit `--no-sandbox` sets `chromiumSandbox` false for `--browser chromium` and for every other browser, and the same push runs.
 
-`configFromCLIOptions` sets `launchOptions.chromiumSandbox` only when `cliOptions.sandbox !== undefined`. Omitting both flags leaves it unset, which is not `true`, so the launched Chromium gets `--no-sandbox`. `--sandbox` is what turns the sandbox on. `--no-sandbox` matches the default Chrome argument. The help line for `--sandbox` ("enable the sandbox for all process types that are normally not sandboxed") matches this code. A browser was not launched, so this is source plus the CLI parse, not a process listing.
+- **No `--browser`.** Channel becomes `"chrome"`. The Linux test sets `chromiumSandbox` true. `_innerDefaultArgs` does not push `--no-sandbox`. The argument in the next bullet is the `--browser chromium` default.
+- **`--browser chromium`.** Channel is `"chrome-for-testing"`. The Linux test sets `chromiumSandbox` false. `_innerDefaultArgs` pushes `--no-sandbox`.
+- **`--sandbox`.** `chromiumSandbox` is true before `validateBrowserConfig`, including together with `--browser chromium`, so the channel test is skipped and `_innerDefaultArgs` does not push `--no-sandbox`.
+
+The `--sandbox` help text ("enable the sandbox for all process types that are normally not sandboxed") matches the `--browser chromium` path, where `chromiumSandbox` starts false. With no `--browser`, `validateBrowserConfig` sets `chromiumSandbox` true before launch.
 
 ## 4. Owner viewer
 
@@ -587,7 +588,7 @@ Namespace and identifier URIs found in page source (for example `www.w3.org` in 
 
 ## Summary: recommended stack, pinned versions, open `(?)` items
 
-**Stack to plan from.** Four systemd system units, one process each, as a dedicated user (not root, not `fhsbuild`). `fhs-browser-xvfb.service`: `/usr/bin/Xvfb :99 -nolisten tcp` (no TCP listener). `fhs-browser-x11vnc.service` requires that unit and runs `x11vnc -listen 127.0.0.1 -no6` with a password file. `fhs-browser-novnc.service` requires x11vnc and runs `websockify --web=/usr/share/novnc` on `127.0.0.1:6080`, aimed at `127.0.0.1:5900`. `fhs-browser-mcp.service` requires the Xvfb unit, sets `DISPLAY=:99`, and runs Playwright MCP `@playwright/mcp@0.0.83` via `/usr/bin/node` and the pinned `cli.js` on `127.0.0.1` with an explicit `--user-data-dir` under `ReadWritePaths`, `--sandbox` (the build's default is `--no-sandbox`), and `--shared-browser-context` so two HTTP clients share one context and one login. x11vnc and the MCP unit join the Xvfb unit's private `/tmp`. Register Claude with `claude mcp add --transport http --scope user` and cursor-agent with `url` in `~/.cursor/mcp.json`. Refuse a second driver at a localhost proxy or with a stdio flock; the MCP server will not do it. Owner reaches noVNC through an SSH tunnel. Nothing listens except on loopback.
+**Stack to plan from.** Four systemd system units, one process each, as a dedicated user (not root, not `fhsbuild`). `fhs-browser-xvfb.service`: `/usr/bin/Xvfb :99 -nolisten tcp` (no TCP listener). `fhs-browser-x11vnc.service` requires that unit and runs `x11vnc -listen 127.0.0.1 -no6` with a password file. `fhs-browser-novnc.service` requires x11vnc and runs `websockify --web=/usr/share/novnc` on `127.0.0.1:6080`, aimed at `127.0.0.1:5900`. `fhs-browser-mcp.service` requires the Xvfb unit, sets `DISPLAY=:99`, and runs Playwright MCP `@playwright/mcp@0.0.83` via `/usr/bin/node` and the pinned `cli.js` on `127.0.0.1` with an explicit `--user-data-dir` under `ReadWritePaths`, `--sandbox` (this unit also passes `--browser chromium`, Chrome for Testing, so on Linux this build adds `--no-sandbox` unless `--sandbox` is passed; with no `--browser`, `validateBrowserConfig` sets channel `chrome` and leaves `chromiumSandbox` true), and `--shared-browser-context` so two HTTP clients share one context and one login. x11vnc and the MCP unit join the Xvfb unit's private `/tmp`. Register Claude with `claude mcp add --transport http --scope user` and cursor-agent with `url` in `~/.cursor/mcp.json`. Refuse a second driver at a localhost proxy or with a stdio flock; the MCP server will not do it. Owner reaches noVNC through an SSH tunnel. Nothing listens except on loopback.
 
 **Finding for the build plan.** The Cursor agent itself starts `@playwright/mcp` and `chrome-devtools-mcp` as child processes. Tester T11 in `/srv/fhs-build/reports/browser-research-01-test.md` saw `npm exec @playwright/mcp@latest` and `npm exec chrome-devtools-mcp@1.2.0`, parented by that session's `cursor-agent`.
 
