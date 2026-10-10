@@ -24,7 +24,8 @@ its findings to one file. Claude then writes the real build plan from those find
 - `skills/fhs-skills/references/tech-stack.md`: append one section `## Server browser (research 2026-10-xx)` with only the
   facts the note marks confirmed, each one line with a pointer to the note's section. Nothing else in the file changes.
 - Outside the repo, only these files in `/srv/fhs-build/reports/`: `browser-research-01.md` (report), `browser-research-01-before.txt` (baseline: listeners, packages,
-  browser cache), `browser-research-01-test.md` and `browser-research-01-test-before.txt` (the tester's).
+  browser cache), `browser-research-01-test.md` and `browser-research-01-test-before.txt` (the tester's), and `browser-research-01-test-plan-corrected.md`
+  (a read-only copy of the committed `docs/tests/browser-research-01.md`, written by the coordinator).
 
 ## Files the builder must not edit
 
@@ -49,7 +50,7 @@ own npm cache are allowed, to read `--help` output. They're run with `--yes`, an
    and the Cursor agent itself starts `@playwright/mcp` and `chrome-devtools-mcp` children, so those are ambient and excluded. The
    researcher's own task-file tests 3–4 used the old wording, and their failures came from those ambient processes. The test plan
    `docs/tests/browser-research-01.md` carries the same correction (commits `ec85d32` and `f5aa284`). The tester reads the committed
-   test plan, or a byte-identical copy of it in `/srv/fhs-build/reports/`.
+   test plan, or its byte-identical copy `/srv/fhs-build/reports/browser-research-01-test-plan-corrected.md`.
 
 ## Test plan
 
