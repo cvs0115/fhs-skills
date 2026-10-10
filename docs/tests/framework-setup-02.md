@@ -39,7 +39,7 @@ No browser cases: this change has no web page or site interaction.
 | T3 | shell | Write `$TMP/a.md` containing `## Verdict`, an empty line, `REJECT. x`, then a second `## Verdict` followed by `APPROVE. y`. Run `bash scripts/lib/verdict.sh $TMP/a.md` | `REJECT` (the first Verdict section wins) | file + output |
 | T4 | shell | Write `$TMP/b.md` with `## Verdict` and then only blank lines. Run verdict on it, and on `$TMP/missing.md` | `NONE` and `NONE`, both exit 0 | output + `echo $?` |
 | T5 | shell | `FHS_REPO=$W FHS_BUILD_ROOT=$TMP/br bash scripts/build.sh prepare docs/plans/framework-setup-02.md fs02-check --check-only; echo exit=$?` | `OK: ready to prepare fs02-check from main`, `exit=0` (main holds this plan's plan, task, test plan and APPROVE review) | output |
-| T6 | shell | Same as T5 but with `docs/plans/browser-01.md` and name `b01-check` | `exit=3`, names the missing or non-APPROVE review | output |
+| T6 | shell | Same as T5 but with `docs/plans/browser-01.md` and name `b01-check` | `exit=3`, and names the first missing required file (`build.sh` checks plan → task file → test plan → review in that order; for `browser-01` the task file is missing first). Corrected 2026-10-10: the original expectation ("names the review") contradicted the task file's check order | output |
 | T7 | shell | Same as T5 but with name `Bad_Name` | `exit=2` | output |
 | T8 | shell | `FHS_REPO=$W FHS_BUILD_ROOT=$TMP/br bash scripts/build.sh prepare docs/plans/framework-setup-02.md fs02-real; echo exit=$?; ls $TMP/br 2>&1` | `exit=5` (not root), no `fs02-real` directory | output |
 | T9 | shell | `FHS_BUILD_ROOT=$TMP/br bash scripts/build.sh collect nothing-here; echo exit=$?` | `exit=3` | output |
