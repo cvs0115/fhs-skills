@@ -24,7 +24,8 @@ of the app framework. No skill, script the skills run, config or live system cha
 - `CLAUDE.md` (new)
 - `README.md` (folder table rows only)
 - `docs/templates/{spec,plan,review}.md`, `docs/{specs,research,plans,reviews}/.gitkeep` (new)
-- `docs/plans/framework-setup-01.md` (this file), `docs/reviews/framework-setup-diff*.md`
+- `docs/plans/framework-setup-01.md` (this file), `docs/reviews/framework-setup-*.md`
+- `docs/specs/framework-setup.md`, `docs/research/framework-setup-review-tool.md` (new)
 - `scripts/review.sh` (new). `scripts/.gitkeep` is removed because the folder is no longer empty.
 - `app-framework/**` (new). It's an exact copy of `/root/trader-mayne/app-framework-v2` and is
   not edited, including its trailing whitespace, so it can be diffed against the source.
@@ -60,6 +61,11 @@ by the coordinator after the merge, as normal per-session upkeep (`skills/fhs-sk
 ## Where the builder works
 
 - Worktree `/root/fhs-skills-wt/framework-setup` · branch `feat/framework-setup` · cut from `main` at `c24fb48`
+
+## Deferred
+
+The spec's done-when item 3 (R365 Phase 0 audit run this way) is not covered here. It gets its own
+spec, research and reviewed plan under the `r365-inventory` slug.
 
 ## What stays
 
