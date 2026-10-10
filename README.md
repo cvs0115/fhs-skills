@@ -11,6 +11,7 @@ This repo on dev-lxc-1 is the master copy. Edit here, commit, then refresh the W
 | `scripts/` | Server-side helpers (notify, sync, scheduled runs) |
 | `inbox/` | Reports that arrive by email or upload. Not in git. |
 | `memory/` | Copy of the owner's Claude memory notes about this work, for reference |
+| `app-framework/` | App Framework v2: playbook, question banks, agent roles, templates and lessons for building apps with Claude Code. Copied from `/root/trader-mayne/app-framework-v2` on 2026-10-10. |
 
 Status and plans: FHS Skills Hub https://claude.ai/artifact/3sTTMm7cFeFZxPT3Kcgnqc
 
