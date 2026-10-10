@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Cross-model review: cursor-agent, read-only (plan mode), on gpt-5.6-sol-high.
+# Cross-model review: cursor-agent, read-only (plan mode), on included Cursor models.
 #   scripts/review.sh docs/plans/<slug>-<nn>.md      review a plan
 #   scripts/review.sh --diff feat/<name>             review a branch's diff against main
 #   scripts/review.sh --check-only ...               validate args and model, print OK
@@ -16,20 +16,27 @@ REPO="${FHS_REPO:-/root/fhs-skills}"
 REPO="${REPO%/}"
 FHS_BUILD_ROOT="${FHS_BUILD_ROOT:-/srv/fhs-build}"
 FHS_BUILD_ROOT="${FHS_BUILD_ROOT%/}"
-MODEL="${REVIEW_MODEL:-gpt-5.6-sol-high}"
 
 usage() {
-  echo "usage: review.sh [--check-only] <plan.md> | --diff <branch>" >&2
+  echo "usage: review.sh [--check-only] [--writer composer|grok] <plan.md> | --diff <branch>" >&2
 }
 
 CHECK_ONLY=0
 DIFF=0
 BRANCH=""
 PLAN=""
+WRITER="composer"
+WRITER_SET=0
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --check-only) CHECK_ONLY=1; shift ;;
+    --writer)
+      [[ $# -ge 2 ]] || { usage; exit 2; }
+      WRITER="$2"
+      WRITER_SET=1
+      shift 2
+      ;;
     --diff)
       [[ $# -ge 2 ]] || { usage; exit 2; }
       DIFF=1
@@ -45,11 +52,26 @@ while [[ $# -gt 0 ]]; do
   esac
 done
 
-check_review_model "$MODEL" || exit 2
-
 if [[ $DIFF -eq 1 && -n "$PLAN" ]]; then
   usage
   exit 2
+fi
+
+if [[ $DIFF -eq 0 && $WRITER_SET -eq 1 ]]; then
+  usage
+  exit 2
+fi
+
+if [[ $DIFF -eq 1 ]]; then
+  case "$WRITER" in
+    composer) MODEL="${REVIEW_MODEL:-cursor-grok-4.6-xhigh}" ;;
+    grok) MODEL="${REVIEW_MODEL:-composer-2.5}" ;;
+    *) usage; exit 2 ;;
+  esac
+  check_reviewer diff "$WRITER" "$MODEL" || exit 2
+else
+  MODEL="${REVIEW_MODEL:-cursor-grok-4.6-xhigh}"
+  check_reviewer plan claude "$MODEL" || exit 2
 fi
 
 cleanup_diff() {
@@ -66,6 +88,14 @@ cleanup_diff() {
 }
 
 TODAY="$(date +%F)"
+
+writer_line() {
+  case "$1" in
+    claude) echo "The writer is Claude (Anthropic). You are $MODEL, a different model family." ;;
+    composer) echo "The writer is Composer (Cursor). You are $MODEL, a different model family." ;;
+    grok) echo "The writer is Grok (xAI via Cursor). You are $MODEL, a different model family." ;;
+  esac
+}
 
 if [[ $DIFF -eq 1 ]]; then
   [[ -n "$BRANCH" ]] || { usage; exit 2; }
@@ -106,9 +136,10 @@ if [[ $DIFF -eq 1 ]]; then
   git -C "$REPO" worktree add --detach "$WT" "$BRANCH"
   CREATED=1
   SUBJECT="the diff of branch $BRANCH against main. Run: git diff main...$BRANCH  (and git log main..$BRANCH). Compare against main and against the plan and task file if the branch names them. Check the reported test results against the diff. Builder report: $BUILD_REPORT. Tester report: $TEST_REPORT."
+  WL="$(writer_line "$WRITER")"
   read -r -d '' PROMPT <<EOF || true
 You are the Reviewer for the fhs-skills repo (Claude skills for a Firehouse Subs owner's back office).
-The writer is Claude (Anthropic). You are $MODEL, a different model family. You have no access to the writer's conversation.
+$WL You have no access to the writer's conversation.
 
 Read first: CLAUDE.md (the rules), skills/fhs-skills/SKILL.md "Rules", docs/templates/review.md (your output form),
 and any spec in docs/specs/ that the subject names.
@@ -149,9 +180,10 @@ else
   fi
   OUT="$REPO/docs/reviews/$NAME.md"
   OUT_TMP="$OUT.tmp"
+  WL="$(writer_line claude)"
   read -r -d '' PROMPT <<EOF || true
 You are the Reviewer for the fhs-skills repo (Claude skills for a Firehouse Subs owner's back office).
-The writer is Claude (Anthropic). You are $MODEL, a different model family. You have no access to the writer's conversation.
+$WL You have no access to the writer's conversation.
 
 Read first: CLAUDE.md (the rules), skills/fhs-skills/SKILL.md "Rules", docs/templates/review.md (your output form),
 ${READ_TASK}and any spec in docs/specs/ that the subject names.
