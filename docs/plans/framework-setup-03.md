@@ -9,14 +9,11 @@
   is needed use the Grok models; where we need someone to test or build use Composer." Rule kept: the reviewer is never the writer's family.
 - Research: `agent models` lists `cursor-grok-4.6-xhigh`, `cursor-grok-4.6-high` and `composer-2.5`.
 
-## Pre-build gate: included models confirmed (r2 major 3)
+## Pre-build gate: included models confirmed
 
-Before the build starts, the owner confirms in the Cursor dashboard that `composer-2.5`, `cursor-grok-4.6-high` and
-`cursor-grok-4.6-xhigh` are included models (the "Cursor Models · Includes Cursor Grok and Composer" allowance). Claude records the answer
-verbatim, with the date, in the hub `log` (kind `decision`) and here, under "Gate record". If any of them isn't included, this plan stops and
-gets revised.
-
-**Gate record:** _pending owner confirmation_
+The owner confirmed on 2026-10-10, before this revision went to review, that `composer-2.5`, `cursor-grok-4.6-high` and
+`cursor-grok-4.6-xhigh` are all included models. The evidence lives outside this plan, in the hub `log` (kind `decision`, 2026-10-10,
+"included models confirmed"). This plan only points to it.
 
 ## Verdict
 
@@ -35,7 +32,7 @@ Build.
 ## What changes, in plain words
 
 `scripts/review.sh` chooses the reviewer from who wrote the work: Claude's plans and Composer's code go to Cursor Grok Extra High, and
-Grok's research goes to Composer. GPT and Sonnet are no longer used anywhere. `build.sh prepare` prints the right model for the hand-off:
+Grok's research goes to Composer. The current workflow instructions no longer use GPT or Sonnet. Historical plans, reviews and research stay as written. `build.sh prepare` prints the right model for the hand-off:
 Composer for builds, Cursor Grok for research.
 
 ## Where it runs
@@ -69,28 +66,18 @@ Server (dev-lxc-1) only.
   - `prepare --check-only` hand-off for `--role build` names `composer-2.5`, and for `--role research` names `cursor-grok-4.6-high`
   - `grep -c 'gpt-5.6\|sonnet\|grok-4.7' scripts/review.sh scripts/lib/guards.sh scripts/build.sh` → 0
 
-## Files Claude edits directly (docs, committed to main before the build, not by the builder)
+## Docs transition (done by Claude before this build, r3 major 1)
 
-Right after the merge, in one docs commit, Claude replaces every old-model instruction (r2 major 2). The full list, from
-`grep -n -i "grok-4.7|gpt|sonnet|Start Grok"` on 2026-10-10:
-- `CLAUDE.md`:
-  - Roles rows Ops / Reviewer / Builder and Tester / Tester (lines 94–98) → Ops `composer-2.5`, Reviewer per the model map, Builder `composer-2.5`, Tester `composer-2.5` (fresh session), Researcher `cursor-grok-4.6-high`
-  - line 104 "a Grok 4.7 High agent" → "a Composer 2.5 agent (Cursor Grok 4.6 High for research)"
-- `docs/RUNBOOK.md`: agent table lines 11–14, and the "Why GPT reviews" paragraph (line 16), rewritten for the model map.
-- `docs/templates/prompt.md`:
-  - lines 3, 5 and 6: agent name, reviewer name, hand-off model
-  - line 47: the commit trailer becomes `Co-Authored-By: <model> (cursor agent)`, with the model named in each task file
-- `docs/templates/test-plan.md`: lines 3 and 49 (Tester = `composer-2.5`).
-- `docs/prompts/ops-cycle.md`:
-  - lines 3 and 5: Ops = `composer-2.5`
-  - line 13 and the line-68 heading: "the reviews" instead of "GPT-5.6"
-  - line 51: Builder model from `build.sh`'s hand-off
-  - lines 88 and 119: the trailers
-- `docs/prompts/ops-00-finish-planning.md` and `ops-01-bootstrap.md`: history (both rows are done). Leave the text as written, and add a
-  one-line note at the top: "Historical: run before framework-setup-03. Models now per CLAUDE.md Roles."
-- Memory notes (`agent-handoff-workflow.md`): the model roster.
+So the rules and the hand-offs match during this build too, Claude updated the workflow docs **before** the build, in commit
+`17ddc4b` on `main`:
+- `CLAUDE.md`: Roles and loop step 5
+- `docs/RUNBOOK.md`: the agent table
+- `docs/templates/prompt.md` and `test-plan.md`
+- `docs/prompts/ops-cycle.md`: Composer Ops, the role/writer flags, the research path (`--role research`, `--writer grok`)
+- the "Historical" notes on `ops-00` and `ops-01`
 
-Done-check 5 proves the list was applied.
+Those docs state that `review.sh` still runs GPT-5.6 until this plan merges. So this build is run by Composer (Builder, Tester, Ops)
+under rules that already say so. After the merge, Claude removes only that "until framework-setup-03 merges" sentence (done-check 5).
 
 ## Files the builder must not edit
 
@@ -109,8 +96,9 @@ None.
 3. **Real diff review with the new reviewer:** the final review runs the branch's `review.sh --diff feat/framework-setup-03` (writer `composer`).
    The header names `cursor-grok-4.6-xhigh`, and it must be APPROVE to merge.
 4. After the merge: `grep -c 'gpt-5.6\|sonnet\|grok-4.7' scripts/review.sh scripts/lib/guards.sh scripts/build.sh` → all 0.
-5. After Claude's docs commit: `grep -n -i "grok-4.7\|gpt-5.6\|sonnet\|Start Grok" CLAUDE.md docs/RUNBOOK.md docs/templates/*.md docs/prompts/ops-cycle.md` → no output.
-   The two historical ops files carry the "Historical" note.
+5. After the merge, Claude removes the "until framework-setup-03 merges" sentences. Then
+   `grep -n -i "grok-4.7\|gpt-5.6\|sonnet\|Start Grok" CLAUDE.md docs/RUNBOOK.md docs/templates/*.md docs/prompts/ops-cycle.md` → no output,
+   and the two historical ops files carry the "Historical" note.
 
 ## Sequence
 
