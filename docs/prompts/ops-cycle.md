@@ -39,7 +39,8 @@ owner to send it to Claude. Don't fix code, plans or tests yourself.
    Expect: status empty, four `ok` lines, and a verdict line starting `APPROVE.` (not `APPROVE AFTER FIXES`).
 2. Refuse if it already exists: `test -e $B/$NAME && echo EXISTS; git -C $R rev-parse --verify -q feat/$NAME && echo BRANCH-EXISTS` → no output.
 3. If `$R/scripts/build.sh` exists on `main` (after framework-setup-02 is merged):
-   `$R/scripts/build.sh prepare docs/plans/$PLAN.md $NAME` and skip to B.
+   `$R/scripts/build.sh prepare docs/plans/$PLAN.md $NAME --role $ROLE` and skip to B. (Before framework-setup-03 merges, `--role` doesn't
+   exist: leave it off. That only affects the printed model, and B names the right model by role anyway.)
    Otherwise (framework-setup-02 itself), do it by hand:
    ```
    git clone --no-hardlinks --branch main $R $B/$NAME
@@ -74,7 +75,8 @@ Check the file list against the plan's "Files the builder may edit". Stop on any
 Pick the next free review number N (`-diff-r1` first, then `-diff-r2`…): `ls $R/docs/reviews/ | grep "^$NAME-diff"`.
 
 - If `main` has the new review.sh (it has `--check-only`: `grep -q -- '--check-only' $R/scripts/review.sh && echo NEW`):
-  `cd $R && scripts/review.sh --diff feat/$NAME` → writes `docs/reviews/$NAME-diff.md`.
+  `cd $R && scripts/review.sh --diff feat/$NAME --writer $WRITER` → writes `docs/reviews/$NAME-diff.md`. (`--writer` exists from
+  framework-setup-03 on. Never run a research diff, `WRITER=grok`, without it, because the default reviewer is Grok.)
 - Otherwise (old review.sh), it must run from inside a checkout of the branch:
   ```
   git -C $R worktree add --detach /root/fhs-skills-wt/review-$NAME feat/$NAME

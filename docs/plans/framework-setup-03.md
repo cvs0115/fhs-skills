@@ -53,7 +53,10 @@ Server (dev-lxc-1) only.
   - the prompt names the writer and the reviewer correctly: "The writer is Claude (Anthropic) / Composer (Cursor) / Grok (xAI via Cursor). You are <model>, a different model family."
   - `--check-only` validates per mode and writer. Everything else stays as it is.
 - `scripts/build.sh`: `prepare` takes `--role build|research` (default `build`).
-  - The hand-off uses `--model composer-2.5` for `build` and `--model cursor-grok-4.6-high` for `research`, and prints `Start agent:` instead of `Start Grok:`.
+  - The hand-off uses `--model composer-2.5` for `build` and `--model cursor-grok-4.6-high` for `research`, always with `--force`
+    (`sudo -u fhsbuild -H $FHS_BUILD_ROOT/.local/bin/agent --model <m> --force --workspace $FHS_BUILD_ROOT/<name>`), and prints `Start agent:` instead of `Start Grok:` (r5 major 3).
+  - `collect` also takes `--role build|research` (default `build`), and its `Next:` line becomes
+    `Next: scripts/review.sh --diff feat/<name> --writer composer` for build or `... --writer grok` for research (r5 major 2).
   - **`--check-only` output changes (r2 major 4):** after its checks pass, it prints `OK: ready to prepare <name> from <base>` and then the same
     two hand-off lines (`Start agent: ...`, `Tell it: ...`), and exits 0. A real run prints the clone output, then the same two lines.
   - The existing exact-output test for `--check-only` changes to expect the three lines.
@@ -63,7 +66,8 @@ Server (dev-lxc-1) only.
   - diff default (writer composer) → ok with `cursor-grok-4.6-xhigh`; diff writer composer + `composer-2.5` → 2
   - diff writer grok → ok with `composer-2.5`; diff writer grok + `cursor-grok-4.6-xhigh` → 2
   - `--writer other` → 2
-  - `prepare --check-only` hand-off for `--role build` names `composer-2.5`, and for `--role research` names `cursor-grok-4.6-high`
+  - `prepare --check-only` hand-off for `--role build` names `composer-2.5`, and for `--role research` names `cursor-grok-4.6-high`; both contain `--force`
+  - `collect` with `--role research` prints `--writer grok` in its `Next:` line, and the default prints `--writer composer`
   - `grep -c 'gpt-5.6\|sonnet\|grok-4.7' scripts/review.sh scripts/lib/guards.sh scripts/build.sh` → 0
 
 ## Docs transition (done by Claude before this build, r3 major 1)
@@ -73,7 +77,9 @@ So the rules and the hand-offs match during this build too, Claude updated the w
 - `CLAUDE.md`: Roles and loop step 5
 - `docs/RUNBOOK.md`: the agent table
 - `docs/templates/prompt.md` and `test-plan.md`
-- `docs/prompts/ops-cycle.md`: Composer Ops, the role/writer flags, the research path (`--role research`, `--writer grok`)
+- `docs/prompts/ops-cycle.md`: Composer Ops and Builder/Tester wording; the executable commands in A.3, C and D carry `--role $ROLE` and
+  `--writer $WRITER`; the research path (`--role research`, `--writer grok`)
+- `docs/specs/framework-setup.md`: the model change recorded beside the old text
 - the "Historical" notes on `ops-00` and `ops-01`
 
 Those docs state that `review.sh` still runs GPT-5.6 until this plan merges. So this build is run by Composer (Builder, Tester, Ops)

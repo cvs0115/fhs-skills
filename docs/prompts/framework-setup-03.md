@@ -26,8 +26,8 @@ Do exactly what the plan's "Files the builder may edit" section says, file by fi
 
 ## You may edit only
 
-`scripts/lib/guards.sh`, `scripts/review.sh`, `scripts/build.sh` (the `--role` option, its argument and usage parsing, the hand-off lines, and the
-`--check-only` path as the plan defines, nothing else in it), `scripts/tests/test_framework.sh`.
+`scripts/lib/guards.sh`, `scripts/review.sh`, `scripts/build.sh` (the `--role` option for `prepare` and `collect`, their argument and usage parsing, the hand-off lines with `--force`,
+the `collect` `Next:` line with `--writer`, and the `--check-only` path, all as the plan defines; nothing else in it), `scripts/tests/test_framework.sh`.
 
 ## You must not
 

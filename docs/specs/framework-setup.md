@@ -20,6 +20,8 @@
 2. No build happens in the served checkout (`/root/fhs-skills`): ~~builds happen in worktrees under `/root/fhs-skills-wt/`.~~
    **Changed 2026-10-10 (owner):** builds are done by Grok agents running as the unprivileged user `fhsbuild`, in clones under
    `/srv/fhs-build/<name>`. Claude writes the plan, the task file (`docs/prompts/`) and the test plan (`docs/tests/`). A fresh Grok session runs the tests.
+   **Changed 2026-10-10 (owner, included Cursor models):** ~~Grok builds and tests~~ → Composer 2.5 builds, tests and runs ops; Cursor Grok 4.6 High
+   researches; Cursor Grok 4.6 Extra High reviews Claude's plans and Composer's code; Composer 2.5 reviews Grok's research.
 3. The first project run this way (R365 inventory/food cost) reaches its Phase 0 audit summary
    with a spec, a research note and a reviewed plan.
 
