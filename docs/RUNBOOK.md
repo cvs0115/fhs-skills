@@ -20,26 +20,34 @@ their own work.
 **Plan mode saves tokens:** any read-only agent task (reviews, pre-checks, "what would this change?", quick questions) runs with
 `--mode plan` (or `--mode ask`). Only Builders, Testers, Researchers and Ops run in normal mode, because they write files or run commands.
 
+## Where we are
+
+**Status lives on the FHS Skills Hub** (https://claude.ai/artifact/3sTTMm7cFeFZxPT3Kcgnqc): projects, current step, what's
+waiting on you, and every decision. This runbook is the **order of work**: which agent runs next, and what has to pass.
+Claude keeps both current. Build order for the store functions: `docs/specs/store-migration.md`.
+
 ## Rows
 
-| # | Agent | Tell it | Gate before the next row | If the gate fails, send Claude |
+| # | Status | Agent | Tell it | Gate before the next row |
 |---|---|---|---|---|
-| 1 | Ops | `Do the task in docs/prompts/ops-00-finish-planning.md` | the review of framework-setup-02 is APPROVE, and the planning docs are committed on `main` | `/srv/fhs-build/reports/ops-00-finish-planning.md` and the review file it names |
-| 2 | Ops | `Do the task in docs/prompts/ops-01-bootstrap.md`. **You** run the one login command it gives you | `fhsbuild` exists, it's signed in to Cursor, and every isolation check fails as it should | `/srv/fhs-build/reports/ops-01-bootstrap.md` |
-| 3 | Ops | `Do the task in docs/prompts/ops-cycle.md for plan framework-setup-02`. It will tell you when to start the Builder and the Tester | merged on `main`, tests ALL PASS, diff review APPROVE | `/srv/fhs-build/reports/framework-setup-02-ops.md` (+ `-test.md`) |
-| 3a | Builder (when Ops says) | `Do the task in docs/prompts/framework-setup-02.md` | its report exists in `/srv/fhs-build/reports/` | that report |
-| 3b | Tester (when Ops says; new session) | `Run the test plan in docs/tests/framework-setup-02.md` | its results file exists. Ops-only rows wait for Ops | that results file |
-| 4 | Ops | `Do the task in docs/prompts/ops-cycle.md for plan browser-research-01` | merged; tests ALL PASS | `/srv/fhs-build/reports/browser-research-01-ops.md` |
-| 4a | Builder | `Do the task in docs/prompts/browser-research-01.md` | report exists | report |
-| 4b | Tester (new session) | `Run the test plan in docs/tests/browser-research-01.md` | results exist | results |
-| 5 | Ops | `Do the task in docs/prompts/ops-cycle.md for plan windows-research-01` | merged; tests ALL PASS | `/srv/fhs-build/reports/windows-research-01-ops.md` |
-| 5a | Builder | `Do the task in docs/prompts/windows-research-01.md` | report exists | report |
-| 5b | Tester (new session) | `Run the test plan in docs/tests/windows-research-01.md` | results exist | results |
-| 5c | You, on the Windows PC | Fill in the "Owner checklist" in `docs/research/windows-agent.md`, and send the answers to Claude | — | — |
-| 6 | Claude | "Rows 1–5 are done" | Claude writes the browser build plan, the Windows build plan, then the R365 inventory audit plan, each with a task file and a test plan, and adds them here as rows 7+ | — |
+| 1 | ✅ done | Ops | `Do the task in docs/prompts/ops-00-finish-planning.md` | planning docs committed |
+| 2 | ✅ done | Ops + **you** (Cursor sign-in) | `Do the task in docs/prompts/ops-01-bootstrap.md` | `fhsbuild` signed in, isolated |
+| 3 | ✅ merged `58d4d1d` | Ops / Builder / Tester | framework-setup-02: build tooling (`build.sh`, `review.sh`, verdict gate) | 20/20 tests, review APPROVE |
+| 4 | ✅ merged `74fb39a` | Researcher / Tester | browser-research-01: how to run a server browser | 12/12, review APPROVE |
+| 5 | ✅ merged `545863b` | Researcher / Tester | windows-research-01: how a PC agent works with the server | 14/14, review APPROVE |
+| 6 | ✅ merged `b79e362` | Ops / Builder / Tester | framework-setup-03: included Cursor models only (Composer builds, Cursor Grok reviews) | 10/10, review APPROVE |
+| 7 | ⏳ plan review | Claude → Builder → Ops | **browser-02**: the server browser you watch and sign in to (`docs/plans/browser-02.md`). Your G1–G4 answers recorded | plan APPROVE → build → tests → code review → Ops installs (your approved list) → merge |
+| 8 | ⏳ waits on row 7 | **You** | Open the browser viewer (`ssh -L 6080:localhost:6080 dev-lxc-1`, then http://localhost:6080) and sign in to R365 and Toast | signed in |
+| 9 | ⏳ plan review | Root agent captures → Researcher → Tester | **store-audit-122-01**: read-only audit of every 122 function in R365 + Toast (`docs/plans/store-audit-122-01.md`) | audit merged; it decides the next builds |
+| 10 | ⏳ waits on **you** | **You**, on the Windows PC | Answer the 6-item PC checklist (Claude will ask in a question pane) | answers recorded |
+| 11 | ✅ plan approved | Builder → Ops → you on the PC | **windows-agent-02**: the PC agent, push hook, mirror refresh, report transfer (`docs/plans/windows-agent-02.md`) | needs row 10; each PC step is your OK |
+| 12+ | later | Claude plans each | store functions in order: items/vendors → e-invoices → recipes + menu mapping → counts → cash & deposits → food cost → daily flash → scheduling/OT → delivery → 878 migration. Each skips or shrinks based on the row 9 audit | per plan |
+
+How every build row runs (Ops follows `docs/prompts/ops-cycle.md`): plan review → `build.sh prepare` → Builder → fresh Tester →
+`build.sh collect` → code review → root-only checks → final review → merge. Agents and models: the table above.
 
 ## Good to know
 
 - Rows 1–2 are one-time. Every plan after that is: Ops runs `ops-cycle.md`, and Ops tells you when to start the Builder and the Tester.
-- Browser tests in later plans run through Playwright on the server's browser once it exists (row 7+), or Chrome on your PC until then.
-- Nothing in rows 1–5 touches Toast, R365, ADP, the Windows skill copy, or payroll.
+- Browser tests run through the server's browser once row 7 is done, or Chrome on your PC until then.
+- Nothing so far has touched Toast, R365, ADP, the Windows skill copy, or payroll. Row 9 is the first to *read* R365 and Toast, and it never changes anything.
