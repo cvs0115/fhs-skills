@@ -1,8 +1,10 @@
 # Plan · framework-setup-01 · Adopt app-framework v2 (lean) for building fhs skills
 
-2026-10-10. Written after the first diff review (framework-setup-diff, APPROVE AFTER FIXES)
+2026-10-10. Bootstrap: this change creates the plan-before-build rule, so it was built first and
+this plan was written after the first diff review (framework-setup-diff-r1, APPROVE AFTER FIXES)
 flagged that this change had no plan. It covers the branch `feat/framework-setup`.
 
+- Spec: `docs/specs/framework-setup.md` · Research: `docs/research/framework-setup-review-tool.md`
 - Hub project: none (library process change). Decisions that bind it, owner, 2026-10-10:
   first skill under the framework = R365 inventory/food cost; the Hub stays the Board and
   Decision Log; reviewer = cursor-agent on a non-Claude model; process = lean.
