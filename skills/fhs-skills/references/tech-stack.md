@@ -60,3 +60,14 @@ Weekly count (R365 mobile) --> actual usage --> AvT + COGS --> food-cost check -
 - Claude Code 2.1.296 user scope: `claude mcp add --transport http --scope user <name> <url>` (stored in `~/.claude.json`). cursor-agent reads `~/.cursor/mcp.json` with `mcpServers.<name>.url`. See section 5.
 - systemd 255 is PID 1 inside this LXC. `ProtectHome=yes` covers `/home`, `/root`, and `/run/user`, not `/srv`. Four system units (Xvfb, x11vnc, websockify, Playwright MCP), each bound so it does not listen off loopback. See section 7.
 - Public login loads confirmed: R365 uses `cdn.restaurant365.io`, `cdn.pendo.io`, and `faro-collector-prod-us-east-3.grafana.net`. `www.toasttab.com` redirects to `pos.toasttab.com`; the admin URL redirects to `www.toasttab.com/login`. ADP sign-in loads `synerg.adp.com`, whose config names `canvas.waypoint.prod.us.caas.oneadp.com`. See section 8.
+
+## Windows agent (research 2026-10-10)
+- Cursor's Windows install command is `irm 'https://cursor.com/install?win32=true' | iex`, and the documented command is `agent`. See `docs/research/windows-agent.md` section 1.
+- The Cursor CLI reference lists `-p`, `--mode`, `--sandbox`, and `--workspace`, with no Windows exception. See `docs/research/windows-agent.md` section 1.
+- Windows OpenSSH reads `%userprofile%\.ssh\config`. Git for Windows should use that client ("Use external OpenSSH", or `core.sshCommand` set to `C:/Windows/System32/OpenSSH/ssh.exe`). See `docs/research/windows-agent.md` section 2.
+- The clone command is `git clone dev-lxc-1:/root/fhs-skills` (git's scp-like URL; path from `CLAUDE.md`). Not run from the PC. See `docs/research/windows-agent.md` section 2.
+- Unset `receive.denyCurrentBranch` refuses an update of the checked-out branch on a non-bare repo (default `refuse`). Proven on a throwaway repo. See `docs/research/windows-agent.md` section 3.
+- The `pre-receive` hook in the research note accepts a fast-forward of `refs/heads/feat/win-[a-z0-9-]+` and refuses `main`, `feat/other`, a force-push, a delete, and `feat/win-Upper_Case`. See `docs/research/windows-agent.md` section 3.
+- Git for Windows' installer defaults `core.autocrlf` to `true` (checkout CRLF). See `docs/research/windows-agent.md` section 4.
+- `inbox/` is gitignored (`.gitignore` line 2). A report copy is `scp` to `dev-lxc-1:/root/fhs-skills/inbox/` plus a SHA-256 compare of `Get-FileHash` and `sha256sum`. See `docs/research/windows-agent.md` section 5.
+- This server has `/usr/bin/sha256sum` (GNU coreutils 9.4). See `docs/research/windows-agent.md` section 5.
