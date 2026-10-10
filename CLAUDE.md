@@ -65,6 +65,9 @@ Owner rules for *running* the skills (passwords, money, one yes per change) live
   - build in a worktree: `git worktree add /root/fhs-skills-wt/<name> -b feat/<name> main`;
   - merging into `main` is the release for server sessions;
   - never leave `/root/fhs-skills` on a feature branch or with half-done edits under `skills/`.
+- **Windows desktop (runtime only):** development happens only on dev-lxc-1. Skills that need desktop-only apps (Dropbox,
+  NCR downloads, other Windows software) are deployed to the desktop as a copy of reviewed `main`. Every plan names where its
+  skill runs (server, desktop or both).
 - **Windows sessions (payroll):** the Windows copy is a mirror and stays live until it is
   refreshed. A refresh is its own OK from the owner, and so is any change to a running payroll.
 - **Scheduled runs** (later, server move plan): enabling a schedule is a separate OK.

@@ -32,6 +32,10 @@
 <The real-data check that proves it: which week folder or R365 report, which numbers must match.
 Name the evidence, not a status word.>
 
+## Where it runs
+
+<Server (dev-lxc-1), the owner's Windows desktop, or both. For the desktop: which Windows apps it needs, and that deploying it is a mirror refresh (a separate OK).>
+
 ## Which tree is live
 
 - **Served tree (server):** `/root/fhs-skills` on `main`, loaded through `/root/.claude/skills/fhs-*`.
