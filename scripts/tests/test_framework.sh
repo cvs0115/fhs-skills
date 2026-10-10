@@ -169,6 +169,55 @@ elif compgen -G "$FHS_REPO/docs/reviews/*.tmp" > /dev/null; then
   fail "review-diff-no-tmp" "tmp review left behind"
 fi
 
+# --- review.sh refuses a pre-existing worktree path ----------------------
+mkdir -p "$FHS_BUILD_ROOT/reports" "$wt"
+printf 'builder report\n' > "$FHS_BUILD_ROOT/reports/zz.md"
+printf 'tester report\n' > "$FHS_BUILD_ROOT/reports/zz-test.md"
+sentinel="$wt/sentinel"
+printf 'keep\n' > "$sentinel"
+rd_out="$(env -u REVIEW_MODEL bash scripts/review.sh --diff feat/zz 2>&1)"
+rd_ec=$?
+if [[ $rd_ec -eq 4 && -f "$sentinel" ]]; then
+  pass "review-diff-existing-dir"
+else
+  fail "review-diff-existing-dir" "exit $rd_ec; sentinel=$([[ -f "$sentinel" ]] && echo present || echo missing); output: ${rd_out//$'\n'/ | }"
+fi
+
+# --- collect prints the report --------------------------------------------
+coll_repo="$TMP/collect-repo"
+coll_clone="$FHS_BUILD_ROOT/zz"
+mkdir -p "$coll_repo" "$coll_clone" "$FHS_BUILD_ROOT/reports"
+git -C "$coll_repo" init -b main >/dev/null
+git -C "$coll_repo" config user.email "builder-test@example.com"
+git -C "$coll_repo" config user.name "Builder Test"
+git -C "$coll_repo" config commit.gpgsign false
+git -C "$coll_clone" init -b feat/zz >/dev/null
+git -C "$coll_clone" config user.email "builder-test@example.com"
+git -C "$coll_clone" config user.name "Builder Test"
+git -C "$coll_clone" config commit.gpgsign false
+printf 'one\n' > "$coll_clone/README"
+git -C "$coll_clone" add README
+git -C "$coll_clone" commit -m "one" >/dev/null
+unique="collect-prints-report-unique-fhs02"
+printf '%s\n' "$unique" > "$FHS_BUILD_ROOT/reports/zz.md"
+cp_out="$(FHS_REPO="$coll_repo" bash scripts/build.sh collect zz 2>&1)"
+cp_ec=$?
+if [[ $cp_ec -eq 0 && "$cp_out" == *"$unique"* && "$cp_out" == *"Next: scripts/review.sh --diff feat/zz"* ]] \
+  && git -C "$coll_repo" rev-parse --verify -q feat/zz >/dev/null; then
+  pass "collect-prints-report"
+else
+  has_branch=no
+  git -C "$coll_repo" rev-parse --verify -q feat/zz >/dev/null && has_branch=yes
+  fail "collect-prints-report" "exit $cp_ec; feat/zz=$has_branch; output: ${cp_out//$'\n'/ | }"
+fi
+
+# --- fixtures have no trailing whitespace ---------------------------------
+if ! grep -nE ' +$' scripts/tests/fixtures/*.md; then
+  pass "fixtures-no-trailing-ws"
+else
+  fail "fixtures-no-trailing-ws" "trailing whitespace"
+fi
+
 # --- 6. bash -n -----------------------------------------------------------
 bn="$(bash -n scripts/build.sh scripts/review.sh scripts/lib/verdict.sh scripts/lib/guards.sh 2>&1)"
 ec=$?

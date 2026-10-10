@@ -53,7 +53,7 @@ if [[ $DIFF -eq 1 && -n "$PLAN" ]]; then
 fi
 
 cleanup_diff() {
-  if [[ -n "${WT:-}" ]]; then
+  if [[ "${CREATED:-0}" -eq 1 && -n "${WT:-}" ]]; then
     git -C "$REPO" worktree remove --force "$WT" >/dev/null 2>&1 || true
     if [[ -d "${WT:-}" ]]; then
       rm -rf "$WT" || true
@@ -95,9 +95,16 @@ if [[ $DIFF -eq 1 ]]; then
   NAME="${short}-diff"
   OUT="$REPO/docs/reviews/$NAME.md"
   OUT_TMP="$OUT.tmp"
+  CREATED=0
+  wt_porcelain="$(git -C "$REPO" worktree list --porcelain)"
+  if [[ -e "$WT" ]] || printf '%s\n' "$wt_porcelain" | grep -qxF "worktree $WT"; then
+    echo "review worktree path already exists: $WT" >&2
+    exit 4
+  fi
   trap cleanup_diff EXIT
   mkdir -p "$(dirname "$WT")" "$(dirname "$OUT")"
   git -C "$REPO" worktree add --detach "$WT" "$BRANCH"
+  CREATED=1
   SUBJECT="the diff of branch $BRANCH against main. Run: git diff main...$BRANCH  (and git log main..$BRANCH). Compare against main and against the plan and task file if the branch names them. Check the reported test results against the diff. Builder report: $BUILD_REPORT. Tester report: $TEST_REPORT."
   read -r -d '' PROMPT <<EOF || true
 You are the Reviewer for the fhs-skills repo (Claude skills for a Firehouse Subs owner's back office).

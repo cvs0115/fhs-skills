@@ -118,7 +118,8 @@ cmd_collect() {
   git -C "$FHS_REPO" fetch \
     --upload-pack="git -c safe.directory=$FHS_BUILD_ROOT/$name -c safe.directory=$FHS_BUILD_ROOT/$name/.git upload-pack" \
     "$FHS_BUILD_ROOT/$name" "feat/$name:feat/$name"
-  echo "$report"
+  echo "--- report: $report ---"
+  cat "$report"
   echo "Next: scripts/review.sh --diff feat/$name"
 }
 
