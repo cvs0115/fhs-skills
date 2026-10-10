@@ -357,14 +357,14 @@ Recommendation, from those docs:
 
 ## Owner checklist (PC side)
 
-Blanks are for the owner. This research did not fill them in.
+Blanks were for the owner. **Answered 2026-10-10** (recorded by Claude after the merge, per post-merge P1):
 
-- `ssh dev-lxc-1 true` works without a password prompt: ___
-- `where git` output: ___ · OK to install Git for Windows: ___
-- OK to install cursor-agent on the PC: ___
-- Dropbox root path: ___ (expected `C:\Users\mayur\DropboxCS\Dropbox\CMVK Food Services`)
-- `C:\Users\mayur\.claude\skills` exists and lists `fhs-*`: ___
-- Is Documents redirected to OneDrive: ___
+- `ssh dev-lxc-1 true` works without a password prompt: **yes** (lands as `root` on `dev-lxc-1`; Windows OpenSSH 9.5)
+- `where git` output: **not installed** · OK to install Git for Windows: **yes**
+- OK to install cursor-agent on the PC: **not needed**; the PC agent is **Claude Code** (owner: most users have Claude)
+- Dropbox root path: **`C:\Users\mayur\DropboxCS\Dropbox\CMVK Food Services`** (confirmed)
+- `C:\Users\mayur\.claude\skills` exists and lists `fhs-*`: **yes** (`fhs-payroll-adp`, `fhs-skills`)
+- Is Documents redirected to OneDrive: `(?)` (the command printed nothing; probably yes, per an old note). The clone goes to `C:\fhs\fhs-skills` either way
 
 ## Summary: recommended setup, open (?) items
 

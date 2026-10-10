@@ -12,7 +12,7 @@ fhs-skills is a repo of Claude skills that run a Firehouse Subs owner's back off
 run on the owner's Windows desktop, because Dropbox and the Windows copy of the skills live there. You build the server-side guard and the
 desktop tools for those jobs:
 - a git `pre-receive` hook that accepts only `feat/win-*` fast-forward pushes
-- an optional SSH forced-command gate
+- the required SSH forced-command gate (owner, 2026-10-10)
 - two PowerShell scripts: a mirror refresh and a report transfer
 - a bash test harness
 - a runbook
@@ -100,12 +100,12 @@ You can't run PowerShell here (there's no `pwsh`). Its scripts are checked stati
    - what this is
    - the PC checklist C1–C6, and where to answer them (the hub)
    - D1 Git (choose "Use external OpenSSH", or `git config --global core.sshCommand C:/Windows/System32/OpenSSH/ssh.exe`), and the clone
-   - D2 Cursor `agent` and `agent login`
-   - how to start a PC agent (`--mode ask` to look; agent mode without `--force` to do; `--force` only for an approved headless run)
+   - D2 no install: Claude Code is already on the PC; confirm Claude in Chrome; add the `dev-lxc-1-agent` SSH alias using the restricted key
+   - how to start a PC agent (Claude Code): `claude --permission-mode plan` to look (read-only); a normal session to do, where it asks before each command; never bypass permissions unless the owner approved that run; agent jobs use the `dev-lxc-1-agent` alias
    - D3 the test push, then asking Ops to delete the test branch
    - D4: zip `C:\Users\mayur\.claude\skills` first, then `refresh-mirror.ps1 -DryRun`, then the real run
    - D5 `send-report.ps1`
-   - G1, the optional gated key
+   - G1, the required restricted key (generate `fhs_agent_ed25519` on the PC; Ops adds the gated line)
    - rollback for each
    - the CRLF note from research §4
 
