@@ -19,6 +19,8 @@ Library decided 10/9/26: all Firehouse skills are named `fhs-*`, kept as plain s
 
 - 10/10/26: skills are built with App Framework v2 (lean), rules in /root/fhs-skills/CLAUDE.md: spec → research → plan → non-Claude review (scripts/review.sh, cursor-agent GPT-5.6) → build in a worktree → verify on real data. Hub stays the Board and Decision Log. Owner moved R365 inventory/food cost ahead of the 10/9 waves as the first framework project.
 
+- 10/10/26: development happens only on dev-lxc-1. Runtime can be the server or the owner's Windows desktop, because some apps (Dropbox, NCR downloads, other desktop software) live only on the desktop. Skills that need them get deployed to the desktop as a copy of reviewed main (a mirror refresh, separate OK). Every plan names where its skill runs.
+
 **Why:** owner wants one Firehouse library with consistent naming, backed-up shared settings, and setup that follows the recommended design (R365 = back office, Toast feeds it, weekly Sunday count, all menu items mapped, electronic invoices).
 **How to apply:** new fhs skills read the shared config and never duplicate store facts; add them to the fhs-skills library table. Owner asked to plan and ask questions before coding/finalizing changes.
 
