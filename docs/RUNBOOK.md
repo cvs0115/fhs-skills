@@ -15,7 +15,10 @@ send the named report to Claude.
 | **Reviewer** (started for you by `scripts/review.sh`, read-only) | — | Cursor Grok 4.6 Extra High for plans and Composer's code; Composer 2.5 for Grok's research |
 
 All of these are your included Cursor models (owner, 2026-10-10). The reviewer is never the writer's model family, so nobody grades
-their own work. Until framework-setup-03 merges, `review.sh` still runs GPT-5.6. That's its last use.
+their own work.
+
+**Plan mode saves tokens:** any read-only agent task (reviews, pre-checks, "what would this change?", quick questions) runs with
+`--mode plan` (or `--mode ask`). Only Builders, Testers, Researchers and Ops run in normal mode, because they write files or run commands.
 
 ## Rows
 

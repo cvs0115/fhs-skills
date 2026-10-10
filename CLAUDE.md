@@ -92,7 +92,7 @@ Owner rules for *running* the skills (passwords, money, one yes per change) live
 |---|---|---|
 | Planner | Claude | specs, plans, task files (`docs/prompts/`), test plans (`docs/tests/`), the runbook, hub; no code, no ops |
 | Ops | `agent --model composer-2.5` as root (owner-approved commands, or headless when the owner delegates approval to Claude), from `docs/prompts/ops-*.md` | commits docs and reviews, creates the user, clones, fetches, runs `build.sh`/`review.sh`, runs root-only test cases, merges after an APPROVE |
-| Reviewer | `scripts/review.sh`, read-only (`--mode plan`): Claude's plans and Composer's code → `cursor-grok-4.6-xhigh`; Grok's research → `composer-2.5`. Never the writer's family. (Until framework-setup-03 merges, review.sh still runs GPT-5.6.) | one verdict file |
+| Reviewer | `scripts/review.sh`, read-only (`--mode plan`): Claude's plans and Composer's code → `cursor-grok-4.6-xhigh`; Grok's research → `composer-2.5`. Never the writer's family. | one verdict file |
 | Builder and Tester | `agent --model composer-2.5 --force`, as user `fhsbuild` in `/srv/fhs-build/<name>` | commits on `feat/<name>` in its clone; a report outside the repo |
 | Researcher | `agent --model cursor-grok-4.6-high --force` as `fhsbuild`, with a research prompt; writes only its research note | `docs/research/<file>` in its clone |
 | Tester | a fresh `composer-2.5` session (never the builder's), from `docs/tests/<plan>.md`; shell, Playwright (server browser) or Chrome on the Windows PC | a results file outside the repo |
@@ -104,6 +104,8 @@ Owner rules for *running* the skills (passwords, money, one yes per change) live
 - Models (owner decision 2026-10-10: included Cursor models only): Composer 2.5 builds, tests and runs ops; Cursor Grok 4.6 High researches;
   Cursor Grok 4.6 Extra High reviews Claude's plans and Composer's code; Composer 2.5 reviews Grok's research. GPT, Sonnet and grok-4.7 aren't used.
 - Each task file is handed to its agent (Composer, or Cursor Grok for research) running as `fhsbuild` in the clone that `scripts/build.sh prepare` made.
+- Read-only agent work (reviews, pre-checks, analysis, quick questions) runs with `agent --mode plan` (or `--mode ask`): fewer tokens and
+  no edits (owner, 2026-10-10). Only Builders, Testers, Researchers and Ops run in normal mode.
 - No builder-written code runs as root until a diff review of it is APPROVE.
 - The Ops agent commits every review file to `main` right after it's written (docs only). Before a new review of the same
   subject, the earlier file is renamed `<name>-rN.md`, so every verdict is kept.
