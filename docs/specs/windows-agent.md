@@ -18,7 +18,8 @@
 
 ## Who runs it
 
-- The owner starts a cursor-agent (Grok 4.7 High) on the PC and hands it a task file, the same way as on the server.
+- ~~The owner starts a cursor-agent (Grok 4.7 High) on the PC~~ **Changed 2026-10-10 (owner):** the PC agent is **Claude Code** (already on the PC;
+  most users have Claude). The owner starts it and hands it a task file. Agent jobs use the restricted `dev-lxc-1-agent` key.
 
 ## Done when
 
@@ -52,4 +53,4 @@
 
 ## Open questions
 
-- [NEEDS CLARIFICATION] Is Git for Windows OK to install on the PC? Is cursor-agent? (asked before Stage B)
+- ~~[NEEDS CLARIFICATION] Is Git for Windows OK to install on the PC? Is cursor-agent?~~ Answered 2026-10-10: Git yes; no cursor-agent (Claude Code).

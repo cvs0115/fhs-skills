@@ -44,9 +44,9 @@ You can't run PowerShell here (there's no `pwsh`). Its scripts are checked stati
    
    Keep the three lists, the `YES` prompt (`if ($answer -ne 'YES')`), the copy, the re-hash, and `matched=`/`unmatched=`.
 3. **`scripts/windows/send-report.ps1`.** As specified in the plan:
-   - `-Path` (required) and `-Name` (validated `^[A-Za-z0-9._-]{1,120}$`, default the file's own name)
+   - `-Path` (required), `-Name` (validated `^[A-Za-z0-9._-]{1,120}$`, refuse `.` and `..`, default the file's own name), `-SshHost` (default `dev-lxc-1`)
    - the existence check first (exit 2 if the target exists)
-   - `scp`, then `Get-FileHash -Algorithm SHA256` and remote `sha256sum`
+   - `scp -O` (the classic `scp -t` remote form the gate allows) to `<SshHost>`, then `Get-FileHash -Algorithm SHA256` and remote `sha256sum` via `ssh <SshHost>`
    - a case-insensitive compare: `MATCH` exits 0, `MISMATCH` exits 1
    - check `$LASTEXITCODE` after every native command
    - ASCII only, no tabs

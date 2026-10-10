@@ -28,7 +28,8 @@ Your Windows PC gets a few small, checked tools for the jobs that only work ther
   the differences first, copies only after you type `YES`, never deletes Windows-only files, and proves the result by hash.
 - **Sending reports.** A send script copies a named report from your Dropbox to the server's `inbox/` and proves the copy by hash.
 - **A tighter key for the agent.** A required server-side gate (owner, 2026-10-10) lets the PC agent's SSH key do only those three things (git fetch and
-  push, copy into `inbox/`, hash a file there). The agent then can't run arbitrary root commands. You decide whether to turn it on.
+  push, copy into `inbox/`, hash a file there). The agent then can't run arbitrary root commands. It's required (owner, 2026-10-10). Agent jobs connect through the `dev-lxc-1-agent` alias,
+  which uses that key, and the owner's own `dev-lxc-1` alias stays unrestricted for the owner.
 
 ## How this plan answers the windows-agent-01 review (r1)
 
@@ -75,8 +76,10 @@ The owner answered the research checklist on 2026-10-10 (r2 revision; evidence i
   - The script never calls `Remove-Item`, never touches anything that isn't `fhs-*`, and refuses to run if `-MirrorRoot` is inside the clone.
   - It stays ASCII, with no BOM, so PowerShell 5.1 reads it correctly.
 - `scripts/windows/send-report.ps1` (new):
-  - Parameters `-Path <file>` (required) and `-Name <target file name>` (default: the file's own name, validated `^[A-Za-z0-9._-]{1,120}$`).
-  - Runs `scp <Path> dev-lxc-1:/root/fhs-skills/inbox/<Name>`, then `Get-FileHash -Algorithm SHA256` locally and
+  - Parameters `-Path <file>` (required), `-Name <target file name>` (default: the file's own name, validated `^[A-Za-z0-9._-]{1,120}$`, and
+    not `.` or `..`), and `-SshHost` (default `dev-lxc-1`; agent jobs pass `dev-lxc-1-agent`).
+  - Runs `scp -O <Path> <SshHost>:/root/fhs-skills/inbox/<Name>`. The `-O` forces the classic `scp -t` remote command the gate allows; OpenSSH
+    9.5 would default to SFTP. Then `Get-FileHash -Algorithm SHA256` locally and
     `ssh dev-lxc-1 "sha256sum /root/fhs-skills/inbox/<Name>"`.
   - Compares the two case-insensitively and prints `MATCH` (exit 0) or `MISMATCH` (exit 1). It never overwrites an existing inbox file:
     it checks first with `ssh dev-lxc-1 "test ! -e /root/fhs-skills/inbox/<Name>"` and exits 2 if the file exists.
@@ -84,7 +87,7 @@ The owner answered the research checklist on 2026-10-10 (r2 revision; evidence i
   `$SSH_ORIGINAL_COMMAND` and allows exactly these:
   - `git-upload-pack '/root/fhs-skills'`, and the same with `/root/fhs-skills/` or without quotes
   - `git-receive-pack '/root/fhs-skills'`, same forms
-  - `scp -t /root/fhs-skills/inbox/<name>`, where the name matches `^[A-Za-z0-9._-]{1,120}$`
+  - `scp -t /root/fhs-skills/inbox/<name>`, where the name matches `^[A-Za-z0-9._-]{1,120}$` and isn't `.` or `..`
   - `test ! -e /root/fhs-skills/inbox/<name>`
   - `sha256sum /root/fhs-skills/inbox/<name>`
   
@@ -152,14 +155,13 @@ Nothing touches Toast, R365, ADP or payroll. The payroll skills on Windows chang
 5. S1: `ls -l /root/fhs-skills/.git/hooks/pre-receive` is executable, and `cmp` against `scripts/git-hooks/pre-receive` shows no difference.
 6. D3 from the real PC: `feat/win-hello` accepted. A push to `main`, to `feat/other`, a force-push and a delete are each refused with the
    hook's `refused:` message. Afterwards the server branch is deleted, and `git -C /root/fhs-skills status --short` is clean.
-7. D4: after the real refresh, the script prints `unmatched=0` plus any Windows-only files. Ops checks independently: a SHA-256 list of every
-   file under `skills/fhs-*` on server `main` vs the list the owner pastes from
-   `Get-ChildItem C:\Users\mayur\.claude\skills\fhs-* -Recurse -File | Get-FileHash`. Same relative paths and hashes, allowing for the
-   CRLF note in research §4 (if `core.autocrlf=true`, text files are compared after the PC clone's own checkout, as the script does).
-8. D5: `send-report.ps1` prints `MATCH`, and Ops sees the file in `/root/fhs-skills/inbox/` with the same `sha256sum`. `git status --short`
+7. D4: after the real refresh, the script prints `unmatched=0` plus any Windows-only files. The independent check compares the same pair the
+   script compares, the **PC clone's** `skills\fhs-*` vs the mirror, both hashed on the PC with `Get-FileHash` (so `core.autocrlf` can't cause
+   false mismatches): same relative paths and hashes. Ops separately confirms the PC clone's `HEAD` equals server `main`.
+8. D5: `send-report.ps1 -Path <file> -Name <regex-safe name, e.g. 122_2026-09-21_2026-10-04_hours.txt>` prints `MATCH`, and Ops sees the file in `/root/fhs-skills/inbox/` with the same `sha256sum`. `git status --short`
    doesn't show it (gitignored).
-9. G1, only if turned on: from the PC with the gated key, `git fetch` and a `feat/win-*` push work, `ssh dev-lxc-1 id` prints `refused`,
-   and D5 still works.
+9. G1 (required): through the gated alias, `git fetch dev-lxc-1-agent:...` and a `feat/win-*` push work, `ssh dev-lxc-1-agent id` prints
+   `refused`, and `send-report.ps1 -SshHost dev-lxc-1-agent ...` prints `MATCH`.
 
 ## Sequence
 
