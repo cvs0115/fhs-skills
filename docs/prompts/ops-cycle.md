@@ -8,7 +8,7 @@
 ## Context
 
 `/root/fhs-skills` is the master repo. Its `main` checkout is **live**: server Claude sessions load `skills/`
-from it. Builder and tester agents (Grok) run as the locked-down user `fhsbuild` in their own clone under
+from it. Builder and tester agents (Composer; Cursor Grok for research) run as the locked-down user `fhsbuild` in their own clone under
 `/srv/fhs-build/`. They can't touch `/root`. You do the root-side steps around them: prepare the clone,
 collect the branch, run the reviews, run any root-only test cases, and merge. **No code written by a
 builder runs as root until a diff review of it is APPROVE** (section D before E).

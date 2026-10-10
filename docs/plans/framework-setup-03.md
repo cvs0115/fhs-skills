@@ -90,14 +90,15 @@ None.
 ## Done-check (real outcome)
 
 1. The builder's and the tester's suite runs pass.
-2. **Real plan review with the new reviewer:** Ops runs the branch's `review.sh docs/plans/framework-setup-03.md` from a root worktree of the
-   branch. The review header names `cursor-grok-4.6-xhigh`, and the verdict must be **APPROVE** (r2 major 1). APPROVE AFTER FIXES or REJECT goes
+2. **Real plan review with the new reviewer:** first Ops renames the existing `docs/reviews/framework-setup-03.md` to the next free
+   `framework-setup-03-rN.md` and commits that on main (r4 major 2). Then it runs the branch's `review.sh docs/plans/framework-setup-03.md` from a root worktree of the
+   branch, and renames and commits the new file as the next `-rN` too, so no verdict is overwritten. The review header names `cursor-grok-4.6-xhigh`, and the verdict must be **APPROVE** (r2 major 1). APPROVE AFTER FIXES or REJECT goes
    back to Claude to fix the plan, under the normal loop, before the final review.
 3. **Real diff review with the new reviewer:** the final review runs the branch's `review.sh --diff feat/framework-setup-03` (writer `composer`).
    The header names `cursor-grok-4.6-xhigh`, and it must be APPROVE to merge.
 4. After the merge: `grep -c 'gpt-5.6\|sonnet\|grok-4.7' scripts/review.sh scripts/lib/guards.sh scripts/build.sh` → all 0.
 5. After the merge, Claude removes the "until framework-setup-03 merges" sentences. Then
-   `grep -n -i "grok-4.7\|gpt-5.6\|sonnet\|Start Grok" CLAUDE.md docs/RUNBOOK.md docs/templates/*.md docs/prompts/ops-cycle.md` → no output,
+   `grep -n -i "grok-4.7\|gpt-5.6\|sonnet\|Start Grok\|tester agents (Grok)" CLAUDE.md docs/RUNBOOK.md docs/templates/*.md docs/prompts/ops-cycle.md` → no output,
    and the two historical ops files carry the "Historical" note.
 
 ## Sequence
