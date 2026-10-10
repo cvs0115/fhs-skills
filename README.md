@@ -10,7 +10,8 @@ This repo on dev-lxc-1 is the master copy. Edit here, commit, then refresh the W
 | `artifacts/` | Page sources for the hub and plan artifacts (the data lives in each artifact's database) |
 | `scripts/` | Server-side helpers (notify, sync, scheduled runs) |
 | `inbox/` | Reports that arrive by email or upload. Not in git. |
-| `memory/` | Copy of the owner's Claude memory notes about this work, for reference |
+| `memory/` | Claude's memory notes for this project (the live copy since 2026-10-10, via `autoMemoryDirectory` in `.claude/settings.local.json`) |
+| `build/` | Shortcut (gitignored) to `/srv/fhs-build`: builder clones and agent reports. The builder user can't reach `/root`, so the real folder stays outside |
 | `CLAUDE.md` | How skills get built and changed: spec → research → plan → cross-model review → build → verify |
 | `docs/` | Specs, research notes, written plans and review verdicts (forms in `docs/templates/`) |
 | `app-framework/` | App Framework v2: playbook, question banks, agent roles, templates and lessons for building apps with Claude Code. Copied from `/root/trader-mayne/app-framework-v2` on 2026-10-10. |
