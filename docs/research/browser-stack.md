@@ -215,17 +215,25 @@ npx @playwright/mcp@latest --port 8931
 
 and the client `url` is `http://localhost:8931/mcp`.
 
-**Two clients, one browser.** The same bundle's MCP command action (embedded path `packages/playwright-core/src/tools/mcp/program.ts`) does this:
+**Two HTTP clients, one MCP process.** Re-read 2026-10-10 from the unpacked `@playwright/mcp@0.0.83` bundle (`playwright-core/lib/coreBundle.js`) and from `cli.js --help` on that same tree. Help text:
+
+- `--isolated`: "keep the browser profile in memory, do not save it to disk."
+- `--shared-browser-context`: "reuse the same browser context between all connected HTTP clients."
+
+The MCP command action (embedded path `packages/playwright-core/src/tools/mcp/program.ts`) sets:
 
 ```text
 const useSharedBrowser = config.sharedBrowserContext || config.browser.isolated;
 ```
 
-`factory.create` runs for each connected client (`connect()` builds a new MCP `Server` per SSE or streamable session; the session maps have no size check). When `useSharedBrowser` is set, the first client launches one browser (`sharedBrowserPromise`) and later clients call `connectToBrowserEndpoint` on that browser. The context line is: if `config.browser.isolated`, `browser.newContext(...)`; otherwise `browser.contexts()[0]` or a new context. So:
+`factory.create` runs for each connected client (`connect()` builds a new MCP `Server` per SSE or streamable session; the session maps have no size check). When `useSharedBrowser` is set, the first client launches one browser (`sharedBrowserPromise` via `createBrowserWithInfo`) and every client, including the first, calls `connectToBrowserEndpoint` on that browser. The context line is: if `config.browser.isolated`, `browser.newContext(config.browser.contextOptions)`; otherwise `browser.contexts()[0]` or a new context. `createBrowser` sends an isolated launch to `createIsolatedBrowser` (`browserType.launch`, no profile directory) and every other local launch to `createPersistentBrowser`. `defaultConfig` does not set `browser.isolated`. `resolveCLIConfigForMCP` does not default it either. `resolveCLIConfigForCLI` does default `browser.isolated` when no profile is set; that function is the Playwright CLI, not this MCP server.
 
-- `--shared-browser-context`: one browser, and clients reuse the first context (same cookies and pages).
-- `--isolated`: one browser process, a new in-memory context per client. Help text: profile is not saved to disk.
-- Neither flag: each client calls `createPersistentBrowser` and gets its own browser. The profile directory is locked: `createPersistentBrowser` throws `Browser is already in use for ${userDataDir}, use --isolated to run multiple instances of the same browser` when the profile lock is held.
+For two HTTP clients of this one process:
+
+- **Default (neither flag).** `useSharedBrowser` is false. Each client calls `createPersistentBrowser` and gets its own browser. The profile directory is locked: `createPersistentBrowser` throws `Browser is already in use for ${userDataDir}, use --isolated to run multiple instances of the same browser` when the profile lock is held. Two clients that hash to the same default directory (same `clientInfo.cwd`) hit that lock; two different workspace directories get two browsers.
+- **`--isolated`.** `useSharedBrowser` is true because `config.browser.isolated` is true, even without `--shared-browser-context`. One in-memory browser, and each client gets `browser.newContext(...)` (separate cookies and pages). The profile is not saved. `validateBrowserConfig` throws `Browser userDataDir is not supported in isolated mode.` if `--user-data-dir` is also set.
+- **`--shared-browser-context`.** One browser, and clients reuse `browser.contexts()[0]` (same cookies and pages). `browser_close` throws `The browser context is shared between clients and cannot be closed.` This flag does not refuse a second client.
+- **Both flags.** `useSharedBrowser` is still true. `createBrowser` takes the isolated branch, and the context line follows `config.browser.isolated`, so each client gets a new context on that one in-memory browser. `--user-data-dir` is still rejected.
 
 A live second client was not connected (that would listen). The behavior above is the shipped source, not a runtime trial.
 
@@ -375,11 +383,11 @@ The same page says Cursor supports stdio, SSE ("URL to an SSE endpoint"), and st
 
 ## 6. Locking
 
-No Playwright MCP flag refuses a second client. `--help` has no single-client or max-client option. A search of the 0.0.83 bundle found no `singleClient`. `clientCount` only decides when the shared browser is closed, not whether a new session is accepted. `sseSessions` and `streamableSessions` are Maps with no maximum. `--shared-browser-context` shares the browser; it does not refuse anyone.
+No Playwright MCP flag refuses a second client. `--help` has no single-client or max-client option. A search of the 0.0.83 bundle found no `singleClient`. `clientCount` only decides when the shared browser is closed, not whether a new session is accepted. `sseSessions` and `streamableSessions` are Maps with no maximum. Neither `--shared-browser-context` nor `--isolated` refuses a second client. The first shares one context; the second shares one browser and opens a new context per client (section 1).
 
 Playwright's hidden `run-server` command has `--max-clients`, but that is the Playwright driver server, not the MCP CLI (`decorateMCPCommand` does not add it). Do not treat it as an MCP lock.
 
-The profile lock in section 1 (`Browser is already in use for ...`) refuses a second browser on the same user-data directory. It is not an access-path control: the second MCP session is accepted, and the failure happens later, inside `createPersistentBrowser`. With `--shared-browser-context` that lock is not the refusal path at all.
+The profile lock in section 1 (`Browser is already in use for ...`) refuses a second browser on the same user-data directory. It is not an access-path control: the second MCP session is accepted, and the failure happens later, inside `createPersistentBrowser`. With `--shared-browser-context` or `--isolated` that lock is not the refusal path: the first reuses the browser from `sharedBrowserPromise`, and the second calls `createIsolatedBrowser` instead of `createPersistentBrowser`.
 
 Two ways to refuse at the access path. Neither was built.
 
@@ -390,26 +398,55 @@ Two ways to refuse at the access path. Neither was built.
 
 systemd 255 (`systemctl --version`: `systemd 255 (255.4-1ubuntu8.16)`) is PID 1 inside the container. `CapEff` of PID 1 is `000001ffffffffff`, which includes `CAP_SYS_ADMIN` (bit 21) inside the container's user namespace. That is not host root: uid_map still starts at host uid 100000.
 
-Sketch only. No unit was installed and no service was started. Account `fhs-browser` is a name for the sketch, not a user on this machine. One `ExecStart` cannot be Xvfb, x11vnc, websockify, and the MCP server without a supervisor; the build plan has to pick that. The processes the unit must end up running, all as the dedicated user:
+Text only. No unit was installed and no service was started. Account `fhs-browser` is a name for this topology, not a user on this machine. One service cannot be Xvfb, x11vnc, websockify, and the MCP server. The runnable shape is four system units, one long-running process each. `Restart=on-failure` (`systemd.service(5)`) restarts a process that exits non-zero or dies on a signal other than SIGHUP, SIGINT, SIGTERM, or SIGPIPE. A stop or restart that systemd itself asked for does not restart the process. `PartOf=` (`systemd.unit(5)`) propagates stop and restart from the named unit to this one, so a restarted display takes the clients with it. `Requires=` pulls the named unit in. With `After=`, this unit does not start if that unit fails to activate. `Requires=` stops or restarts this unit when the named unit is explicitly stopped or restarted; it does not by itself stop this unit when the other process exits on its own (`systemd.unit(5)`). `BindsTo=` does: an unexpected exit of the named unit stops this one. `Wants=` on the upstream unit starts the downstream units when the upstream unit starts. `Before=` only orders that start. After `BindsTo=` has stopped them, the next upstream start pulls them in again through `Wants=`, including a start from `Restart=on-failure`.
 
-```text
-Xvfb :99 -nolisten tcp
-x11vnc -display :99 -listen localhost -rfbport 5900 -passwdfile /var/lib/fhs-browser/vnc-pass -forever -shared
-websockify --web=/usr/share/novnc 127.0.0.1:6080 127.0.0.1:5900
-```
+`Xvfb(1)` on this host defaults to one screen, 1280x1024x24, when `-screen` is omitted. `-nolisten tcp` is still passed so the unit does not depend on the unconfirmed TCP default in section 4. Xvfb does not listen on `127.0.0.1`; it has no TCP listener. The installed `/usr/bin/Xvfb` contains the path `/tmp/.X11-unix` (`strings /usr/bin/Xvfb`). That is the directory this binary uses for the display socket. `PrivateTmp=yes` gives each unit its own `/tmp`, so the x11vnc and MCP units set `JoinsNamespaceOf=fhs-browser-xvfb.service` in `[Unit]`. `systemd-analyze verify` on a throwaway unit ignores that key in `[Service]` (`Unknown key name 'JoinsNamespaceOf' in section 'Service'`). `systemd.unit(5)` says the share applies only when `PrivateTmp=` is set on both the joiner and the unit it joins. `systemd.exec(5)` says `JoinsNamespaceOf=` does not share the rest of the mount namespace, so each unit still applies its own `ProtectSystem=`, `ProtectHome=`, and `ReadWritePaths=`. `PrivateNetwork=` is not set, so VNC and MCP stay on the host loopback.
 
-`-nolisten tcp` is included so Xvfb does not depend on the unconfirmed default in section 4. MCP, headed, sandbox requested, profile on a path the unit can write:
+`StateDirectory=fhs-browser` (`systemd.exec(5)`) creates `/var/lib/fhs-browser`, owned by `User=` and `Group=`, and bind-mounts it into the unit. The same option on all four units is the one state directory. It is not removed when a unit stops. `ReadWritePaths=/var/lib/fhs-browser` is still set, as in the hardening below.
 
-```text
-/usr/bin/npx --yes @playwright/mcp@0.0.83 --browser chromium --host 127.0.0.1 --port 8931 --user-data-dir /var/lib/fhs-browser/profile --sandbox --shared-browser-context
-```
+The VNC password file `/var/lib/fhs-browser/vnc-pass` and the pin directory `/opt/fhs-browser/node_modules/@playwright/mcp/` are not created here. Whether x11vnc exits when the password file is missing was not run `(?)`. Package file lists (section 4): `/usr/bin/Xvfb` (installed), `/usr/bin/x11vnc`, `/usr/bin/websockify` (from `python3-websockify`). `websockify(1)` stays in the foreground unless `-D` / `--daemon`. These units do not pass that flag, so `Type=simple` matches. The MCP command is the package bin `cli.js` under an absolute `/usr/bin/node`. The system manager's `$PATH` is the fixed value `/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin` (`systemd.exec(5)`), which does not include Cursor's `node`. Section 1's failure was the login `PATH`, not this one. The MCP unit also sets `PATH=/usr/bin:/bin`.
 
-Use a pinned install path in the real unit rather than `npx` at start, so a registry outage cannot change the version. Section 1's PATH note applies if the unit's `PATH` puts Cursor's `node` first.
+`resolveCLIConfigForMCP` sets `launchOptions.headless` to true on Linux when `DISPLAY` is unset. The MCP unit sets `DISPLAY=:99` so the browser stays headed. `--headless` is not passed. `--shared-browser-context` is passed so two HTTP clients share one login (section 1).
 
 ```ini
+# fhs-browser-xvfb.service
 [Unit]
-Description=Firehouse server browser and Playwright MCP
-After=network.target
+Description=Firehouse browser virtual display
+After=local-fs.target
+Requires=local-fs.target
+Wants=fhs-browser-x11vnc.service fhs-browser-mcp.service
+Before=fhs-browser-x11vnc.service fhs-browser-mcp.service
+
+[Service]
+Type=simple
+User=fhs-browser
+Group=fhs-browser
+Environment=HOME=/var/lib/fhs-browser
+WorkingDirectory=/var/lib/fhs-browser
+StateDirectory=fhs-browser
+ExecStart=/usr/bin/Xvfb :99 -nolisten tcp
+Restart=on-failure
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ReadWritePaths=/var/lib/fhs-browser
+
+[Install]
+WantedBy=multi-user.target
+```
+
+```ini
+# fhs-browser-x11vnc.service
+[Unit]
+Description=Firehouse browser VNC
+After=fhs-browser-xvfb.service
+Requires=fhs-browser-xvfb.service
+BindsTo=fhs-browser-xvfb.service
+PartOf=fhs-browser-xvfb.service
+JoinsNamespaceOf=fhs-browser-xvfb.service
+Wants=fhs-browser-novnc.service
+Before=fhs-browser-novnc.service
 
 [Service]
 Type=simple
@@ -418,23 +455,85 @@ Group=fhs-browser
 Environment=HOME=/var/lib/fhs-browser
 Environment=DISPLAY=:99
 WorkingDirectory=/var/lib/fhs-browser
+StateDirectory=fhs-browser
+ExecStart=/usr/bin/x11vnc -display :99 -listen 127.0.0.1 -no6 -rfbport 5900 -passwdfile /var/lib/fhs-browser/vnc-pass -forever -shared -norc
+Restart=on-failure
 NoNewPrivileges=yes
 ProtectSystem=strict
 ProtectHome=yes
 PrivateTmp=yes
 ReadWritePaths=/var/lib/fhs-browser
-# ExecStart is the supervisor the build plan chooses, running the four
-# commands above. Not installed by this research.
 
 [Install]
 WantedBy=multi-user.target
 ```
 
-`ProtectSystem=strict` mounts the tree read-only except `/dev`, `/proc`, and `/sys` (`systemd.exec(5)`). The profile, VNC password file, and browser cache must sit on `ReadWritePaths`. The Chromium binary can stay on a read-only path. `ProtectHome=yes` makes `/home`, `/root`, and `/run/user` inaccessible. It does not hide `/srv` or `/var`. `fhsbuild`'s home is `/srv/fhs-build`, so `ProtectHome=yes` would not cover that home. Put the browser user's files under `/var/lib/fhs-browser` and do not point the profile at `/srv/fhs-build`.
+`-listen 127.0.0.1` is the noble man page's `-listen ipaddr` form (re-read 2026-10-10). The same page says this binary listens on IPv6 by default and that `-no6` is what turns that off, so the unit passes both. `-norc` stops `$HOME/.x11vncrc` from adding flags. `-localhost` is "basically the same as `-allow 127.0.0.1`" and implies `-listen localhost`, which is a name rather than the address `127.0.0.1`.
 
-`NoNewPrivileges=yes` sets `no_new_privs` (`systemd.exec(5)`, `prctl(2)`). A setuid `chrome-sandbox` helper cannot gain root under that bit. The namespace sandbox does not need setuid. This unit asks for `--sandbox`. Whether Chromium's namespace sandbox still comes up when the unit has already set `NoNewPrivileges` was not launched `(?)`.
+```ini
+# fhs-browser-novnc.service
+[Unit]
+Description=Firehouse browser noVNC
+After=fhs-browser-x11vnc.service
+Requires=fhs-browser-x11vnc.service
+BindsTo=fhs-browser-x11vnc.service
+PartOf=fhs-browser-x11vnc.service
 
-**What may not work in this LXC.** `systemd.exec(5)` says `ProtectSystem=` has no effect if the service manager runs in a container that makes file-system namespacing unavailable to its payload, and that `PrivateTmp=` can be impossible when mount namespaces are not available. The same page says those settings are not available to user services unless `PrivateUsers=true`, which needs `kernel.unprivileged_userns_clone` (this host's value is 1). Use a system unit, not a user unit. This user cannot `unshare --mount` directly, but PID 1 holds `CAP_SYS_ADMIN` in the container, and a user namespace plus a mount namespace did work for `fhsbuild`. Whether `ProtectSystem=strict`, `ProtectHome=yes`, and `PrivateTmp=yes` actually apply when systemd starts a unit here was not tested `(?)`. Confirm with `systemd-run` (as root, which this user is not) or the first real start, and check `systemctl show` for the effective values. `systemd.exec(5)` also says the implementation may turn the setting off quietly, so a successful start is not proof the sandbox option took effect until `systemctl show` is read.
+[Service]
+Type=simple
+User=fhs-browser
+Group=fhs-browser
+Environment=HOME=/var/lib/fhs-browser
+WorkingDirectory=/var/lib/fhs-browser
+StateDirectory=fhs-browser
+ExecStart=/usr/bin/websockify --web=/usr/share/novnc 127.0.0.1:6080 127.0.0.1:5900
+Restart=on-failure
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ReadWritePaths=/var/lib/fhs-browser
+
+[Install]
+WantedBy=multi-user.target
+```
+
+```ini
+# fhs-browser-mcp.service
+[Unit]
+Description=Firehouse browser Playwright MCP
+After=fhs-browser-xvfb.service network.target
+Requires=fhs-browser-xvfb.service
+BindsTo=fhs-browser-xvfb.service
+PartOf=fhs-browser-xvfb.service
+JoinsNamespaceOf=fhs-browser-xvfb.service
+
+[Service]
+Type=simple
+User=fhs-browser
+Group=fhs-browser
+Environment=HOME=/var/lib/fhs-browser
+Environment=DISPLAY=:99
+Environment=PATH=/usr/bin:/bin
+WorkingDirectory=/var/lib/fhs-browser
+StateDirectory=fhs-browser
+ExecStart=/usr/bin/node /opt/fhs-browser/node_modules/@playwright/mcp/cli.js --browser chromium --host 127.0.0.1 --port 8931 --user-data-dir /var/lib/fhs-browser/profile --sandbox --shared-browser-context
+Restart=on-failure
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ReadWritePaths=/var/lib/fhs-browser
+
+[Install]
+WantedBy=multi-user.target
+```
+
+`ProtectSystem=strict` mounts the tree read-only except `/dev`, `/proc`, and `/sys` (`systemd.exec(5)`). The profile, VNC password file, and browser cache must sit on `ReadWritePaths`. The Chromium binary and the pinned MCP tree under `/opt/fhs-browser` can stay on a read-only path. `ProtectHome=yes` makes `/home`, `/root`, and `/run/user` inaccessible. It does not hide `/srv` or `/var`. `fhsbuild`'s home is `/srv/fhs-build`, so `ProtectHome=yes` would not cover that home. Put the browser user's files under `/var/lib/fhs-browser` and do not point the profile at `/srv/fhs-build`.
+
+`NoNewPrivileges=yes` sets `no_new_privs` (`systemd.exec(5)`, `prctl(2)`). A setuid `chrome-sandbox` helper cannot gain root under that bit. The namespace sandbox does not need setuid. The MCP unit asks for `--sandbox`. Whether Chromium's namespace sandbox still comes up when the unit has already set `NoNewPrivileges` was not launched `(?)`.
+
+**What may not work in this LXC.** `systemd.exec(5)` says `ProtectSystem=` has no effect if the service manager runs in a container that makes file-system namespacing unavailable to its payload, and that `PrivateTmp=` can be impossible when mount namespaces are not available. The same page says those settings are not available to user services unless `PrivateUsers=true`, which needs `kernel.unprivileged_userns_clone` (this host's value is 1). Use system units, not user units. This user cannot `unshare --mount` directly, but PID 1 holds `CAP_SYS_ADMIN` in the container, and a user namespace plus a mount namespace did work for `fhsbuild`. Whether `ProtectSystem=strict`, `ProtectHome=yes`, and `PrivateTmp=yes` actually apply when systemd starts a unit here was not tested `(?)`. The same untested gap covers `JoinsNamespaceOf=` sharing that private `/tmp` among the Xvfb, x11vnc, and MCP units. If the private `/tmp` is not actually private, the display socket would be the host's `/tmp/.X11-unix` instead. Confirm with `systemd-run` (as root, which this user is not) or the first real start, and check `systemctl show` for the effective values. `systemd.exec(5)` also says the implementation may turn the setting off quietly, so a successful start is not proof the sandbox option took effect until `systemctl show` is read.
 
 ## 8. Sites
 
@@ -488,7 +587,7 @@ Namespace and identifier URIs found in page source (for example `www.w3.org` in 
 
 ## Summary: recommended stack, pinned versions, open `(?)` items
 
-**Stack to plan from.** One systemd system unit as a dedicated user (not root, not `fhsbuild`). Headed Chrome for Testing on Xvfb display `:99` with `-nolisten tcp`. `x11vnc -listen localhost` and a password file. `websockify --web=/usr/share/novnc` bound to `127.0.0.1` only, aimed at the VNC port. Playwright MCP `@playwright/mcp@0.0.83` on `127.0.0.1` with an explicit `--user-data-dir` under the unit's `ReadWritePaths`, `--sandbox` (the build's default is `--no-sandbox`), and `--shared-browser-context` so Claude and cursor-agent see one login. Register Claude with `claude mcp add --transport http --scope user` and cursor-agent with `url` in `~/.cursor/mcp.json`. Refuse a second driver at a localhost proxy or with a stdio flock; the MCP server will not do it. Owner reaches noVNC through an SSH tunnel. Nothing listens except on loopback.
+**Stack to plan from.** Four systemd system units, one process each, as a dedicated user (not root, not `fhsbuild`). `fhs-browser-xvfb.service`: `/usr/bin/Xvfb :99 -nolisten tcp` (no TCP listener). `fhs-browser-x11vnc.service` requires that unit and runs `x11vnc -listen 127.0.0.1 -no6` with a password file. `fhs-browser-novnc.service` requires x11vnc and runs `websockify --web=/usr/share/novnc` on `127.0.0.1:6080`, aimed at `127.0.0.1:5900`. `fhs-browser-mcp.service` requires the Xvfb unit, sets `DISPLAY=:99`, and runs Playwright MCP `@playwright/mcp@0.0.83` via `/usr/bin/node` and the pinned `cli.js` on `127.0.0.1` with an explicit `--user-data-dir` under `ReadWritePaths`, `--sandbox` (the build's default is `--no-sandbox`), and `--shared-browser-context` so two HTTP clients share one context and one login. x11vnc and the MCP unit join the Xvfb unit's private `/tmp`. Register Claude with `claude mcp add --transport http --scope user` and cursor-agent with `url` in `~/.cursor/mcp.json`. Refuse a second driver at a localhost proxy or with a stdio flock; the MCP server will not do it. Owner reaches noVNC through an SSH tunnel. Nothing listens except on loopback.
 
 **Finding for the build plan.** The Cursor agent itself starts `@playwright/mcp` and `chrome-devtools-mcp` as child processes. Tester T11 in `/srv/fhs-build/reports/browser-research-01-test.md` saw `npm exec @playwright/mcp@latest` and `npm exec chrome-devtools-mcp@1.2.0`, parented by that session's `cursor-agent`.
 
@@ -504,7 +603,7 @@ Namespace and identifier URIs found in page source (for example `www.w3.org` in 
 - Chromium with `--sandbox` was not launched. Kernel userns works; the LXC seccomp filter's effect on the sandbox is untested. Also untested: `--sandbox` combined with the unit's `NoNewPrivileges=yes`.
 - Unpacked size of `chromium-1247` (zip is 198335306 bytes). FFmpeg zip size was not in the HEAD response.
 - `ProtectSystem` / `ProtectHome` / `PrivateTmp` were not started under this container's systemd. The man page says a container can silently disable them.
-- Xvfb's default listen mode (TCP or not) was not observed. The sketch passes `-nolisten tcp` so the plan does not depend on the default.
+- Xvfb's default listen mode (TCP or not) was not observed. The Xvfb unit passes `-nolisten tcp` so the plan does not depend on the default.
 - Toast login asset domains. curl received Cloudflare `403` after the redirects to `pos.toasttab.com` and `/login`.
 - ADP hosts beyond `synerg.adp.com` and `canvas.waypoint.prod.us.caas.oneadp.com`. R365 Application Insights ingest host is not in the HTML.
 - Whether noble's packaged `novnc_proxy` differs from upstream v1.3.0, which listens on all interfaces. Use `websockify`'s `source_addr` either way.
