@@ -102,7 +102,7 @@ Owner rules for *running* the skills (passwords, money, one yes per change) live
 - A fresh Composer session (never the builder's) runs the test plan. Browser tests use the server's Playwright browser when it exists, otherwise Chrome on the Windows PC.
 - Once a plan is APPROVE, commit its plan, task file, test plan and review to `main` before `scripts/build.sh prepare` (prepare checks them in the committed tree).
 - Models (owner decision 2026-10-10: included Cursor models only): Composer 2.5 builds, tests and runs ops; Cursor Grok 4.6 High researches;
-  Cursor Grok 4.6 Extra High reviews Claude's plans and Composer's code; Composer 2.5 reviews Grok's research. GPT, Sonnet and grok-4.7 aren't used.
+  Cursor Grok 4.6 Extra High reviews Claude's plans and Composer's code; Composer 2.5 reviews Grok's research. No other models are used.
 - Each task file is handed to its agent (Composer, or Cursor Grok for research) running as `fhsbuild` in the clone that `scripts/build.sh prepare` made.
 - Read-only agent work (reviews, pre-checks, analysis, quick questions) runs with `agent --mode plan` (or `--mode ask`): fewer tokens and
   no edits (owner, 2026-10-10). Only Builders, Testers, Researchers and Ops run in normal mode.
