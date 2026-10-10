@@ -1,35 +1,112 @@
 #!/usr/bin/env bash
-# Cross-model review: cursor-agent, read-only (plan mode), on a non-Claude model.
+# Cross-model review: cursor-agent, read-only (plan mode), on gpt-5.6-sol-high.
 #   scripts/review.sh docs/plans/<slug>-<nn>.md      review a plan
 #   scripts/review.sh --diff feat/<name>             review a branch's diff against main
+#   scripts/review.sh --check-only ...               validate args and model, print OK
 # Writes docs/reviews/<name>.md and prints the verdict. REVIEW_MODEL overrides the model.
 set -euo pipefail
 
-# Runs in the checkout it is called from (a worktree reviews its own branch files).
-REPO="$(git rev-parse --show-toplevel)"
-MODEL="${REVIEW_MODEL:-gpt-5.6-sol-high}"
-case "$MODEL" in claude-*|*sonnet*|*opus*|*fable*|*haiku*)
-  echo "REVIEW_MODEL=$MODEL is a Claude model; the reviewer must be a different family." >&2; exit 2;;
-esac
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=lib/guards.sh
+source "$SCRIPT_DIR/lib/guards.sh"
+# shellcheck source=lib/verdict.sh
+source "$SCRIPT_DIR/lib/verdict.sh"
 
-if [[ "${1:-}" == "--diff" ]]; then
-  BRANCH="${2:?usage: review.sh --diff <branch>}"
-  git -C "$REPO" rev-parse --verify -q "$BRANCH" >/dev/null || { echo "No branch $BRANCH" >&2; exit 2; }
-  NAME="$(basename "$BRANCH")-diff"
-  PLAN_HINT="If docs/plans/ has a plan for this branch, check the diff against it."
-  SUBJECT="the diff of branch $BRANCH against main. Run: git diff main...$BRANCH  (and git log main..$BRANCH). $PLAN_HINT"
-else
-  PLAN="${1:?usage: review.sh <plan.md> | --diff <branch>}"
-  [[ -f "$REPO/$PLAN" || -f "$PLAN" ]] || { echo "No plan file $PLAN" >&2; exit 2; }
-  PLAN="$(realpath --relative-to="$REPO" "$PLAN" 2>/dev/null || echo "$PLAN")"
-  NAME="$(basename "$PLAN" .md)"
-  SUBJECT="the plan file $PLAN"
+REPO="${FHS_REPO:-/root/fhs-skills}"
+REPO="${REPO%/}"
+FHS_BUILD_ROOT="${FHS_BUILD_ROOT:-/srv/fhs-build}"
+FHS_BUILD_ROOT="${FHS_BUILD_ROOT%/}"
+MODEL="${REVIEW_MODEL:-gpt-5.6-sol-high}"
+
+usage() {
+  echo "usage: review.sh [--check-only] <plan.md> | --diff <branch>" >&2
+}
+
+CHECK_ONLY=0
+DIFF=0
+BRANCH=""
+PLAN=""
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    --check-only) CHECK_ONLY=1; shift ;;
+    --diff)
+      [[ $# -ge 2 ]] || { usage; exit 2; }
+      DIFF=1
+      BRANCH="$2"
+      shift 2
+      ;;
+    --*) usage; exit 2 ;;
+    *)
+      [[ -z "$PLAN" ]] || { usage; exit 2; }
+      PLAN="$1"
+      shift
+      ;;
+  esac
+done
+
+check_review_model "$MODEL" || exit 2
+
+if [[ $DIFF -eq 1 && -n "$PLAN" ]]; then
+  usage
+  exit 2
 fi
 
-OUT="$REPO/docs/reviews/$NAME.md"
+cleanup_diff() {
+  if [[ "${CREATED:-0}" -eq 1 && -n "${WT:-}" ]]; then
+    git -C "$REPO" worktree remove --force "$WT" >/dev/null 2>&1 || true
+    if [[ -d "${WT:-}" ]]; then
+      rm -rf "$WT" || true
+    fi
+    git -C "$REPO" worktree prune >/dev/null 2>&1 || true
+  fi
+  if [[ -n "${OUT_TMP:-}" ]]; then
+    rm -f "$OUT_TMP" || true
+  fi
+}
+
 TODAY="$(date +%F)"
 
-read -r -d '' PROMPT <<EOF || true
+if [[ $DIFF -eq 1 ]]; then
+  [[ -n "$BRANCH" ]] || { usage; exit 2; }
+  git -C "$REPO" rev-parse --verify -q "$BRANCH" >/dev/null || { echo "No branch $BRANCH" >&2; exit 2; }
+  short="${BRANCH#feat/}"
+  short="$(basename "$short")"
+  if [[ $CHECK_ONLY -eq 1 ]]; then
+    echo OK
+    exit 0
+  fi
+  BUILD_REPORT="$FHS_BUILD_ROOT/reports/${short}.md"
+  TEST_REPORT="$FHS_BUILD_ROOT/reports/${short}-test.md"
+  missing=0
+  if [[ ! -f "$BUILD_REPORT" ]]; then
+    echo "missing builder report: $BUILD_REPORT" >&2
+    missing=1
+  fi
+  if [[ ! -f "$TEST_REPORT" ]]; then
+    echo "missing tester report: $TEST_REPORT" >&2
+    missing=1
+  fi
+  if [[ $missing -ne 0 ]]; then
+    exit 3
+  fi
+  parent="$(cd "$REPO/.." && pwd)"
+  WT="$parent/fhs-skills-wt/review-$short"
+  NAME="${short}-diff"
+  OUT="$REPO/docs/reviews/$NAME.md"
+  OUT_TMP="$OUT.tmp"
+  CREATED=0
+  wt_porcelain="$(git -C "$REPO" worktree list --porcelain)"
+  if [[ -e "$WT" ]] || printf '%s\n' "$wt_porcelain" | grep -qxF "worktree $WT"; then
+    echo "review worktree path already exists: $WT" >&2
+    exit 4
+  fi
+  trap cleanup_diff EXIT
+  mkdir -p "$(dirname "$WT")" "$(dirname "$OUT")"
+  git -C "$REPO" worktree add --detach "$WT" "$BRANCH"
+  CREATED=1
+  SUBJECT="the diff of branch $BRANCH against main. Run: git diff main...$BRANCH  (and git log main..$BRANCH). Compare against main and against the plan and task file if the branch names them. Check the reported test results against the diff. Builder report: $BUILD_REPORT. Tester report: $TEST_REPORT."
+  read -r -d '' PROMPT <<EOF || true
 You are the Reviewer for the fhs-skills repo (Claude skills for a Firehouse Subs owner's back office).
 The writer is Claude (Anthropic). You are $MODEL, a different model family. You have no access to the writer's conversation.
 
@@ -44,9 +121,52 @@ Majors include: a missing or wrong served tree; a contradiction with CLAUDE.md, 
 a live Toast/R365/ADP change not listed; a done-check that does not use real data; editing files the plan does not name.
 Do not invent scope: extra ideas are not majors. Close gaps yourself; gaps are findings, not questions for the owner.
 EOF
+  cursor-agent -p --mode plan --trust --model "$MODEL" --workspace "$WT" --output-format text "$PROMPT" > "$OUT_TMP"
+  mv "$OUT_TMP" "$OUT"
+  echo "Review written: ${OUT#"$REPO/"}"
+  verdict "$OUT"
+else
+  [[ -n "$PLAN" ]] || { usage; exit 2; }
+  if [[ -f "$REPO/$PLAN" ]]; then
+    PLAN="$(realpath --relative-to="$REPO" "$REPO/$PLAN")"
+  elif [[ -f "$PLAN" ]]; then
+    PLAN="$(realpath --relative-to="$REPO" "$PLAN")"
+  else
+    echo "No plan file $PLAN" >&2
+    exit 2
+  fi
+  NAME="$(basename "$PLAN" .md)"
+  if [[ -f "$REPO/docs/prompts/$NAME.md" ]]; then
+    SUBJECT="the plan file $PLAN and the task file docs/prompts/$NAME.md"
+    READ_TASK="docs/prompts/$NAME.md, "
+  else
+    SUBJECT="the plan file $PLAN"
+    READ_TASK=""
+  fi
+  if [[ $CHECK_ONLY -eq 1 ]]; then
+    echo OK
+    exit 0
+  fi
+  OUT="$REPO/docs/reviews/$NAME.md"
+  OUT_TMP="$OUT.tmp"
+  read -r -d '' PROMPT <<EOF || true
+You are the Reviewer for the fhs-skills repo (Claude skills for a Firehouse Subs owner's back office).
+The writer is Claude (Anthropic). You are $MODEL, a different model family. You have no access to the writer's conversation.
 
-cd "$REPO"
-cursor-agent -p --mode plan --trust --model "$MODEL" --output-format text "$PROMPT" > "$OUT.tmp"
-mv "$OUT.tmp" "$OUT"
-echo "Review written: ${OUT#$REPO/}"
-grep -m1 -oE 'APPROVE AFTER FIXES|APPROVE|REJECT' "$OUT" || echo "WARNING: no verdict found in the review"
+Read first: CLAUDE.md (the rules), skills/fhs-skills/SKILL.md "Rules", docs/templates/review.md (your output form),
+${READ_TASK}and any spec in docs/specs/ that the subject names.
+Subject: $SUBJECT
+
+Read only. Edit nothing, create nothing, run nothing that changes files or git state.
+Return ONLY the filled review form as markdown, starting with "# Review · $NAME", date $TODAY, reviewer model $MODEL.
+Verdict is exactly one of: APPROVE · APPROVE AFTER FIXES · REJECT.
+Majors include: a missing or wrong served tree; a contradiction with CLAUDE.md, an owner rule or a logged decision;
+a live Toast/R365/ADP change not listed; a done-check that does not use real data; editing files the plan does not name.
+Do not invent scope: extra ideas are not majors. Close gaps yourself; gaps are findings, not questions for the owner.
+EOF
+  cd "$REPO"
+  cursor-agent -p --mode plan --trust --model "$MODEL" --output-format text "$PROMPT" > "$OUT_TMP"
+  mv "$OUT_TMP" "$OUT"
+  echo "Review written: ${OUT#"$REPO/"}"
+  verdict "$OUT"
+fi
