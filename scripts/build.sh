@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Prepare a builder clone and collect its branch.
-#   scripts/build.sh prepare docs/plans/<plan>.md <name> [--base <branch>] [--check-only]
-#   scripts/build.sh collect <name>
+#   scripts/build.sh prepare docs/plans/<plan>.md <name> [--base <branch>] [--role build|research] [--check-only]
+#   scripts/build.sh collect <name> [--role build|research]
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -16,18 +16,38 @@ FHS_REPO="${FHS_REPO%/}"
 FHS_BUILD_ROOT="${FHS_BUILD_ROOT%/}"
 
 usage() {
-  echo "usage: scripts/build.sh prepare <plan-path> <name> [--base <branch>] [--check-only]" >&2
-  echo "       scripts/build.sh collect <name>" >&2
+  echo "usage: scripts/build.sh prepare <plan-path> <name> [--base <branch>] [--role build|research] [--check-only]" >&2
+  echo "       scripts/build.sh collect <name> [--role build|research]" >&2
+}
+
+print_prepare_handoff() {
+  local plan="$1" name="$2" role="$3"
+  local model
+  case "$role" in
+    build) model="composer-2.5" ;;
+    research) model="cursor-grok-4.6-high" ;;
+    *)
+      echo "role must be build or research, got: $role" >&2
+      return 2
+      ;;
+  esac
+  echo "Start agent: sudo -u fhsbuild -H $FHS_BUILD_ROOT/.local/bin/agent --model $model --force --workspace $FHS_BUILD_ROOT/$name"
+  echo "Tell it: Do the task in docs/prompts/${plan}.md"
 }
 
 cmd_prepare() {
-  local plan_path="" name="" base="main" check_only=0
+  local plan_path="" name="" base="main" check_only=0 role="build"
   while [[ $# -gt 0 ]]; do
     case "$1" in
       --check-only) check_only=1; shift ;;
       --base)
         [[ $# -ge 2 ]] || { usage; exit 2; }
         base="$2"
+        shift 2
+        ;;
+      --role)
+        [[ $# -ge 2 ]] || { usage; exit 2; }
+        role="$2"
         shift 2
         ;;
       --*) usage; exit 2 ;;
@@ -49,6 +69,13 @@ cmd_prepare() {
     echo "plan path must be docs/plans/<plan>.md, got: $plan_path" >&2
     exit 2
   }
+  case "$role" in
+    build|research) ;;
+    *)
+      echo "role must be build or research, got: $role" >&2
+      exit 2
+      ;;
+  esac
   local plan
   plan="$(basename "$plan_path" .md)"
   check_name "$name" || exit 2
@@ -91,6 +118,7 @@ cmd_prepare() {
 
   if [[ $check_only -eq 1 ]]; then
     echo "OK: ready to prepare $name from $base"
+    print_prepare_handoff "$plan" "$name" "$role"
     exit 0
   fi
 
@@ -102,13 +130,34 @@ cmd_prepare() {
   git clone --no-hardlinks --branch "$base" "$FHS_REPO" "$FHS_BUILD_ROOT/$name"
   mkdir -p "$FHS_BUILD_ROOT/reports"
   chown -R fhsbuild: "$FHS_BUILD_ROOT/$name" "$FHS_BUILD_ROOT/reports"
-  echo "Start Grok: sudo -u fhsbuild -H $FHS_BUILD_ROOT/.local/bin/agent --model grok-4.7-high --workspace $FHS_BUILD_ROOT/$name"
-  echo "Tell it: Do the task in docs/prompts/${plan}.md"
+  print_prepare_handoff "$plan" "$name" "$role"
 }
 
 cmd_collect() {
-  local name="${1:-}"
-  [[ $# -eq 1 && -n "$name" ]] || { usage; exit 2; }
+  local name="" role="build"
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --role)
+        [[ $# -ge 2 ]] || { usage; exit 2; }
+        role="$2"
+        shift 2
+        ;;
+      --*) usage; exit 2 ;;
+      *)
+        [[ -z "$name" ]] || { usage; exit 2; }
+        name="$1"
+        shift
+        ;;
+    esac
+  done
+  [[ -n "$name" ]] || { usage; exit 2; }
+  case "$role" in
+    build|research) ;;
+    *)
+      echo "role must be build or research, got: $role" >&2
+      exit 2
+      ;;
+  esac
   check_name "$name" || exit 2
   local report="$FHS_BUILD_ROOT/reports/$name.md"
   if [[ ! -f "$report" ]]; then
@@ -120,7 +169,12 @@ cmd_collect() {
     "$FHS_BUILD_ROOT/$name" "feat/$name:feat/$name"
   echo "--- report: $report ---"
   cat "$report"
-  echo "Next: scripts/review.sh --diff feat/$name"
+  local writer
+  case "$role" in
+    build) writer="composer" ;;
+    research) writer="grok" ;;
+  esac
+  echo "Next: scripts/review.sh --diff feat/$name --writer $writer"
 }
 
 case "${1:-}" in

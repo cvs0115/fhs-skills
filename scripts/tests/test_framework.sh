@@ -96,7 +96,8 @@ expect_exit() {
 set_docs approve
 
 expect_exit 0 prepare-approve bash scripts/build.sh prepare docs/plans/zz-01.md aa --check-only
-if [[ "$LAST_OUT" != "OK: ready to prepare aa from main" ]]; then
+want_prepare_approve=$'OK: ready to prepare aa from main\nStart agent: sudo -u fhsbuild -H '"$FHS_BUILD_ROOT"$'/.local/bin/agent --model composer-2.5 --force --workspace '"$FHS_BUILD_ROOT"$'/aa\nTell it: Do the task in docs/prompts/zz-01.md'
+if [[ "$LAST_OUT" != "$want_prepare_approve" ]]; then
   fail "prepare-approve-message" "output: ${LAST_OUT//$'\n'/ | }"
 fi
 
@@ -129,7 +130,8 @@ git -C "$FHS_REPO" rm -f docs/plans/zz-01.md docs/prompts/zz-01.md docs/tests/zz
 git -C "$FHS_REPO" commit -m "drop zz-01 on main" >/dev/null
 
 expect_exit 0 prepare-base-side bash scripts/build.sh prepare docs/plans/zz-01.md zz-side --base side --check-only
-if [[ "$LAST_OUT" != "OK: ready to prepare zz-side from side" ]]; then
+want_prepare_side=$'OK: ready to prepare zz-side from side\nStart agent: sudo -u fhsbuild -H '"$FHS_BUILD_ROOT"$'/.local/bin/agent --model composer-2.5 --force --workspace '"$FHS_BUILD_ROOT"$'/zz-side\nTell it: Do the task in docs/prompts/zz-01.md'
+if [[ "$LAST_OUT" != "$want_prepare_side" ]]; then
   fail "prepare-base-side-message" "output: ${LAST_OUT//$'\n'/ | }"
 fi
 expect_exit 3 prepare-base-main-missing bash scripts/build.sh prepare docs/plans/zz-01.md zz-side --check-only
@@ -158,13 +160,39 @@ else
   fail "collect-uses-upload-pack-safe-dir" "upload-pack safe.directory check failed"
 fi
 
-# --- 5. review.sh ---------------------------------------------------------
-expect_exit 2 review-model-grok env REVIEW_MODEL=grok-4.7-high bash scripts/review.sh --check-only docs/plans/zz-01.md
-expect_exit 2 review-model-claude env REVIEW_MODEL=claude-x bash scripts/review.sh --check-only docs/plans/zz-01.md
-expect_exit 0 review-model-default env -u REVIEW_MODEL bash scripts/review.sh --check-only docs/plans/zz-01.md
-if [[ "$LAST_OUT" != "OK" ]]; then
-  fail "review-model-default-message" "output: ${LAST_OUT//$'\n'/ | }"
+# --- prepare hand-off by role ---------------------------------------------
+want_research=$'OK: ready to prepare aa from main\nStart agent: sudo -u fhsbuild -H '"$FHS_BUILD_ROOT"$'/.local/bin/agent --model cursor-grok-4.6-high --force --workspace '"$FHS_BUILD_ROOT"$'/aa\nTell it: Do the task in docs/prompts/zz-01.md'
+LAST_OUT="$(bash scripts/build.sh prepare docs/plans/zz-01.md aa --role research --check-only 2>&1)"
+if [[ $? -eq 0 && "$LAST_OUT" == "$want_research" ]]; then
+  pass "prepare-role-research-handoff"
+else
+  fail "prepare-role-research-handoff" "output: ${LAST_OUT//$'\n'/ | }"
 fi
+if [[ "$want_prepare_approve" == *"--force"* ]]; then
+  pass "prepare-role-build-force"
+else
+  fail "prepare-role-build-force" "missing --force in build hand-off"
+fi
+
+# --- 5. review.sh ---------------------------------------------------------
+expect_exit 0 review-plan-default env -u REVIEW_MODEL bash scripts/review.sh --check-only docs/plans/zz-01.md
+if [[ "$LAST_OUT" != "OK" ]]; then
+  fail "review-plan-default-message" "output: ${LAST_OUT//$'\n'/ | }"
+fi
+expect_exit 2 review-plan-composer env REVIEW_MODEL=composer-2.5 bash scripts/review.sh --check-only docs/plans/zz-01.md
+expect_exit 2 review-plan-gpt env REVIEW_MODEL=gpt-5.6-sol-high bash scripts/review.sh --check-only docs/plans/zz-01.md
+
+expect_exit 0 review-diff-default env -u REVIEW_MODEL bash scripts/review.sh --check-only --diff feat/zz
+if [[ "$LAST_OUT" != "OK" ]]; then
+  fail "review-diff-default-message" "output: ${LAST_OUT//$'\n'/ | }"
+fi
+expect_exit 2 review-diff-composer-wrong env REVIEW_MODEL=composer-2.5 bash scripts/review.sh --check-only --diff feat/zz
+expect_exit 0 review-diff-grok env -u REVIEW_MODEL bash scripts/review.sh --check-only --diff feat/zz --writer grok
+if [[ "$LAST_OUT" != "OK" ]]; then
+  fail "review-diff-grok-message" "output: ${LAST_OUT//$'\n'/ | }"
+fi
+expect_exit 2 review-diff-grok-wrong env REVIEW_MODEL=cursor-grok-4.6-xhigh bash scripts/review.sh --check-only --diff feat/zz --writer grok
+expect_exit 2 review-diff-writer-other bash scripts/review.sh --check-only --diff feat/zz --writer other
 
 parent="$(cd "$FHS_REPO/.." && pwd)"
 wt="$parent/fhs-skills-wt/review-zz"
@@ -210,13 +238,27 @@ unique="collect-prints-report-unique-fhs02"
 printf '%s\n' "$unique" > "$FHS_BUILD_ROOT/reports/zz.md"
 cp_out="$(FHS_REPO="$coll_repo" bash scripts/build.sh collect zz 2>&1)"
 cp_ec=$?
-if [[ $cp_ec -eq 0 && "$cp_out" == *"$unique"* && "$cp_out" == *"Next: scripts/review.sh --diff feat/zz"* ]] \
+if [[ $cp_ec -eq 0 && "$cp_out" == *"$unique"* && "$cp_out" == *"Next: scripts/review.sh --diff feat/zz --writer composer"* ]] \
   && git -C "$coll_repo" rev-parse --verify -q feat/zz >/dev/null; then
   pass "collect-prints-report"
 else
   has_branch=no
   git -C "$coll_repo" rev-parse --verify -q feat/zz >/dev/null && has_branch=yes
   fail "collect-prints-report" "exit $cp_ec; feat/zz=$has_branch; output: ${cp_out//$'\n'/ | }"
+fi
+
+coll_research_out="$(FHS_REPO="$coll_repo" bash scripts/build.sh collect zz --role research 2>&1)"
+if [[ $? -eq 0 && "$coll_research_out" == *"Next: scripts/review.sh --diff feat/zz --writer grok"* ]]; then
+  pass "collect-role-research-next"
+else
+  fail "collect-role-research-next" "output: ${coll_research_out//$'\n'/ | }"
+fi
+
+if grep -c 'gpt-5.6\|sonnet\|grok-4.7' scripts/review.sh scripts/lib/guards.sh scripts/build.sh \
+  | awk '{s+=$1} END {exit (s==0)?0:1}'; then
+  pass "no-legacy-model-strings"
+else
+  fail "no-legacy-model-strings" "grep found legacy model strings"
 fi
 
 # --- fixtures have no trailing whitespace ---------------------------------
