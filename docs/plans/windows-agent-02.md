@@ -104,7 +104,7 @@ The owner answered the research checklist on 2026-10-10 (r2 revision; evidence i
   - For accepted cases the gate is run with the real binaries replaced by stubs on `PATH` that echo their argv, so the test sees what
     would be exec'd without running it.
   - Plus static checks on the two `.ps1` files: no `Remove-Item`; `Read-Host` followed by an exact `-ne 'YES'` check in
-    refresh-mirror; `Get-FileHash -Algorithm SHA256` present in both; no tab characters; ASCII only.
+    refresh-mirror; `Get-FileHash` with `-Algorithm SHA256` present in both (other arguments such as `-LiteralPath` allowed); no tab characters; ASCII only.
 - `docs/runbooks/windows-agent.md` (new): the owner's steps, in order.
   - PC setup D1–D3, with the C1–C6 answers they need.
   - Starting a PC agent (Claude Code): `claude --permission-mode plan` to look (read-only), a normal session to do, where it asks before
