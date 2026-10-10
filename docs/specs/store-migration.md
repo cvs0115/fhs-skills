@@ -21,7 +21,7 @@ The migration skill then replays the proven setup for 878, in one cutover, on a 
 | ID | Function | 122 today | 878 needs | Depends on | Existing hub project / skill |
 |---|---|---|---|---|---|
 | F0 | **Server browser** for agents (owner signs in) | none (Windows only) | same | — | browser-research-01 → browser build plan |
-| F1 | **R365 audit**: what exists (items, vendors, invoices, recipes, mapping, counts, Toast feed, licensed modules) | not done | done for its CAMDEN SQUARE location | F0 | `r365-inventory` Phase 0 |
+| F1 | **Store audit (R365 + Toast)**: for **every function F2–F13**, mark it in place, partial or missing, with evidence (a screen or report); plus licensed modules and who owns each setting (owner, franchise or R365) | not done | done for its CAMDEN SQUARE location | F0 | `r365-inventory` Phase 0 |
 | F2 | **Items, units, vendors**: purchase/count units, conversions, GL categories | unknown (?) | copy from 122 | F1 | `r365-inventory` Phase 2 |
 | F3 | **Electronic invoices**: distributor EDI or R365 email capture, invoice line → item mapping | unknown (?) | copy, plus its own vendor accounts | F1, F2 | `electronic-invoices` |
 | F4 | **Recipes and menu mapping**: every Toast item/modifier → R365 recipe | unknown (?) | rebuild the Toast menu, reuse the recipes | F1, F2 | `r365-inventory` Phase 3 |
@@ -39,6 +39,11 @@ The migration skill then replays the proven setup for 878, in one cutover, on a 
 | M3 | **Cutover**: pay-period-boundary go-live, opening count, overlap-day reconciliation, training, fallback | n/a | required | all above | migration only |
 
 ## Build order (owner decision, 2026-10-10)
+
+The "122 today" column above is a starting guess. The F1 audit replaces it with evidence. A function the audit finds in place
+gets a verify-only test plan (prove it on real data) instead of a build. Partial functions get a plan for the missing part only
+(owner, 2026-10-10: "some of this may already be in place").
+
 
 1. F0 server browser → 2. F1 R365 audit → 3. F2 items, units, vendors → 4. F3 electronic invoices → 5. F4 recipes and menu
 mapping → 6. F5 counts (+ F6 waste) → 7. F8 cash and deposits → 8. F7 weekly food cost → 9. F9 daily flash →
