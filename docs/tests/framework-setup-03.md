@@ -1,12 +1,13 @@
 # Test plan · framework-setup-03
 
-> **For the tester agent (Grok 4.7 High in cursor-agent, a fresh session, not the builder).** Run every case, record real evidence,
-> and judge PASS, FAIL or BLOCKED. Don't fix anything. Hand-off: "Run the test plan in docs/tests/framework-setup-03.md".
+> **For the tester agent (Composer 2.5 via `agent`, a fresh session, not the builder).** Run every case, record real evidence, and judge
+> PASS, FAIL or BLOCKED. Don't fix anything. Hand-off: "Run the test plan in docs/tests/framework-setup-03.md".
 
 ## What's being tested
 
-`review.sh` picks Grok 4.7 Extra High for plan reviews and Claude Sonnet 5 for diff reviews, refuses anything else per mode, ignores
-`REVIEW_MODEL`, names the right writer in each prompt, and has no GPT left. Plan: `docs/plans/framework-setup-03.md`.
+`review.sh` picks the reviewer from the writer: Claude's plans and Composer's code go to `cursor-grok-4.6-xhigh`, and Grok's research
+goes to `composer-2.5`. It refuses any other pairing, names the writer correctly in each prompt, and no GPT, Sonnet or grok-4.7 is left.
+`build.sh prepare` prints the right hand-off model per role. Plan: `docs/plans/framework-setup-03.md`.
 
 ## Where you test
 
@@ -21,23 +22,22 @@
 |---|---|---|---|---|
 | T1 | shell | `bash scripts/tests/test_framework.sh; echo exit=$?` | every line PASS, `exit=0` | output |
 | T2 | shell | `W=$PWD; FHS_REPO=$W bash scripts/review.sh --check-only docs/plans/framework-setup-03.md; echo exit=$?` | `OK`, `exit=0` | output |
-| T3 | shell | `REVIEW_PLAN_MODEL=claude-sonnet-5-thinking-high FHS_REPO=$W bash scripts/review.sh --check-only docs/plans/framework-setup-03.md; echo exit=$?`, then the same with `gpt-5.6-sol-high` | `exit=2` both | output |
-| T4 | shell | `REVIEW_DIFF_MODEL=grok-4.7-xhigh` and `=gpt-5.6-sol-high`, each with `FHS_REPO=$W bash scripts/review.sh --check-only --diff main` (or the `--check-only` form the script documents for diff mode) | `exit=2` both | output |
-| T5 | shell | `REVIEW_MODEL=whatever FHS_REPO=$W bash scripts/review.sh --check-only docs/plans/framework-setup-03.md 2>&1; echo exit=$?` | a warning that `REVIEW_MODEL` is ignored, and `exit=0` | output |
-| T6 | shell | `grep -n 'The writer is' scripts/review.sh` | the plan prompt says the writer is Claude and the reviewer is Grok; the diff prompt says the writer is Grok and the reviewer is Claude | output |
-| T7 | shell | `grep -c 'gpt-5.6' scripts/review.sh scripts/lib/guards.sh` | `0` and `0` | output |
-| T8 | shell | `grep -n -i 'reviewer' CLAUDE.md docs/RUNBOOK.md \| grep -i -E 'grok-4.7-xhigh\|Extra High\|Sonnet'` | both files name the new pairing; `grep -c 'GPT' docs/RUNBOOK.md` → 0 | output |
-| T9 | shell | `git diff --name-only main...HEAD`; `git diff --check main...HEAD`; `git status --short` | only allowed files; no whitespace errors; clean | output |
-| T10 | ops | Ops runs the branch's `scripts/review.sh docs/plans/framework-setup-03.md` from a root worktree of the branch (done-check 2), then `bash scripts/lib/verdict.sh <that review file>` | the review header names `grok-4.7-xhigh`; verdict.sh prints one of APPROVE / APPROVE AFTER FIXES / REJECT (not NONE) | pasted output |
+| T3 | shell | `REVIEW_MODEL=composer-2.5`, then `REVIEW_MODEL=gpt-5.6-sol-high`, each with `FHS_REPO=$W bash scripts/review.sh --check-only docs/plans/framework-setup-03.md; echo exit=$?` | `exit=2` both | output |
+| T4 | shell | Diff mode, using the `--check-only` form the script documents: writer `composer` with the default model → exit 0; writer `composer` with `REVIEW_MODEL=composer-2.5` → 2; writer `grok` with the default model → exit 0; writer `grok` with `REVIEW_MODEL=cursor-grok-4.6-xhigh` → 2; `--writer other` → 2 | as stated | output |
+| T5 | shell | `grep -n 'The writer is' scripts/review.sh` | the prompt text names the writer per case (Claude / Composer / Grok) and says the reviewer is a different family | output |
+| T6 | shell | `grep -c 'gpt-5.6\|sonnet\|grok-4.7' scripts/review.sh scripts/lib/guards.sh scripts/build.sh` | `0` for each | output |
+| T7 | shell | Make a temp repo as `FHS_REPO` with an APPROVE'd fixture plan (as the suite does). Run `build.sh prepare ... --check-only` with `--role build` and with `--role research`, plus a non-check-only run as non-root to see the hand-off text, or the hand-off function's output if the script exposes it | the hand-off names `composer-2.5` for build and `cursor-grok-4.6-high` for research, and says `Start agent:` | output |
+| T8 | shell | `git diff --name-only main...HEAD`; `git diff --check main...HEAD`; `git status --short` | only `scripts/lib/guards.sh`, `scripts/review.sh`, `scripts/build.sh`, `scripts/tests/test_framework.sh` (plus new fixtures under `scripts/tests/fixtures/` if any); no whitespace errors; clean | output |
+| T9 | ops | Ops runs the branch's `scripts/review.sh docs/plans/framework-setup-03.md` from a root worktree of the branch (done-check 2), then `bash scripts/lib/verdict.sh <that review file>` | the review header names `cursor-grok-4.6-xhigh`; verdict.sh prints APPROVE, APPROVE AFTER FIXES or REJECT (not NONE) | pasted output |
 
-Mark T10 BLOCKED (ops) until its output is pasted to you.
+Mark T9 BLOCKED (ops) until its output is pasted to you.
 
 ## Post-merge verification (not a gate)
 
 | ID | Env | Steps | Expected | Evidence |
 |---|---|---|---|---|
-| P1 | ops | The final review's file header (Sequence step 7) | names `claude-sonnet-5-thinking-high` | pasted line |
+| P1 | ops | The final review's header (Sequence step 7) | names `cursor-grok-4.6-xhigh` | pasted line |
 
 ## Results
 
-Write `/srv/fhs-build/reports/framework-setup-03-test.md` (Totals and Verdict as in the template). Edit nothing in the repo.
+Write `/srv/fhs-build/reports/framework-setup-03-test.md` (Totals and Verdict as in `docs/templates/test-plan.md`). Edit nothing in the repo.
