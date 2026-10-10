@@ -39,8 +39,8 @@ Claude keeps both current. Build order for the store functions: `docs/specs/stor
 | 7 | ⏸ parked | — | **browser-02** server browser: parked (owner, 2026-10-10: desktop first). Returns only when an unattended job needs it | — |
 | 8 | ⏳ waits on **you** | **You**, on the Windows PC | Answer the 6-item PC checklist and the 3 Windows-agent decisions (Claude asks in a question pane) | answers recorded |
 | 9 | ✅ plan approved | Builder → Ops → you on the PC | **windows-agent-02**: the PC agent, push hook, mirror refresh, report transfer (`docs/plans/windows-agent-02.md`) | needs row 8; each PC step is your OK |
-| 10 | ⏳ after 9 | **You**, on the PC | Sign in once to R365 and Toast in the Cursor agent's Playwright browser on your PC (it keeps the login) | signed in |
-| 11 | ⏳ re-planning | PC Cursor agent captures (Composer) → Researcher (Cursor Grok High) → Tester | **store-audit-122-01**: read-only audit of every 122 function in R365 + Toast, run on your PC (`docs/plans/store-audit-122-01.md`, being reworked for the desktop) | audit merged; it decides the next builds |
+| 10 | ⏳ after 9 | **You**, on the PC | Make sure Claude in Chrome is set up and you're signed in to R365 and Toast in that Chrome | signed in |
+| 11 | ⏳ re-planning | Claude Code + Claude in Chrome on your PC captures → Researcher (Cursor Grok High) → Tester | **store-audit-122-01**: read-only audit of every 122 function in R365 + Toast, run on your PC (`docs/plans/store-audit-122-01.md`, being reworked for the desktop) | audit merged; it decides the next builds |
 | 12+ | later | Claude plans each | store functions in order: items/vendors → e-invoices → recipes + menu mapping → counts → cash & deposits → food cost → daily flash → scheduling/OT → delivery → 878 migration. Each skips or shrinks based on the row 9 audit | per plan |
 
 How every build row runs (Ops follows `docs/prompts/ops-cycle.md`): plan review → `build.sh prepare` → Builder → fresh Tester →
@@ -49,5 +49,5 @@ How every build row runs (Ops follows `docs/prompts/ops-cycle.md`): plan review 
 ## Good to know
 
 - Rows 1–2 are one-time. Every plan after that is: Ops runs `ops-cycle.md`, and Ops tells you when to start the Builder and the Tester.
-- Browser work runs on your PC: the Cursor agent + Playwright (included models) for long runs, and Claude in Chrome for quick tasks with you there.
+- Browser work runs on your PC with **Claude Code + Claude in Chrome** (the default for anyone using these skills). The Cursor agent + Playwright is optional for long runs.
 - Nothing so far has touched Toast, R365, ADP, the Windows skill copy, or payroll. Row 11 is the first to *read* R365 and Toast, and it never changes anything.
