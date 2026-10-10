@@ -143,3 +143,13 @@ Deviations or open issues: <list, or none>
 ```
 
 If a step can't be done exactly as written, stop, write the report with the reason, and don't work around it.
+
+## Review r3 minors (apply these too; from `docs/reviews/windows-agent-02.md`, APPROVE)
+
+1. `send-report.ps1`: use `<SshHost>` for **all three** remote calls (the existence check, the `scp -O`, and `sha256sum`). The default stays `dev-lxc-1`.
+2. The runbook's D4 success means every clone `skills\fhs-*` path is in the mirror with the same hash. Windows-only extras are listed and not
+   deleted. The printed `unmatched` count may equal the number of extras.
+3. The runbook's order: generate the `fhs_agent_ed25519` key → Ops adds the gated `authorized_keys` line → add the `dev-lxc-1-agent` alias → D1–D5.
+4. The runbook's D5 example passes a regex-safe `-Name` (e.g. `122_2026-09-21_2026-10-04_hours.txt`). The default `-Name` is the source file's leaf name.
+5. Gate tests: add a refused case `test ! -e /etc/x`.
+6. Follow this task's Claude Code outline for the PC agent. Ignore research §7's mention of installing Cursor on the PC.
