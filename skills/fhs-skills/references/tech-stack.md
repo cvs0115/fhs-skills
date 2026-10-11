@@ -116,4 +116,6 @@ Confirmed from PC captures 2026-10-11 (CARY 1 / Toast 00122). Details: `docs/res
 - Last POS import 10/11/2026 10:08 AM; next 10/12/2026 10:49 AM. Admin POS Toast tile is Disconnected (employee/job push). See Toast → R365 integration.
 - Labor Payroll Review and Tip Automation Distributions Report exist (opened; default 10/11–10/11 empty). Toast time entries exist. R365 labor details: 4,295 rows; some CARY 1 pay rates $0.00. See F12.
 - R365 AR customers: 0. Toast Integrations are view-only for this login. See F13.
+- Count-line export for an approved weekly count lives on Inventory → Inventory counts → opened count → Item Details, `https://fhs4021089.restaurant365.com/react/inventory/inventory?countId=3` (`CNT-03.csv` in the items-122 capture). See `docs/research/items-122.md`.
+- Invoice-line files in that same capture are read-only R365 reports with no line detail (`INV-04-missing.txt`, `INV-05-missing.txt`; ReportViewer `https://fhs4021089.restaurant365.com/#/ReportViewer`). AP transactions and Inventory → Invoices exports are header-only (`INV-01.csv`, `INV-02.csv`). The per-item Cheney vendor item and unit are on Inventory → Items → Vendor items, `https://fhs4021089.restaurant365.com/react/inventory/legacy/VendorItems` (`ITM-02.csv`). See `docs/research/items-122.md`.
 
