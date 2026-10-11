@@ -46,6 +46,9 @@ and move on.
 Write `/srv/fhs-build/reports/<name>-test.md` (outside the repo):
 
 ```text
+## Summary
+<≤3 lines: the Verdict line, Totals, and the IDs that failed or are blocked. Claude reads only this section.>
+
 Test plan: <plan-name> · Branch: feat/<name> at <commit> · Tester: composer-2.5 (fresh session)
 | ID | Result | Evidence (trimmed output or screenshot path) | Note |
 Totals: PASS <n> · FAIL <n> · BLOCKED <n>

@@ -48,6 +48,9 @@ Restaurant365, ADP RUN, NCR, Dropbox). <One paragraph: what this task is for, in
 2. Write your report to `/srv/fhs-build/reports/<name>.md` (outside the repo):
 
 ```text
+## Summary
+<≤5 lines: done or stopped, tests n/n, deviations. Claude reads only this section.>
+
 Task: <plan-name> · Branch: feat/<name> · Commits: <hashes>
 Files changed: <list>
 Tests: <n>/<n> passed. For each: command, trimmed output, pass/fail
