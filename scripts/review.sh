@@ -18,14 +18,14 @@ FHS_BUILD_ROOT="${FHS_BUILD_ROOT:-/srv/fhs-build}"
 FHS_BUILD_ROOT="${FHS_BUILD_ROOT%/}"
 
 usage() {
-  echo "usage: review.sh [--check-only] [--writer composer|grok] <plan.md> | --diff <branch>" >&2
+  echo "usage: review.sh [--check-only] [--writer claude|grok] <plan.md> | [--check-only] [--writer composer|grok] --diff <branch>" >&2
 }
 
 CHECK_ONLY=0
 DIFF=0
 BRANCH=""
 PLAN=""
-WRITER="composer"
+WRITER=""
 WRITER_SET=0
 
 while [[ $# -gt 0 ]]; do
@@ -57,12 +57,8 @@ if [[ $DIFF -eq 1 && -n "$PLAN" ]]; then
   exit 2
 fi
 
-if [[ $DIFF -eq 0 && $WRITER_SET -eq 1 ]]; then
-  usage
-  exit 2
-fi
-
 if [[ $DIFF -eq 1 ]]; then
+  [[ -n "$WRITER" ]] || WRITER="composer"
   case "$WRITER" in
     composer) MODEL="${REVIEW_MODEL:-cursor-grok-4.6-xhigh}" ;;
     grok) MODEL="${REVIEW_MODEL:-composer-2.5}" ;;
@@ -70,8 +66,12 @@ if [[ $DIFF -eq 1 ]]; then
   esac
   check_reviewer diff "$WRITER" "$MODEL" || exit 2
 else
-  MODEL="${REVIEW_MODEL:-cursor-grok-4.6-xhigh}"
-  check_reviewer plan claude "$MODEL" || exit 2
+  [[ -n "$WRITER" ]] || WRITER="claude"
+  case "$WRITER" in
+    claude) MODEL="${REVIEW_MODEL:-cursor-grok-4.6-xhigh}" ;;
+    grok) MODEL="${REVIEW_MODEL:-composer-2.5}" ;;
+    *) usage; exit 2 ;;
+  esac
 fi
 
 cleanup_diff() {
@@ -95,6 +95,27 @@ writer_line() {
     composer) echo "The writer is Composer (Cursor). You are $MODEL, a different model family." ;;
     grok) echo "The writer is Grok (xAI via Cursor). You are $MODEL, a different model family." ;;
   esac
+}
+
+plan_is_grok_drafted() {
+  local plan_file="$1"
+  head -n 10 "$plan_file" | grep -q 'Drafted by Cursor Grok'
+}
+
+check_plan_drafter() {
+  local plan_file="$1" writer="$2"
+  if plan_is_grok_drafted "$plan_file"; then
+    if [[ "$writer" == "claude" ]]; then
+      echo 'plan was drafted by Grok; use --writer grok' >&2
+      return 2
+    fi
+  else
+    if [[ "$writer" == "grok" ]]; then
+      echo 'plan has no "Drafted by Cursor Grok" line; it is Claude'\''s' >&2
+      return 2
+    fi
+  fi
+  return 0
 }
 
 if [[ $DIFF -eq 1 ]]; then
@@ -166,6 +187,8 @@ else
     echo "No plan file $PLAN" >&2
     exit 2
   fi
+  check_reviewer plan "$WRITER" "$MODEL" || exit 2
+  check_plan_drafter "$REPO/$PLAN" "$WRITER" || exit 2
   NAME="$(basename "$PLAN" .md)"
   if [[ -f "$REPO/docs/prompts/$NAME.md" ]]; then
     SUBJECT="the plan file $PLAN and the task file docs/prompts/$NAME.md"
@@ -175,18 +198,31 @@ else
     READ_TASK=""
   fi
   if [[ $CHECK_ONLY -eq 1 ]]; then
-    echo OK
+    if [[ "$WRITER" == "grok" ]]; then
+      echo "OK ($MODEL)"
+    else
+      echo OK
+    fi
     exit 0
   fi
   OUT="$REPO/docs/reviews/$NAME.md"
   OUT_TMP="$OUT.tmp"
-  WL="$(writer_line claude)"
+  WL="$(writer_line "$WRITER")"
+  GROK_EXTRA=""
+  if [[ "$WRITER" == "grok" ]]; then
+    GROK_EXTRA="Also read docs/briefs/$NAME.md"
+    if [[ -f "$REPO/docs/tests/$NAME.md" ]]; then
+      GROK_EXTRA="$GROK_EXTRA and docs/tests/$NAME.md"
+    fi
+    GROK_EXTRA="$GROK_EXTRA. Treat a draft that adds scope, files, or live changes the brief does not name as a major."
+  fi
   read -r -d '' PROMPT <<EOF || true
 You are the Reviewer for the fhs-skills repo (Claude skills for a Firehouse Subs owner's back office).
 $WL You have no access to the writer's conversation.
 
 Read first: CLAUDE.md (the rules), skills/fhs-skills/SKILL.md "Rules", docs/templates/review.md (your output form),
 ${READ_TASK}and any spec in docs/specs/ that the subject names.
+$GROK_EXTRA
 Subject: $SUBJECT
 
 Read only. Edit nothing, create nothing, run nothing that changes files or git state.
