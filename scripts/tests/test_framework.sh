@@ -181,6 +181,27 @@ if [[ "$LAST_OUT" != "OK" ]]; then
 fi
 expect_exit 2 review-plan-composer env REVIEW_MODEL=composer-2.5 bash scripts/review.sh --check-only docs/plans/zz-01.md
 expect_exit 2 review-plan-gpt env REVIEW_MODEL=gpt-5.6-sol-high bash scripts/review.sh --check-only docs/plans/zz-01.md
+expect_exit 2 review-plan-writer-other bash scripts/review.sh --check-only --writer other docs/plans/zz-01.md
+expect_exit 2 review-plan-grok-plain bash scripts/review.sh --check-only --writer grok docs/plans/zz-01.md
+
+cp "$FIX/plan-grok-drafted.md" "$FHS_REPO/docs/plans/zz-06.md"
+git -C "$FHS_REPO" add docs/plans/zz-06.md
+git -C "$FHS_REPO" commit -m "zz-06 drafted plan" >/dev/null
+expect_exit 2 review-plan-grok-default bash scripts/review.sh --check-only docs/plans/zz-06.md
+if [[ "$LAST_OUT" != *'use --writer grok'* ]]; then
+  fail "review-plan-grok-default-msg" "output: ${LAST_OUT//$'\n'/ | }"
+fi
+expect_exit 2 review-plan-grok-claude bash scripts/review.sh --check-only --writer claude docs/plans/zz-06.md
+expect_exit 0 review-plan-grok-writer env -u REVIEW_MODEL bash scripts/review.sh --check-only --writer grok docs/plans/zz-06.md
+if [[ "$LAST_OUT" != *composer-2.5* ]]; then
+  fail "review-plan-grok-writer-msg" "output: ${LAST_OUT//$'\n'/ | }"
+fi
+expect_exit 2 review-plan-grok-bad-model env REVIEW_MODEL=cursor-grok-4.6-xhigh bash scripts/review.sh --check-only --writer grok docs/plans/zz-06.md
+expect_exit 2 review-plan-claude-bad-model env REVIEW_MODEL=composer-2.5 bash scripts/review.sh --check-only --writer claude docs/plans/zz-01.md
+printf '# Plan zz-06 late\n' > "$FHS_REPO/docs/plans/zz-06-late.md"
+for _ in $(seq 1 9); do printf 'filler\n' >> "$FHS_REPO/docs/plans/zz-06-late.md"; done
+printf 'Drafted by Cursor Grok 4.6 High from docs/briefs/zz-06.md.\n' >> "$FHS_REPO/docs/plans/zz-06-late.md"
+expect_exit 2 review-plan-grok-late-line bash scripts/review.sh --check-only --writer grok docs/plans/zz-06-late.md
 
 expect_exit 0 review-diff-default env -u REVIEW_MODEL bash scripts/review.sh --check-only --diff feat/zz
 if [[ "$LAST_OUT" != "OK" ]]; then
@@ -268,8 +289,72 @@ else
   fail "fixtures-no-trailing-ws" "trailing whitespace"
 fi
 
+# --- draft.sh -------------------------------------------------------------
+mkdir -p "$FHS_REPO/docs/briefs"
+expect_exit 2 draft-no-brief bash scripts/draft.sh --check-only zz-05
+printf '# Brief zz-05\n' > "$FHS_REPO/docs/briefs/zz-05.md"
+expect_exit 0 draft-brief-only bash scripts/draft.sh --check-only zz-05
+if [[ "$LAST_OUT" != "OK" ]]; then
+  fail "draft-brief-only-msg" "output: ${LAST_OUT//$'\n'/ | }"
+fi
+printf '# Plan zz-05\n' > "$FHS_REPO/docs/plans/zz-05.md"
+expect_exit 3 draft-plan-exists bash scripts/draft.sh --check-only zz-05
+expect_exit 2 draft-bad-model env DRAFT_MODEL=composer-2.5 bash scripts/draft.sh --check-only zz-05
+
+setup_grok_fix_docs() {
+  local review_mode="$1"
+  set_docs "$review_mode"
+  cp "$FIX/plan-grok-drafted.md" "$FHS_REPO/docs/plans/zz-01.md"
+  git -C "$FHS_REPO" add docs/plans/zz-01.md
+  git -C "$FHS_REPO" commit -m "zz-01 grok drafted $review_mode" >/dev/null
+}
+
+setup_grok_fix_docs approve
+expect_exit 3 draft-fix-approve bash scripts/draft.sh --check-only --fix zz-01
+if [[ "$LAST_OUT" != CLAUDE:* ]]; then
+  fail "draft-fix-approve-claude" "output: ${LAST_OUT//$'\n'/ | }"
+fi
+setup_grok_fix_docs reject
+expect_exit 3 draft-fix-reject bash scripts/draft.sh --check-only --fix zz-01
+if [[ "$LAST_OUT" != CLAUDE:* ]]; then
+  fail "draft-fix-reject-claude" "output: ${LAST_OUT//$'\n'/ | }"
+fi
+setup_grok_fix_docs after
+expect_exit 3 draft-fix-has-major bash scripts/draft.sh --check-only --fix zz-01
+if [[ "$LAST_OUT" != CLAUDE:* ]]; then
+  fail "draft-fix-has-major-claude" "output: ${LAST_OUT//$'\n'/ | }"
+fi
+cp "$FIX/review-after-fixes-none.md" "$FHS_REPO/docs/reviews/zz-01.md"
+git -C "$FHS_REPO" add docs/reviews/zz-01.md
+git -C "$FHS_REPO" commit -m "zz-01 after fixes none" >/dev/null
+expect_exit 0 draft-fix-minors-only bash scripts/draft.sh --check-only --fix zz-01
+if [[ "$LAST_OUT" != "OK" ]]; then
+  fail "draft-fix-minors-only-msg" "output: ${LAST_OUT//$'\n'/ | }"
+fi
+printf '# round 2\n' > "$FHS_REPO/docs/reviews/zz-01-r2.md"
+expect_exit 3 draft-fix-round3 bash scripts/draft.sh --check-only --fix zz-01
+if [[ "$LAST_OUT" != CLAUDE:* ]]; then
+  fail "draft-fix-round3-claude" "output: ${LAST_OUT//$'\n'/ | }"
+fi
+printf '# Plan zz-04\n' > "$FHS_REPO/docs/plans/zz-04.md"
+printf '# Prompt zz-04\n' > "$FHS_REPO/docs/prompts/zz-04.md"
+printf '# Tests zz-04\n' > "$FHS_REPO/docs/tests/zz-04.md"
+cp "$FIX/review-after-fixes-none.md" "$FHS_REPO/docs/reviews/zz-04.md"
+git -C "$FHS_REPO" add docs/plans/zz-04.md docs/prompts/zz-04.md docs/tests/zz-04.md docs/reviews/zz-04.md
+git -C "$FHS_REPO" commit -m "zz-04 claude plan for fix guard" >/dev/null
+expect_exit 3 draft-fix-no-drafted-line bash scripts/draft.sh --check-only --fix zz-04
+if [[ "$LAST_OUT" != CLAUDE:* ]]; then
+  fail "draft-fix-no-drafted-claude" "output: ${LAST_OUT//$'\n'/ | }"
+fi
+
+if [[ -x scripts/draft.sh ]]; then
+  pass "draft-exec-bit"
+else
+  fail "draft-exec-bit" "not executable"
+fi
+
 # --- 6. bash -n -----------------------------------------------------------
-bn="$(bash -n scripts/build.sh scripts/review.sh scripts/lib/verdict.sh scripts/lib/guards.sh 2>&1)"
+bn="$(bash -n scripts/build.sh scripts/review.sh scripts/draft.sh scripts/lib/verdict.sh scripts/lib/guards.sh 2>&1)"
 ec=$?
 if [[ $ec -eq 0 && -z "$bn" ]]; then
   pass "bash-n"

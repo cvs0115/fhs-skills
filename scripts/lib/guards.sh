@@ -7,11 +7,14 @@ check_reviewer() {
   msg="owner decision 2026-10-10: included Cursor models; reviewer is never the writer's family"
 
   if [[ "$mode" == "plan" ]]; then
-    if [[ "$writer" != "claude" ]]; then
-      echo "plan review writer must be claude ($msg), got: $writer" >&2
-      return 2
-    fi
-    allowed="cursor-grok-4.6-xhigh"
+    case "$writer" in
+      claude) allowed="cursor-grok-4.6-xhigh" ;;
+      grok) allowed="composer-2.5" ;;
+      *)
+        echo "plan review writer must be claude or grok ($msg), got: $writer" >&2
+        return 2
+        ;;
+    esac
   elif [[ "$mode" == "diff" ]]; then
     case "$writer" in
       composer) allowed="cursor-grok-4.6-xhigh" ;;
@@ -39,5 +42,15 @@ check_name() {
     return 0
   fi
   echo "name must match ^[a-z0-9][a-z0-9-]{1,40}$, got: $name" >&2
+  return 2
+}
+
+check_draft_model() {
+  local model="$1"
+  local allowed="cursor-grok-4.6-high"
+  if [[ "$model" == "$allowed" ]]; then
+    return 0
+  fi
+  echo "draft model must be $allowed (owner decision 2026-10-10: included Cursor models), got: $model" >&2
   return 2
 }
