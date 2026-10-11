@@ -84,3 +84,32 @@ Seen while signed in. Not a finished audit.
 - Git for Windows' installer defaults `core.autocrlf` to `true` (checkout CRLF). See `docs/research/windows-agent.md` section 4.
 - `inbox/` is gitignored (`.gitignore` line 2). A report copy is `scp` to `dev-lxc-1:/root/fhs-skills/inbox/` plus a SHA-256 compare of `Get-FileHash` and `sha256sum`. See `docs/research/windows-agent.md` section 5.
 - This server has `/usr/bin/sha256sum` (GNU coreutils 9.4). See `docs/research/windows-agent.md` section 5.
+
+## Store 122 audit (2026-10-11)
+
+Confirmed from PC captures 2026-10-11 (CARY 1 / Toast 00122). Details: `docs/research/store-audit-122.md`.
+
+- R365 left rail shows Dashboards, Reports, Accounting, Inventory, Sales & forecasting, Workforce, Task management, Manager log, More (Hire, Payroll, Training), Admin, Marketplace; Operations overview Orders tile is greyed out. See Licensed modules.
+- R365 Admin opens for this login (71 users). See Licensed modules.
+- Toast Payroll is not licensed (discover page; 38 employees at 00122). Toast Scheduling is not set up (Sling connect error). Tip pooling is an upgrade. Toast Shop purchase is permission-denied. See Licensed modules.
+- R365 Inventory → Items: 551 purchase items, units filled, Brand Firehouse Subs, cost method Last Received; many Avg Cost $0.00. See F2.
+- Sample CARY 1 costs: MEAT TURKEY - 1001190 $3.56/LB; BREAD LARGE WHITE SUB ROLL $0.58/Roll; last receipt Cheney Brothers #9100594310-CARY on 10/02/2026 (CS - 6/Pack). See F2.
+- R365 Vendors: 114 company-wide. CARY 1 invoices and receipts in this audit are Cheney Brothers, Inc. See F2 and F3.
+- CARY 1 AP invoices arrive Modified by R365 Import with `-CARY` numbers; Supplyit and NDCP tiles are Disconnected; Documents to process shows no email-capture address. Newest three invoices (10/06 and 10/09 ×2) are Unapproved; 10/02 $1,832.25 is Approved. See F3.
+- R365 Recipes: 2,331. Menu Items: 64,670, visible rows mapped to `MI …` recipes, Estimated Cost $0.00, Target Profit % 0.00. See F4.
+- Toast Menu manager items Target = Firehouse Subs Group, 435 groups, 1 location; some items tagged Catering (ezCater) and Online ordering partners. See F4.
+- CARY 1 storage locations include Unassigned 212, CHEMICAL & JANITORIAL 18, DRY 78, LINE 77, COOLER 40, plus beverage, chips, freezer, register, and others. See F5.
+- Count template **CARY 1 - FHS Weekly Inventory**: 207 items, On Demand, GL posting Yes, created by R365 DSS User. Last approved count 10/04/2026, $7,461.73. See F5.
+- R365 waste: one log in the last 30 days, WL-000002 on 09/28/2026, $0.92, Approved. Toast food waste this month $0. See F6.
+- Actual vs Theoretical Analysis opens with error: The 'ToCount' parameter is missing a value. See F7.
+- Actual vs Theoretical Location Summary returns numbers (10/11–10/11): CARY 1 Begin 7,520.46, End 0.00, Theo 4,485.73. See F7.
+- P&L comparison Period 10 2026 returns numbers, starts at COGS (no Sales section); CARY 1 Total COGS - PURCHASES −5,266. See F7.
+- R365 Bank reconciliations: 0 rows. Daily Sales Total Deposit $0.00 and Over/Short negative on CARY 1 days 10/06–10/10. See F8 and F9.
+- Toast payouts for October (as of Oct 10): card $8,917.23, External −$546.63, payout $8,370.60, 10 daily payouts, group Firehouse Subs Management Group. Cash Drawer History starting cash $250.00. See F8.
+- R365 Daily Sales for CARY 1 through 10/10/2026 matches Toast weekly net sales to the cent; CARY 1 Labor $ is $0.00. R365 report subscriptions: 0. See F9.
+- R365 schedule week of Oct 5 is Unpublished; OT Hours 69.61; 13 Shifts Not Sent to POS. See F10.
+- R365 tip rule **Cary1 Tip Rule** runs Daily; week of Oct 5 card tips $411.72. See F11.
+- Last POS import 10/11/2026 10:08 AM; next 10/12/2026 10:49 AM. Admin POS Toast tile is Disconnected (employee/job push). See Toast → R365 integration.
+- Labor Payroll Review and Tip Automation Distributions Report exist (opened; default 10/11–10/11 empty). Toast time entries exist. R365 labor details: 4,295 rows; some CARY 1 pay rates $0.00. See F12.
+- R365 AR customers: 0. Toast Integrations are view-only for this login. See F13.
+
