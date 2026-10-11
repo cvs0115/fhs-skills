@@ -26,6 +26,7 @@ You add plan-writer routing, a drafter guard, and `scripts/draft.sh`.
 3. `review.sh`: `--writer claude|grok` for plans, default models, drafter guard, writer line, and the extra read list for Grok drafts (Design 2).
 4. `scripts/draft.sh`: draft and `--fix` modes, `--check-only`, `DRAFT_MODEL` guard, exit codes and output exactly as in Design 3. `chmod +x`.
 5. Tests and fixtures (Design 4). Keep every existing case.
+5b. Apply every bullet in `docs/reviews/framework-setup-04.md` "## Minors" (part of this task; the review is APPROVE).
 6. `bash -n` each changed script; run the suite.
 
 ## You may edit only

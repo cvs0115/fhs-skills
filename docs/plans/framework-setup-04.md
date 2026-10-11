@@ -2,7 +2,7 @@
 
 2026-10-11. Plan only, not approved. Don't build from it until `docs/reviews/` holds an APPROVE for this file.
 
-- Hub project: `projects/framework` · Brief: `docs/briefs/framework-setup-04.md`
+- Hub project: `projects/fhs-framework` · Brief: `docs/briefs/framework-setup-04.md`
 - Spec: `docs/specs/framework-setup.md` · Decisions that bind it: hub log 2026-10-11 "Token savings" (drafting, fix rounds, running agents);
   2026-10-10 included Cursor models only; reviewer never the writer's family.
 

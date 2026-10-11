@@ -3,7 +3,7 @@
 2026-10-11. Written by Claude. This one is planned by Claude (the drafter can't review-route its own enabling change);
 from framework-setup-05 on, the Drafter turns briefs into plans.
 
-- Spec: `docs/specs/framework-setup.md` · Hub project: `projects/framework` · Binding decisions: hub log 2026-10-11 "Token savings" (three entries), 2026-10-10 included Cursor models
+- Spec: `docs/specs/framework-setup.md` · Hub project: `projects/fhs-framework` · Binding decisions: hub log 2026-10-11 "Token savings" (three entries), 2026-10-10 included Cursor models
 - Rules: `CLAUDE.md` "Roles", "Token budget"
 
 ## Problem and decision
