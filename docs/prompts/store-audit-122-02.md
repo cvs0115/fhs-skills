@@ -2,7 +2,7 @@
 
 > **For the coding agent (Cursor Grok 4.6 High via `agent --force`, as `fhsbuild`).** This file is your whole assignment.
 > Read it top to bottom, then do it. You don't see the planner's conversation and don't need it.
-> Written by Claude (planner), reviewed with its plan (`docs/reviews/store-audit-122-02.md`: APPROVE).
+> Drafted by Cursor Grok 4.6 High from `docs/briefs/store-audit-122-02.md`, reviewed with its plan (`docs/reviews/store-audit-122-02.md`: APPROVE, composer-2.5).
 > Hand-off (see docs/RUNBOOK.md): start `sudo -u fhsbuild -H /srv/fhs-build/.local/bin/agent --model cursor-grok-4.6-high --force --workspace /srv/fhs-build/store-audit-122-02`
 > and tell it "Do the task in docs/prompts/store-audit-122-02.md". Start only after Ops has copied and unzipped the inbox zip into `/srv/fhs-build/reports/store-audit-122-captures/`.
 

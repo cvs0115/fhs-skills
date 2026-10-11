@@ -1,5 +1,7 @@
 # Spec · store-audit-122 · What R365 and Toast already do for store 122 (function F1)
 
+> Updated 2026-10-11 for the desktop capture (plan `store-audit-122-02`). The server-browser route (-01, browser-02) is parked.
+
 2026-10-10 · Hub project: `projects/r365-inventory` (Phase 0) · Parent spec: `docs/specs/store-migration.md` (function F1)
 
 ## Problem and today
@@ -11,9 +13,9 @@
 
 ## Who runs it
 
-- **The owner** signs in to R365 and Toast once in the server browser (noVNC), and answers what the screens can't show.
-- **The Researcher** (`cursor-grok-4.6-high`) reads screens through the server Playwright MCP, read-only, and writes the audit note.
-  How a research agent reaches the browser (browser-02 blocks `fhsbuild`) is a pre-start gate in the plan (browser-02 G4 (answered 2026-10-10: a root agent session captures, the fhsbuild researcher writes)).
+- **The owner** is signed in to R365 and Toast in Chrome on the Windows PC, starts the capture in Claude Code (`docs/prompts/store-audit-122-02-capture.md`), and answers what the screens can't show.
+- **Capture:** Claude Code + Claude in Chrome on the PC, read-only, saves screenshots, page text, allowed exports and `pages.csv`, and sends one zip to the server `inbox/` with `send-report.ps1` (desktop first, 2026-10-10T17:00/17:01).
+- **The Researcher** (`cursor-grok-4.6-high`, `fhsbuild`) writes the audit note from the captures only (`/srv/fhs-build/reports/store-audit-122-captures/`, unpacked by Ops). It never opens a browser.
 - **The Tester** (`composer-2.5`, a fresh session) re-checks a sample. **The Reviewer** of the research is `composer-2.5`.
 
 ## Done when
@@ -41,9 +43,9 @@
 
 | Data | Source of truth | How the researcher gets it | Verified? |
 |---|---|---|---|
-| R365 setup for CARY 1 | R365 `https://fhs4021089.restaurant365.com/` | server browser via MCP, owner signed in | no → this audit |
-| Toast setup for 122 (restaurant ID 366968) | Toast Web `https://www.toasttab.com/restaurants/admin/` | server browser via MCP, owner signed in | no → this audit |
-| Server browser | `browser-02` (planned) | Playwright MCP on localhost | no → depends on browser-02 |
+| R365 setup for CARY 1 | R365 `https://fhs4021089.restaurant365.com/` | PC capture (Claude in Chrome), owner signed in | no → this audit |
+| Toast setup for 122 (restaurant ID 366968) | Toast Web `https://www.toasttab.com/restaurants/admin/` | PC capture (Claude in Chrome), owner signed in | no → this audit |
+| PC → server transport | `send-report.ps1` → `inbox/` (windows-agent-02) | restricted key | merged; PC steps pending (runbook row 9) |
 
 ## Owner rules that bind it
 
@@ -55,5 +57,5 @@
 
 ## Open questions
 
-- Exports: **allowed** (owner, 2026-10-10). The auditor may download read-only report exports (CSV/PDF) into `/srv/fhs-build/reports/store-audit-122-exports/` without asking each time.
+- Exports: **allowed** (owner, 2026-10-10). The capture may download read-only report exports (CSV/PDF) into the capture folder without asking each time.
 - Hub q1–q5 (distributor and invoice method, current counting, item scope, corporate recipes and items, target food cost %), where the screens can't answer.

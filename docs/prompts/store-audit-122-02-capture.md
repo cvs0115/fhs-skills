@@ -27,7 +27,7 @@ note from your files.
 1. This file (the assignment)
 2. `CLAUDE.md`
 3. `docs/plans/store-audit-122-02.md` (if this file and the plan disagree, stop and tell the owner)
-4. `docs/runbooks/windows-agent.md` (D5 send-report; rows 9–10)
+4. `docs/RUNBOOK.md` rows 9–10 (PC clone, restricted key, alias; signed in to R365 and Toast in Chrome) and `docs/runbooks/windows-agent.md` (D5, `send-report.ps1`)
 
 Do not copy numbers from `skills/fhs-skills/references/tech-stack.md`. Known URLs there are only a start if the menu path matches. Menu paths below are typical; confirm the real path and mark unknown ones `(?)`.
 

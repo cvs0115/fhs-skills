@@ -49,7 +49,7 @@ Captures live outside the repo and are not edited by the researcher: `C:\fhs\rep
 R365 (`https://fhs4021089.restaurant365.com/`) and Toast Web (`https://www.toasttab.com/restaurants/admin/`, restaurant 366968): **read-only**, on the owner's PC, owner signed in. Allowed and forbidden actions exactly as -01:
 
 - **Allowed:** navigation, opening list and detail pages, opening reports on screen, changing on-screen filters or date ranges, taking screenshots, saving page text.
-- **Forbidden:** Save, Submit, Approve, Post, Import, Map, Edit, Delete, Create, New, Add, Sync, Run (any job), Send, Email, Pay, Print-to-vendor, or any toggle and checkbox that persists. No settings pages edited. No user or permission changes.
+- **Forbidden:** Save, Submit, Approve, Post, Import, Map, Edit, Delete, Create, New, Add, Sync, Run (any job), Send, Email, Pay, Print-to-vendor, Calculate, or any toggle and checkbox that persists. No settings pages edited. No user or permission changes.
 - **Exports** (download a CSV or PDF of a report): allowed without asking (owner, 2026-10-10). Read-only report exports only, saved under `C:\fhs\reports\store-audit-122\` with the other captures. An export never changes data.
 - Claude in Chrome never types credentials. A login or MFA prompt means stop and ask the owner.
 
@@ -83,7 +83,7 @@ Capture files: `<area>-<nn>.png` / `.txt`, plus `pages.csv` (time, URL, action =
 
 ## Where the researcher works
 
-`/srv/fhs-build/store-audit-122-02` via `scripts/build.sh prepare docs/plans/store-audit-122-02.md store-audit-122-02 --role research`, branch `feat/store-audit-122-02`, cut from the `main` commit that holds this plan, its task files, test plan and APPROVE review. Model `cursor-grok-4.6-high`, user `fhsbuild`. Starts only after Ops has copied and unzipped the inbox zip into `/srv/fhs-build/reports/store-audit-122-captures/`.
+`/srv/fhs-build/store-audit-122-02` via `scripts/build.sh prepare docs/plans/store-audit-122-02.md store-audit-122-02 --role research`, branch `feat/store-audit-122-02`, cut from the `main` commit that holds this plan, its task file, the capture task (`docs/prompts/store-audit-122-02-capture.md`, which the PC clone also needs), the test plan and the APPROVE review. Model `cursor-grok-4.6-high`, user `fhsbuild`. Starts only after Ops has copied and unzipped the inbox zip into `/srv/fhs-build/reports/store-audit-122-captures/`.
 
 ## Sequence
 
