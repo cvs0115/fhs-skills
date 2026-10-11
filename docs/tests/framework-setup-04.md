@@ -38,9 +38,9 @@ No case calls a model for real. Every `review.sh` and `draft.sh` call below uses
 | T9 | shell | `grep -n 'cursor-agent' scripts/draft.sh` and `grep -n 'git ' scripts/draft.sh` | every `cursor-agent` call has `--mode ask` and `--model` from the guarded variable, and output goes to a `.tmp` file; no state-changing git commands (`git diff --stat` only) | output |
 | T10 | shell | `git diff --name-only main...HEAD`; `git diff --check main...HEAD`; `git status --short` | only the plan's allowed files; no whitespace errors; clean | output |
 | T11 | ops | Ops, after the diff review is APPROVE, from a root worktree of the branch: `scripts/review.sh --check-only docs/plans/framework-setup-04.md; echo exit=$?` then `scripts/review.sh --check-only --writer grok docs/plans/framework-setup-04.md; echo exit=$?` | `OK` `exit=0`, then `exit=2` (no Drafted-by line) | pasted output |
-| T12 | shell | Real Grok draft (review minor 1): `review.sh --check-only docs/plans/store-audit-122-02.md; echo exit=$?`, then with `--writer grok`. Also `draft.sh --check-only --fix framework-setup-04` (Claude's plan) | `exit=2`, then `OK` `exit=0`; the `--fix` call exits 3 with a `CLAUDE:` line (review minor 2, or no AFTER FIXES verdict) | output |
+| T12 | ops | After the diff review is APPROVE, from a root worktree of the branch against `/root/fhs-skills` (where the draft is committed). Real Grok draft (review minor 1): `review.sh --check-only docs/plans/store-audit-122-02.md; echo exit=$?`, then with `--writer grok`. Also `draft.sh --check-only --fix framework-setup-04` (Claude's plan) | `exit=2`, then `OK` `exit=0`; the `--fix` call exits 3 with a `CLAUDE:` line (review minor 2, or no AFTER FIXES verdict) | output |
 
-Mark T11 BLOCKED (ops) until its output is pasted to you.
+Mark T11 and T12 BLOCKED (ops) until its output is pasted to you.
 
 ## Post-merge verification (not a gate; a failure opens a fix plan)
 
