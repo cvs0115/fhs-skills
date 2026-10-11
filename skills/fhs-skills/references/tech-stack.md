@@ -11,7 +11,7 @@ Last reviewed: 2026-10-08. Mark anything unverified with (?) and confirm it in t
 | **ADP RUN** | Payroll processing, employee master (rates, pay type) | 122, 878 (separate companies) | https://online.adp.com/signin/v1/?APPID=RUN&productId=80e309c3-70c3-bae1-e053-3505430b5495 |
 | **NCR / Aloha** | POS + time clock at 878 until it moves to Toast | 878 | (reports downloaded by owner) |
 | **Dropbox** | Report archive: `C:\Users\mayur\DropboxCS\Dropbox\CMVK Food Services\Locations\<store>\<year>\<MM MON>\Week <n>` | all | local sync |
-| Distributor(s) | Food/paper supply, invoices | ? | ? (to confirm) |
+| Distributor(s) | Food/paper supply, invoices | 122: Cheney Brothers (2026-10-11 audit); 878 ? | R365 Accounting → Vendors; how invoices arrive (EDI/email/manual) still ? |
 
 ## Data flows (as they are now)
 
@@ -40,6 +40,8 @@ Weekly count (R365 mobile) --> actual usage --> AvT + COGS --> food-cost check -
 
 ## Store 122 screen check (2026-10-10, partial, read-only)
 
+Where this overlaps `## Store 122 audit (2026-10-11)` below, the audit is newer and wins.
+
 Seen while signed in. Not a finished audit.
 
 - Inventory counts: `https://fhs4021089.restaurant365.com/react/inventory/inventory`. Three Cary 1 rows. Template name **CARY 1 - FHS Weekly Inventory**. One count dated 10/04/2026 is Approved. One dated 09/28/2026 is In Progress. Column titles for the dollar amounts were not read.
@@ -52,6 +54,8 @@ Seen while signed in. Not a finished audit.
 - Screenshot: `/root/fhs-skills/inbox/purchase-items.png`.
 
 ## Known gaps / open questions
+
+Check `## Store 122 audit (2026-10-11)` below and `docs/research/store-audit-122.md` first; some gaps here are answered there.
 - R365 scheduling not set up (Toast Scheduling not used either).
 - R365 for store 122 already has items (551), recipes (2331, with ingredients), a linked menu item for the 6" Hook and Ladder, Cheney Brothers invoices, weekly inventory counts, and daily sales through 10/09/2026. Still open: whether daily sales are labeled Toast, whether labor imports, waste, and scheduling. Franchise ownership is likely and not fully confirmed.
 - Main distributor for recent Cary invoices is Cheney Brothers. Invoices are in R365 (28 for CARY 1 from 08/11/2026 to 10/10/2026). An approved invoice's lines are matched to R365 items and carry Cheney item numbers. The screen does not name EDI, email, or manual entry.

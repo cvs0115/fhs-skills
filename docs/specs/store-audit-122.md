@@ -21,10 +21,10 @@
 ## Done when
 
 1. `docs/research/store-audit-122.md` has one row per function F2–F13 for store 122. Each row has a status (in place / partial /
-   missing / can't tell), evidence (an R365 or Toast menu path plus a screenshot file), and an owner (owner / franchise / R365 support).
+   missing / can't tell), evidence (an R365 or Toast menu path plus a capture file: a screenshot `.png` or saved page text `.txt`), and an owner (owner / franchise / R365 support).
 2. It also covers: licensed and visible R365 modules, Toast → R365 integration health (last sales and labor import date), and who owns
    each setting.
-3. Every "in place" or "partial" claim has a screenshot. 5 claims, picked by the tester, re-check the same.
+3. Every "in place" or "partial" claim has a capture file (screenshot or page text). 5 claims, picked by the tester, re-check the same.
 4. `tech-stack.md` gains one section of confirmed facts, added lines only.
 5. Nothing in R365 or Toast was changed.
 
