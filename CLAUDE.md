@@ -101,7 +101,7 @@ Owner rules for *running* the skills (passwords, money, one yes per change) live
 - Claude writes the spec and a one-page brief (`docs/briefs/<plan>.md`, form `docs/templates/brief.md`). The Drafter (Cursor Grok High)
   turns the brief into the plan, task file (form `docs/templates/prompt.md`) and test plan (form `docs/templates/test-plan.md`). Claude
   checks them against the brief by grep and section reads, not full reads, and doesn't write code or scripts (owner, 2026-10-11).
-  Until framework-setup-04 lets `review.sh` send a Grok-drafted plan to Composer, Claude writes plans itself.
+  Run it with `scripts/draft.sh <plan>` (fixes: `scripts/draft.sh --fix <plan>`); review Grok drafts with `scripts/review.sh --writer grok`.
 - A fresh Composer session (never the builder's) runs the test plan. Browser tests use the server's Playwright browser when it exists, otherwise Chrome on the Windows PC.
 - Once a plan is APPROVE, commit its plan, task file, test plan and review to `main` before `scripts/build.sh prepare` (prepare checks them in the committed tree).
 - Models (owner decision 2026-10-10: included Cursor models only): Composer 2.5 builds, tests and runs ops; Cursor Grok 4.6 High researches and drafts plans from Claude's briefs (2026-10-11);

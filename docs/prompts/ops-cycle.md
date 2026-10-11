@@ -29,6 +29,15 @@ Any of these means stop: a verdict that isn't APPROVE, a test FAIL, an expected 
 anything touching `$R/skills` before G. Write `$B/reports/$NAME-ops.md` (the format at the bottom) and tell the
 owner to send it to Claude. Don't fix code, plans or tests yourself.
 
+## 0 · Plan review and minor-fix rounds (from framework-setup-04, 2026-10-11)
+
+- Plan review: if the plan has `Drafted by Cursor Grok` in its first 10 lines, `scripts/review.sh --writer grok docs/plans/$PLAN.md`
+  (reviewer `composer-2.5`); otherwise `scripts/review.sh docs/plans/$PLAN.md` (Claude's plan, reviewer `cursor-grok-4.6-xhigh`).
+  The script refuses the wrong pairing.
+- APPROVE AFTER FIXES on a Grok draft: rename the review to the next `-rN`, commit it, run `scripts/draft.sh --fix $PLAN`, then review again.
+  Any line starting `CLAUDE:` (a major, a REJECT, a 3rd round, or a Claude-written plan) → stop and send it to Claude.
+- Claude-written plan, or a diff review with majors → stop and send it to Claude.
+
 ## A · Prepare the clone
 
 1. Gate: on `main`, the plan, task file, test plan and review are committed, and the review is APPROVE:
@@ -94,7 +103,9 @@ git add docs/reviews/$NAME-diff-rN.md && git commit -m "Diff review rN for $NAME
 Co-Authored-By: Composer 2.5 (agent, ops)"
 sed -n '/^## Verdict/,/^## /p' docs/reviews/$NAME-diff-rN.md | sed -n '3p'
 ```
-Not APPROVE → stop (the stop rule). The builder fixes it in a new round, starting again at B.1 with the same clone.
+Not APPROVE → stop (the stop rule). If the verdict is APPROVE AFTER FIXES with `- None.` under Majors and this is round 1 or 2,
+the builder (Composer) fixes the Minors itself: tell it `Fix every Minor in docs/reviews/$NAME-diff-rN.md, rerun the plan's tests, update
+your report` in the same clone, then start again at C. Otherwise the plan goes back to Claude.
 
 ## E · Root-only test cases (only after D is APPROVE)
 

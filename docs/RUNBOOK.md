@@ -36,11 +36,12 @@ Claude keeps both current. Build order for the store functions: `docs/specs/stor
 | 4 | ✅ merged `74fb39a` | Researcher / Tester | browser-research-01: how to run a server browser | 12/12, review APPROVE |
 | 5 | ✅ merged `545863b` | Researcher / Tester | windows-research-01: how a PC agent works with the server | 14/14, review APPROVE |
 | 6 | ✅ merged `b79e362` | Ops / Builder / Tester | framework-setup-03: included Cursor models only (Composer builds, Cursor Grok reviews) | 10/10, review APPROVE |
+| 6b | ✅ merged `b7b80c0` | Claude runs Builder / Tester headless | framework-setup-04: Grok drafts plans from Claude's briefs (`scripts/draft.sh`), Composer reviews them (`review.sh --writer grok`), writers fix minors | 10/10 + T11/T12, review APPROVE |
 | 7 | ⏸ parked | — | **browser-02** server browser: parked (owner, 2026-10-10: desktop first). Returns only when an unattended job needs it | — |
 | 8 | ✅ done | **You**, on the Windows PC | PC checklist answered; Git working; `git ls-remote dev-lxc-1:/root/fhs-skills HEAD` OK | — |
 | 9 | ✅ merged `69d983a`; server steps done | Builder → Ops | **windows-agent-02**: push hook installed, `inbox/` created. Remaining PC steps: clone, restricted key (Ops adds it), alias, test push, mirror dry run, send a report (`docs/runbooks/windows-agent.md`) | **you**: clone + key + ssh config block |
 | 10 | ⏳ after 9 | **You**, on the PC | Make sure Claude in Chrome is set up and you're signed in to R365 and Toast in that Chrome | signed in |
-| 11 | ⏳ re-planning | Claude Code + Claude in Chrome on your PC captures → Researcher (Cursor Grok High) → Tester | **store-audit-122-01**: read-only audit of every 122 function in R365 + Toast, run on your PC (`docs/plans/store-audit-122-01.md`, being reworked for the desktop) | audit merged; it decides the next builds |
+| 11 | ⏳ plan review | Claude Code + Claude in Chrome on your PC captures → Researcher (Cursor Grok High) → Tester | **store-audit-122-02**: read-only audit of every 122 function in R365 + Toast, captured on your PC (`docs/prompts/store-audit-122-02-capture.md`), written up on the server. Replaces -01 | plan APPROVE (Composer); then rows 9–10 done before capture |
 | 12+ | later | Claude plans each | store functions in order: items/vendors → e-invoices → recipes + menu mapping → counts → cash & deposits → food cost → daily flash → scheduling/OT → delivery → 878 migration. Each skips or shrinks based on the row 9 audit | per plan |
 
 How every build row runs (Ops follows `docs/prompts/ops-cycle.md`): plan review → `build.sh prepare` → Builder → fresh Tester →
