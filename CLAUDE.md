@@ -90,28 +90,44 @@ Owner rules for *running* the skills (passwords, money, one yes per change) live
 
 | Role | Who | Writes |
 |---|---|---|
-| Planner | Claude | specs, plans, task files (`docs/prompts/`), test plans (`docs/tests/`), the runbook, hub; no code, no ops |
+| Planner | Claude | specs, briefs (`docs/briefs/<plan>.md`), the runbook, hub; reads verdicts and report summaries; no code, no ops |
+| Drafter | `agent -p --mode ask --model cursor-grok-4.6-high`, read-only, stdout redirected to the target file | plan, task file and test plan from Claude's brief and the templates |
 | Ops | `agent --model composer-2.5` as root (owner-approved commands, or headless when the owner delegates approval to Claude), from `docs/prompts/ops-*.md` | commits docs and reviews, creates the user, clones, fetches, runs `build.sh`/`review.sh`, runs root-only test cases, merges after an APPROVE |
-| Reviewer | `scripts/review.sh`, read-only (`--mode plan`): Claude's plans and Composer's code → `cursor-grok-4.6-xhigh`; Grok's research → `composer-2.5`. Never the writer's family. | one verdict file |
+| Reviewer | `scripts/review.sh`, read-only (`--mode plan`): Claude's plans and Composer's code → `cursor-grok-4.6-xhigh`; Grok's research and Grok-drafted plans → `composer-2.5`. Never the writer's family. | one verdict file |
 | Builder and Tester | `agent --model composer-2.5 --force`, as user `fhsbuild` in `/srv/fhs-build/<name>` | commits on `feat/<name>` in its clone; a report outside the repo |
 | Researcher | `agent --model cursor-grok-4.6-high --force` as `fhsbuild`, with a research prompt; writes only its research note | `docs/research/<file>` in its clone |
 | Tester | a fresh `composer-2.5` session (never the builder's), from `docs/tests/<plan>.md`; shell, Playwright (server browser) or Chrome on the Windows PC | a results file outside the repo |
 
-- Claude writes specs, plans, task files (`docs/prompts/<plan>.md`, form `docs/templates/prompt.md`) and test plans
-  (`docs/tests/<plan>.md`, form `docs/templates/test-plan.md`). Claude doesn't write code or scripts.
+- Claude writes the spec and a one-page brief (`docs/briefs/<plan>.md`, form `docs/templates/brief.md`). The Drafter (Cursor Grok High)
+  turns the brief into the plan, task file (form `docs/templates/prompt.md`) and test plan (form `docs/templates/test-plan.md`). Claude
+  checks them against the brief by grep and section reads, not full reads, and doesn't write code or scripts (owner, 2026-10-11).
+  Until framework-setup-04 lets `review.sh` send a Grok-drafted plan to Composer, Claude writes plans itself.
 - A fresh Composer session (never the builder's) runs the test plan. Browser tests use the server's Playwright browser when it exists, otherwise Chrome on the Windows PC.
 - Once a plan is APPROVE, commit its plan, task file, test plan and review to `main` before `scripts/build.sh prepare` (prepare checks them in the committed tree).
-- Models (owner decision 2026-10-10: included Cursor models only): Composer 2.5 builds, tests and runs ops; Cursor Grok 4.6 High researches;
-  Cursor Grok 4.6 Extra High reviews Claude's plans and Composer's code; Composer 2.5 reviews Grok's research. No other models are used.
+- Models (owner decision 2026-10-10: included Cursor models only): Composer 2.5 builds, tests and runs ops; Cursor Grok 4.6 High researches and drafts plans from Claude's briefs (2026-10-11);
+  Cursor Grok 4.6 Extra High reviews Claude's plans and Composer's code; Composer 2.5 reviews Grok's research and drafts. No other models are used.
 - Each task file is handed to its agent (Composer, or Cursor Grok for research) running as `fhsbuild` in the clone that `scripts/build.sh prepare` made.
 - Read-only agent work (reviews, pre-checks, analysis, quick questions) runs with `agent --mode plan` (or `--mode ask`): fewer tokens and
   no edits (owner, 2026-10-10). Only Builders, Testers, Researchers and Ops run in normal mode.
 - No builder-written code runs as root until a diff review of it is APPROVE.
+- **Fix rounds (owner, 2026-10-11):** for APPROVE AFTER FIXES with only minor findings, the writer's own model fixes them (Composer for code,
+  Grok for drafts and research) and the review runs again. Claude steps in only for a major, a REJECT, or a 3rd round of the same subject.
+- **Claude runs the agents (owner, 2026-10-11):** Claude starts reviewers, Drafters, Builders and Testers headless (`-p`) with Bash
+  `run_in_background` and waits for the notification. It never polls or tails logs. It reads only the verdict line, the findings list, or a
+  report's `## Summary`. The fhsbuild sandbox, the stop rules and "no code as root before APPROVE" stay the same.
 - The Ops agent commits every review file to `main` right after it's written (docs only). Before a new review of the same
   subject, the earlier file is renamed `<name>-rN.md`, so every verdict is kept.
 - After the builder's report: `scripts/build.sh collect <name>`; the tester runs the test plan; then `scripts/review.sh --diff feat/<name>`
   (the reviewer reads both reports); merge on APPROVE with every pre-merge test PASS. Post-merge cases are verified after the merge; a failure opens a fix plan.
 - Base prompts for other roles are in `app-framework/agents/`. Substitute `main` for `develop` and the hub db for `docs/board.md`/`docs/decisions.md`.
+
+## Token budget (Claude's session)
+
+Each Claude call re-reads the whole session, so a long session costs far more than its last step.
+- One step per session: after a merge or a hand-off, update the hub and runbook, then the owner starts a fresh session (`/clear`). The hub holds the state.
+- Read narrowly: `grep`, `sed -n` ranges and `tail -20`, never `cat` of plans, reports or logs. Large hub docs go through `out_dir`.
+- To understand a long file (a report, research, a big diff), ask `agent -p --mode ask --model composer-2.5` (or Grok for a Composer-written file) for a 10-line answer.
+- Pipe noisy commands through `| tail` or `>/dev/null`. Batch independent calls in one turn.
 
 ## Repo rules
 
