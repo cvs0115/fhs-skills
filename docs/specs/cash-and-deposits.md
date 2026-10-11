@@ -2,6 +2,8 @@
 
 2026-10-11 · Hub project: `projects/cash-and-deposits` · Plan page: https://claude.ai/artifact/YCyi9JzD9Gya12mkhwzMrT
 
+Manager guide (draft, owner doc): https://claude.ai/code/artifact/272a1c26-db6b-458e-a789-3bc7364e4f6c. It becomes the skill's daily steps once walked on a real close.
+
 Evidence so far: the 122 PC capture of 2026-10-11 (store-audit-122-02, files F8-01..F8-04, F9-01). The audit
 note from that run is the reference once merged; this spec only uses what those captures show.
 
