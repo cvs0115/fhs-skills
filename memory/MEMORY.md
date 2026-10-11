@@ -2,5 +2,5 @@
 - [Payroll skill](payroll-skill.md) — fhs-payroll-adp skill: shared Dropbox config, week folders, 878 on NCR
 - [fhs-skills library](tech-stack-agent.md) — fhs-* skill library; fhs-skills front door; built via App Framework (CLAUDE.md loop); R365 inventory first
 - [Login URLs](login-urls.md) — Toast and R365 login/start URLs (no credentials); more R365 sites may be added
-- [Agent hand-off workflow](agent-handoff-workflow.md) — owner drives cursor agents; Claude writes plans + md hand-offs only (RUNBOOK.md)
+- [Agent hand-off workflow](agent-handoff-workflow.md) — owner drives cursor agents; Claude briefs, Grok drafts plans, Claude runs agents headless (CLAUDE.md Roles)
 - [Cursor plan mode](cursor-plan-mode.md) — read-only cursor agent tasks run with --mode plan/ask (fewer tokens, safer)

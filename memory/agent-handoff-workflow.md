@@ -1,6 +1,6 @@
 ---
 name: agent-handoff-workflow
-description: "Owner drives cursor agents (Grok builder/tester/ops, GPT reviewer); Claude only writes plans and md hand-off files, never builds or runs ops"
+description: "Owner drives cursor agents (Composer 2.5 builder/tester/ops, Cursor Grok 4.6 research+review); Claude only writes plans and md hand-off files, never builds or runs ops"
 metadata:
   node_type: memory
   type: feedback
@@ -14,10 +14,8 @@ The owner runs every build, test and root/ops step through cursor-agent sessions
 
 **How to apply:**
 - Every plan comes with a task file (`docs/prompts/`) and a test plan (`docs/tests/`, run by a fresh Grok session; browser tests via Playwright on the server or Chrome on the Windows PC).
-- Agent roster:
-  - Ops: grok-4.7-high as root, no --force, so the owner approves each command.
-  - Builder and Tester: grok-4.7-high as user `fhsbuild` in /srv/fhs-build clones.
-  - Reviewer: gpt-5.6-sol-high through scripts/review.sh.
-- The GPT reviewer runs inside cursor. It exists only so the writer's model family never reviews its own work.
+- Agent roster: see CLAUDE.md "Roles" (owner decision 2026-10-10: included Cursor models only). Composer 2.5 builds, tests and runs ops; Cursor Grok 4.6 High researches; Cursor Grok 4.6 Extra High reviews Claude's plans and Composer's code; Composer 2.5 reviews Grok's research. The reviewer is never the writer's family.
 
 Related: [[tech-stack-agent]]
+
+**Update 2026-10-11 (token savings, owner chose all three):** Claude writes a one-page brief and Cursor Grok High drafts the plan, task file and test plan (Composer reviews those). Minor review fixes go back to the writer's model; Claude handles only majors, REJECTs and 3rd rounds. Claude now starts the agents headless in the background and reads only verdict lines and report `## Summary` sections. Rules: CLAUDE.md "Roles" and "Token budget".
