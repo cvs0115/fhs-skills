@@ -19,10 +19,10 @@
 ## Done when (measurable)
 
 1. Every one of the 207 template items is listed with: count unit, cost per count unit and extended value on the 10/04/2026 approved count,
-   last Cheney receipt date and purchase unit (or "none in 8 weeks").
+   purchase unit and whether a Cheney vendor item is linked, with its Cheney unit (Amendment 1, 2026-10-11).
 2. The per-item extended values on the 10/04/2026 count add up to **$7,461.73** (within $1.00).
-3. A problem list sorts every item into one of: $0 cost · no Cheney receipt in 8 weeks · purchase unit ≠ count unit with no
-   clear conversion · Cheney invoice line not mapped to an item. Each problem names the capture it came from.
+3. A problem list sorts every item into one of: $0 cost · no Cheney vendor item linked · Cheney unit ≠ count unit with no
+   clear conversion. Receipt recency and unmapped invoice lines moved to F3 (electronic invoices), owner 2026-10-11. Each problem names the capture it came from.
 4. A tester confirms 5 picked items against the PC captures (no live browser).
 
 ## In scope

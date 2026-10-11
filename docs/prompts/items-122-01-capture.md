@@ -2,8 +2,16 @@
 
 > **For Claude Code + Claude in Chrome on the owner's Windows PC.** This file is your whole assignment.
 > Read it top to bottom, then do it. You don't see the planner's conversation and don't need it.
-> Test-style, read-only. Drafted by Cursor Grok 4.6 High from `docs/briefs/items-122-01.md`, reviewed with its plan (`docs/reviews/items-122-01.md`: APPROVE).
+> Test-style, read-only. Drafted by Cursor Grok 4.6 High from `docs/briefs/items-122-01.md`, reviewed with its plan (run only after the plan review is APPROVE on `main`).
 > Hand-off: on the PC, from `C:\fhs\fhs-skills`, a normal Claude Code session (it asks before each command; do not bypass permissions). Tell it "Do the task in docs/prompts/items-122-01-capture.md". Start only after runbook row 9 (clone, restricted key, alias) and the owner signed in to R365 in Chrome, store **CARY 1**. Toast is not this task; do not open it.
+
+> **DONE 2026-10-11 — record only, do not run again.** The capture ran on a changed route (Amendment 1 in
+> `docs/briefs/items-122-01.md`, hub log 2026-10-11T21:00, owner chose): invoice lines came from read-only R365 reports, which have no
+> line detail; no Ad hoc report; no invoice screenshots; invoices were **not** opened one by one. What was actually captured
+> (`items-122.zip`, 52 files): `TPL-01..02`, `CNT-01..04` (count list and 10/04 approved count lines), `ITM-01` (Items grid), **`ITM-02.csv` (Vendor items export, 819 rows: the Cheney link and
+> unit per item)**, `ITM-03-missing.txt`, `ITM-03-unitdiff.csv`, `ITM-04` (units of measure), `ITM-05..12` (4 item conversion pages),
+> `INV-01` (AP transactions export), `INV-02` (invoice list), `INV-03.txt` (2-invoice sample), `INV-04/05-missing.txt`, `pages.csv`. The ITM and INV rows below record what was captured;
+> the pre-amendment "open each invoice" step and line-level INV target were dropped.
 
 ## Context
 
@@ -49,7 +57,7 @@ Create `C:\fhs\reports\items-122\` if it is missing. Put every capture in that f
 - Missing page or missing export: `<area>-<nn>-missing.txt` (what you searched, what you saw instead). Still log the search page in `pages.csv` as `view` (or `export` if you tried an export control that produced nothing).
 - Extra screens for the same page: increment `nn` (`TPL-02.png`, …). Do not skip numbers inside an area.
 
-Areas (only these four): `TPL` (template item list), `CNT` (10/04/2026 approved count lines), `ITM` (Items units, conversions, Avg Cost), `INV` (Cheney invoice lines 08/14–10/09/2026).
+Areas (only these four): `TPL` (template item list), `CNT` (10/04/2026 approved count lines), `ITM` (Items units, conversions, Avg Cost), `INV` (Cheney invoices 08/14–10/09/2026 (headers + 2-invoice sample; no line detail, Amendment 1)).
 
 `pages.csv` (header exactly `time,URL,action`): one row after every page you open or filter or export.
 
@@ -82,8 +90,8 @@ R365 base: `https://fhs4021089.restaurant365.com/`. Confirmed R365 starts (use i
 |---|---|---|---|
 | TPL | `TPL-01` templates list; `TPL-02` opened **CARY 1 - FHS Weekly Inventory** item list (export if offered); more `TPL-nn` if the list is paged | R365 Inventory → Count templates `(?)`. Open **CARY 1 - FHS Weekly Inventory** only (CARY 1, 207 items, On Demand). Do not open CAMDEN SQUARE - FHS Weekly Inventory or monthly | The **207 item names and count unit**. The 3-row templates list is not enough. Export the item list if the page offers CSV/Excel/PDF. Record created-by / modified-by. Leave with Cancel or Back, never Save |
 | CNT | `CNT-01` counts list; `CNT-02` opened **Approved 10/04/2026** line detail (export if offered); more `CNT-nn` if paged | R365 Inventory → Inventory counts `/react/inventory/inventory`, CARY 1. Open the **Approved** row **10/04/2026**, total **$7,461.73**, template CARY 1 - FHS Weekly Inventory. **Do not open** In Progress 09/28/2026 | Every count **line**: name, count unit, qty, cost per count unit, extended value, and the header total. The 3-row counts list is not enough. Export lines if offered. Approved view only; Cancel/Back, never Save or Approve |
-| ITM | `ITM-01` Items grid (export if offered); `ITM-02+` conversions export or item-detail conversions | R365 Inventory → Items → Items `/react/inventory/purchase-items` (551-item grid; not classic `/react/inventory/legacy/Items`). Prefer a **full-grid export** of Name, Avg Cost, Reporting UofM, Inventory UofM (all pages, not only 1–250). If the export has no conversion column, try Inventory → Units of measure `(?)` for an export. If still no conversion export: after INV, open item detail **Measurement Conversions** (and last-received U of M if shown) only for template names whose purchase U of M ≠ count unit, or whose Reporting UofM ≠ Inventory UofM. Do not click Create. Cancel/Back, never Save | Units, conversions, and Avg Cost for the **207 template names**. A 10-item sample is not enough. Grid export of all 551 is fine (the researcher will match names). Copy conversion values into the `.txt`; the audit did not capture them |
-| INV | `INV-01` filtered invoice **headers**; `INV-02` line-level export covering the range if offered, else `INV-nn` one export or `.png`/`.txt` per opened invoice | R365 Inventory → Invoices `(?)` or Accounting → AP transactions `/react/accounting/ap-transactions?tab=transactions`. Filter **CARY 1**, vendor **Cheney Brothers, Inc.**, dates **08/14/2026–10/09/2026**. Use the vendor Transactions tab (`/react/accounting/legacy/Vendors` → Cheney Brothers, Inc.) if that is the complete CARY 1 list for the range. Open each invoice in that filter **read-only** only when no line-level export exists. Never Approve (several newest rows are Unapproved). PFG / CAMDEN SQUARE out of scope | Every **Cheney CARY 1 invoice line** in 08/14–10/09/2026: date, invoice #, R365 item (or blank), Cheney item #, description, qty, U of M, amount. Header list alone is not enough unless a line export is included. Close each invoice with Cancel/Back, never Save or Approve |
+| ITM | **As captured:** `ITM-01` Items grid export; `ITM-02.csv` **Vendor items export** (819 rows, the Cheney vendor item, link and unit per item); `ITM-03-missing.txt`, `ITM-03-unitdiff.csv` (items whose Cheney unit ≠ count unit); `ITM-04` Units of measure export; `ITM-05`..`ITM-12` four item-detail conversion pages | R365 Inventory → Items `/react/inventory/purchase-items`; Vendor items `/react/inventory/legacy/VendorItems`; Units of measure `/react/inventory/UnitsOfMeasure`. View, filter, export only; item detail closed with Cancel/Back | Units, conversions and Avg Cost for the 207 template names, and the Cheney link + unit per item from `ITM-02.csv` |
+| INV | **As captured:** `INV-01` AP transactions export (Cheney, CARY 1, 08/14–10/09/2026, headers); `INV-02` Invoices list export; `INV-03.txt` 2-invoice sample (viewed, not edited); `INV-04-missing.txt`, `INV-05-missing.txt` (read-only reports in `ReportViewer` have no line detail) | Accounting → AP transactions; Inventory → Invoices; Reports `ReportViewer`. No Ad hoc report (it needs a save); invoices were **not** opened one by one; never Approve | Invoice headers and a sample only. Line-level receipt recency and unmapped invoice lines move to F3 (electronic invoices), owner 2026-10-11 |
 
 Do not capture storage locations, recipes, menu mapping, other vendors, credit-memo detail (unless a Cheney CARY 1 credit appears in the same filtered invoice list — then note it in `.txt` and skip opening it), integrations, or Documents to process.
 
@@ -108,7 +116,7 @@ Working directory: `C:\fhs\reports\items-122`.
 1. `Get-ChildItem -File` → `pages.csv` plus png/txt (and any exports) for areas TPL, CNT, ITM, INV. Every area has at least one `.png`/`.txt` or a `-missing.txt`. Each area has a `.csv`/`.xlsx`/`.pdf` export, or a `-missing.txt` that says no export was offered.
 2. `Get-Content pages.csv -TotalCount 1` → `time,URL,action`
 3. Unique `action` values in `pages.csv` data rows → only `view`, `filter`, `export`
-4. No `pages.csv` URL with path segments `save`, `submit`, `post`, `approve`, or `create` (case-insensitive). No edit / new / import / mapping **action** URL (a write). Viewing an invoice or template is allowed.
+4. No `pages.csv` URL with path segments `save`, `submit`, `post`, `approve`, or `create` (case-insensitive). No edit / new / import / mapping **action** URL (a write). Viewing an invoice or template is allowed, and `invoiceId=` and `ReportViewer` URLs are allowed as **view** only.
 5. No `pages.csv` URL for Toast, ADP, or a 09/28 / 2026-09-28 count.
 6. After the send step: the `send-report.ps1` line printed `MATCH`
 
