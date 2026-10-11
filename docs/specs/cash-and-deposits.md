@@ -55,7 +55,7 @@ note from that run is the reference once merged; this spec only uses what those 
 | Daily sales, tenders | Toast | Toast Reports (Sales summary, Payments) screen or export | screen yes (F9-02, 2026-10-11); export `(?)` |
 | Card payouts | Toast | Reports → Payments → Payout overview, one payout per day | screen yes (F8-02, F8-03) |
 | Cash drawers | Toast | Reports → Cash & loss management → Cash drawer overview | screen yes, today only (F8-04) |
-| Cash deposit made | manager's daily deposit slip; the bank statement | slip photo or entry `(?)`; statement download by the owner | owner answer 2026-10-11; format `(?)` |
+| Cash deposit made | each shift's deposit slip (Toast or paper `(?)`); the bank statement | slip photo or entry `(?)`; statement download by the owner | owner answer 2026-10-11; format `(?)` |
 | Deposit recorded | R365 Daily Sales Summary → Deposits | screen | yes, all $0.00 (F9-01) |
 | Bank statement | the bank (owner's account) | owner downloads CSV or PDF | owner answer 2026-10-11 |
 | Payout bank account owner | Toast payouts settle under "Firehouse Subs Management Group" | screen | name seen; who owns the account `(?)` |
@@ -68,7 +68,7 @@ note from that run is the reference once merged; this spec only uses what those 
 
 ## Answers (owner, 2026-10-11)
 
-- Cash: a manager deposits cash at the bank **every day** and keeps a **deposit slip**.
+- Cash: each **shift** counts its own drawer and does its own deposit slip, in Toast (associate). A manager takes the cash to the bank **every day**. The manager closes the day in R365. (Refined by the owner the same day; confirm with the manager on the first walk-through.)
 - R365 days are closed by the owner or the manager (not the franchise or a bookkeeper). Bank reconciliation is not done in R365 today.
 - Deposits are recorded **in R365 Daily Sales Summary** from now on, each entry with the owner's yes until the owner says otherwise.
 - The 122 bank account is the **owner's**, and the owner can download statements (CSV or PDF).
