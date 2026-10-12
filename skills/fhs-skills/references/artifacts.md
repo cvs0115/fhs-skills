@@ -25,6 +25,7 @@ Project status values: `not started`, `in progress`, `waiting on owner`, `blocke
 | Project | URL | Page source |
 |---|---|---|
 | R365 inventory & food cost (122) | https://claude.ai/artifact/NuVtNa2Gdtv7fcboRgF9WK | `agent-payroll\fhs-plan-r365-inventory.html` |
+| Cary 1 count sheet tick list (count-sheet-122-01; db `ticks/cary1-45`: keep[], hide[], p1, p1Note, done) | https://claude.ai/artifact/LY4J82C4J5XRzrmWhhpukk | scratchpad (rebuild from docs/research/count-sheet-122.md) |
 
 Plan page db:
 | Collection / doc | Fields |
