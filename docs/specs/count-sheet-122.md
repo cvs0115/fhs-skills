@@ -61,6 +61,11 @@
 - Store runs are card or cash buys from Costco and grocery stores (hub log 2026-10-12T10:01). Read-only exports allowed (2026-10-10T16:02).
 - CLAUDE.md project rule: R365 settings may be franchise-owned; research says who owns one before a plan changes it.
 
+## Outcome (2026-10-12)
+
+- count-sheet-122-02 closed with no build. Owner: leave the 44 ticked lines on the sheet for now (removal would need R365 support).
+- Store runs parked: a bookkeeper records them in QuickBooks, so typing them into R365 could double count. The owner asks the bookkeeper first (hub log 2026-10-12T15:00–15:02).
+
 ## Open questions
 
 - None blocking. The capture answers the ownership questions. The owner answers the tick list.
