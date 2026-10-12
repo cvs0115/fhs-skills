@@ -11,7 +11,7 @@ Last reviewed: 2026-10-08. Mark anything unverified with (?) and confirm it in t
 | **ADP RUN** | Payroll processing, employee master (rates, pay type) | 122, 878 (separate companies) | https://online.adp.com/signin/v1/?APPID=RUN&productId=80e309c3-70c3-bae1-e053-3505430b5495 |
 | **NCR / Aloha** | POS + time clock at 878 until it moves to Toast | 878 | (reports downloaded by owner) |
 | **Dropbox** | Report archive: `C:\Users\mayur\DropboxCS\Dropbox\CMVK Food Services\Locations\<store>\<year>\<MM MON>\Week <n>` | all | local sync |
-| Distributor(s) | Food/paper supply, invoices | 122: Cheney Brothers only (2026-10-11 audit; owner). 878 CAMDEN SQUARE: PFG (Performance Food Group, 58 rows) and Cheney (57 rows) in the R365 AP export (`items-122-captures/INV-02.csv`); no PFG rows for CARY 1 | R365 Accounting → Vendors; how invoices arrive (EDI/email/manual) still ? |
+| Distributor(s) | Food/paper supply, invoices | 122: Cheney Brothers is the only invoiced vendor (2026-10-11 audit; owner). Some counted items (bottled soda and water, gallon milk, cookies, hot sauces, packets) come from store runs (Costco, grocery) paid by card or cash, with no R365 invoice (owner, 2026-10-12). 878 CAMDEN SQUARE: PFG (Performance Food Group, 58 rows) and Cheney (57 rows) in the R365 AP export (`items-122-captures/INV-02.csv`); no PFG rows for CARY 1 | R365 Accounting → Vendors; how invoices arrive (EDI/email/manual) still ? |
 
 ## Data flows (as they are now)
 
