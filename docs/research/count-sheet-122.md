@@ -22,53 +22,55 @@
 
 ## Tick list
 
+Owner ticked 2026-10-12 on the tick page (https://claude.ai/artifact/LY4J82C4J5XRzrmWhhpukk, db `ticks/cary1-45`) and confirmed in Claude Code: **44 hide, 1 keep**.
+
 | Name | Category | 10/04 qty | Last Cheney receipt | Keep? |
 |---|---|---|---|---|
-| BEV APPLE JUICE ALL | BEV | 0.00 | none in captured history | |
-| BEV CCF AHA BLUEBERRY POM | BEV | 0.00 | none in captured history | |
-| BEV CCF CAFFEINE FREE DIET COKE | BEV | 0.00 | none in captured history | |
-| BEV CHOCOLATE MILK | BEV | 0.00 | none in captured history | |
-| BEV MILK SS | BEV | 0.00 | none in captured history | |
-| BEV POWERADE | BEV | 0.00 | none in captured history | |
-| Catering Chips - 1001442 | Catering | 0.00 | none in captured history | |
-| CLEAN CLEANER ALL PURPOSE/GLASS 3 N | CLEAN | 0.00 | none in captured history | |
-| CLEAN CLEANER FLOOR LIQUID | CLEAN | 0.00 | none in captured history | |
-| CLEAN COMET SPRAY W/ BLEACH | CLEAN | 0.00 | none in captured history | |
-| CLEAN FLOOR SPIC SPAN | CLEAN | 0.00 | none in captured history | |
-| CLEAN MOP HEAD | CLEAN | 0.00 | none in captured history | |
-| CLEAN PAD SCRUB STNLS 1.75OZ | CLEAN | 0.00 | none in captured history | |
-| CLEAN SANITIZER HAND | CLEAN | 0.00 | none in captured history | |
-| CLEAN SANITIZER NO RINSE SINK | CLEAN | 0.00 | none in captured history | |
-| CLEAN STRIP TEST TAPE QUAT | CLEAN | 0.00 | none in captured history | |
-| CLEAN VINEGAR WHITE DISTILLED | CLEAN | 0.00 | none in captured history | |
-| CO2 | CO2 | 0.00 | none in captured history | |
-| COUNT ALL CHIPS | COUNT | 0.00 | none in captured history | |
-| DAIRY SHREDDED MOZZARELLA - 1001276 | DAIRY | 0.00 | none in captured history | |
-| DAIRY SWISS - 1001283 | DAIRY | 0.00 | none in captured history | |
-| NON REV A1 STEAK BTL | NON REV | 0.00 | none in captured history | |
-| NON REV Garlic Chips - 1340968 | NON REV | 0.00 | none in captured history | |
-| NON REV HONEY MUSTARD - 1004033 | NON REV | 0.00 | none in captured history | |
-| NON REV LTO Caramelized Onions - 1052395 | NON REV | 0.00 | none in captured history | |
-| NON REV OIL CANOLA OLIVE BLEND - 1001331 | NON REV | 0.00 | none in captured history | |
-| NON REV ONION GARLIC FRESNO MARINATED - 1340985 | NON REV | 0.00 | none in captured history | |
-| NON REV PICKLE PLANK SPICY - 1341051 | NON REV | 0.00 | none in captured history | |
-| NON REV PKT SAUCE LOUISIANA | NON REV | 0.00 | none in captured history | |
-| NON REV SAUCE GARLIC AIOLI | NON REV | 0.00 | none in captured history | |
-| NON REV SAUCE GREEN JALAPENO SAUCE | NON REV | 0.00 | none in captured history | |
-| NON REV SAUCE HOT TEXAS PETE | NON REV | 0.00 | none in captured history | |
-| NON REV SEASONING CARMELIZED VEGETABLE - 1138068 | NON REV | 0.00 | none in captured history | |
-| NON REV SPICE RED PEPPER FLAKES - 1002638 | NON REV | 0.00 | none in captured history | |
-| NON REV SUGAR SUB BLUE PACKET | NON REV | 0.00 | none in captured history | |
-| NON REV SUGAR SUB YELLOW PACKET | NON REV | 0.00 | none in captured history | |
-| P-Garlic Fresno Marinated Onion 1 oz | P- | 0.00 | none in captured history | |
-| PAPER FD CUP PRTN SOUFFLE 2-3 OZ | PAPER FD | 0.00 | none in captured history | |
-| PAPER FD FILM PVC ROLL 18X2000 CLING | PAPER FD | 0.00 | none in captured history | |
-| PAPER FD LID PRTN SOUFFLE 2.5 OZ | PAPER FD | 0.00 | none in captured history | |
-| PAPER FD SM SALAD BOWL | PAPER FD | 0.00 | none in captured history | |
-| PAPER FD STRAW PLAS JMBO WRPD RED 7.75 | PAPER FD | 0.00 | none in captured history | |
-| PAPER NF GLOVE VINYL POWD FREE LG | PAPER NF | 0.00 | none in captured history | |
-| PAPER NF GLOVE VINYL PWDR FREE XXL | PAPER NF | 0.00 | none in captured history | |
-| PAPER NF INTERFOLD DISPENSER NAPKIN | PAPER NF | 0.00 | none in captured history | |
+| BEV APPLE JUICE ALL | BEV | 0.00 | none in captured history | hide |
+| BEV CCF AHA BLUEBERRY POM | BEV | 0.00 | none in captured history | hide |
+| BEV CCF CAFFEINE FREE DIET COKE | BEV | 0.00 | none in captured history | hide |
+| BEV CHOCOLATE MILK | BEV | 0.00 | none in captured history | hide |
+| BEV MILK SS | BEV | 0.00 | none in captured history | hide |
+| BEV POWERADE | BEV | 0.00 | none in captured history | hide |
+| Catering Chips - 1001442 | Catering | 0.00 | none in captured history | hide |
+| CLEAN CLEANER ALL PURPOSE/GLASS 3 N | CLEAN | 0.00 | none in captured history | hide |
+| CLEAN CLEANER FLOOR LIQUID | CLEAN | 0.00 | none in captured history | hide |
+| CLEAN COMET SPRAY W/ BLEACH | CLEAN | 0.00 | none in captured history | hide |
+| CLEAN FLOOR SPIC SPAN | CLEAN | 0.00 | none in captured history | hide |
+| CLEAN MOP HEAD | CLEAN | 0.00 | none in captured history | hide |
+| CLEAN PAD SCRUB STNLS 1.75OZ | CLEAN | 0.00 | none in captured history | hide |
+| CLEAN SANITIZER HAND | CLEAN | 0.00 | none in captured history | hide |
+| CLEAN SANITIZER NO RINSE SINK | CLEAN | 0.00 | none in captured history | hide |
+| CLEAN STRIP TEST TAPE QUAT | CLEAN | 0.00 | none in captured history | hide |
+| CLEAN VINEGAR WHITE DISTILLED | CLEAN | 0.00 | none in captured history | hide |
+| CO2 | CO2 | 0.00 | none in captured history | hide |
+| COUNT ALL CHIPS | COUNT | 0.00 | none in captured history | hide |
+| DAIRY SHREDDED MOZZARELLA - 1001276 | DAIRY | 0.00 | none in captured history | hide |
+| DAIRY SWISS - 1001283 | DAIRY | 0.00 | none in captured history | hide |
+| NON REV A1 STEAK BTL | NON REV | 0.00 | none in captured history | hide |
+| NON REV Garlic Chips - 1340968 | NON REV | 0.00 | none in captured history | hide |
+| NON REV HONEY MUSTARD - 1004033 | NON REV | 0.00 | none in captured history | hide |
+| NON REV LTO Caramelized Onions - 1052395 | NON REV | 0.00 | none in captured history | hide |
+| NON REV OIL CANOLA OLIVE BLEND - 1001331 | NON REV | 0.00 | none in captured history | hide |
+| NON REV ONION GARLIC FRESNO MARINATED - 1340985 | NON REV | 0.00 | none in captured history | hide |
+| NON REV PICKLE PLANK SPICY - 1341051 | NON REV | 0.00 | none in captured history | hide |
+| NON REV PKT SAUCE LOUISIANA | NON REV | 0.00 | none in captured history | hide |
+| NON REV SAUCE GARLIC AIOLI | NON REV | 0.00 | none in captured history | hide |
+| NON REV SAUCE GREEN JALAPENO SAUCE | NON REV | 0.00 | none in captured history | hide |
+| NON REV SAUCE HOT TEXAS PETE | NON REV | 0.00 | none in captured history | hide |
+| NON REV SEASONING CARMELIZED VEGETABLE - 1138068 | NON REV | 0.00 | none in captured history | hide |
+| NON REV SPICE RED PEPPER FLAKES - 1002638 | NON REV | 0.00 | none in captured history | hide |
+| NON REV SUGAR SUB BLUE PACKET | NON REV | 0.00 | none in captured history | hide |
+| NON REV SUGAR SUB YELLOW PACKET | NON REV | 0.00 | none in captured history | hide |
+| P-Garlic Fresno Marinated Onion 1 oz | P- | 0.00 | none in captured history | hide |
+| PAPER FD CUP PRTN SOUFFLE 2-3 OZ | PAPER FD | 0.00 | none in captured history | hide |
+| PAPER FD FILM PVC ROLL 18X2000 CLING | PAPER FD | 0.00 | none in captured history | hide |
+| PAPER FD LID PRTN SOUFFLE 2.5 OZ | PAPER FD | 0.00 | none in captured history | hide |
+| PAPER FD SM SALAD BOWL | PAPER FD | 0.00 | none in captured history | hide |
+| PAPER FD STRAW PLAS JMBO WRPD RED 7.75 | PAPER FD | 0.00 | none in captured history | hide |
+| PAPER NF GLOVE VINYL POWD FREE LG | PAPER NF | 0.00 | none in captured history | hide |
+| PAPER NF GLOVE VINYL PWDR FREE XXL | PAPER NF | 0.00 | none in captured history | hide |
+| PAPER NF INTERFOLD DISPENSER NAPKIN | PAPER NF | 0.00 | none in captured history | keep |
 
 ## Template ownership
 
