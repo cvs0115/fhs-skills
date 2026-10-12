@@ -1,5 +1,7 @@
 # Agent task · recipes-122-01 · capture
 
+> **RECORD ONLY, DO NOT RUN.** This capture was done on 2026-10-12 (week 10/05–10/11/2026); the result is `inbox/recipes-122.zip`.
+
 > **For Claude Code + Claude in Chrome on the owner's Windows PC.** This file is your whole assignment.
 > Read it top to bottom, then do it. You don't see the planner's conversation and don't need it.
 > Test-style, read-only. Drafted by Cursor Grok 4.6 High from `docs/briefs/recipes-122-01.md`. Runs only after the plan review is APPROVE and the PC clone is refreshed.

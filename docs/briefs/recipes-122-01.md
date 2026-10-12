@@ -64,3 +64,25 @@ Toast and R365 in Chrome on the PC.
 ## Report format
 
 Builder and tester reports start with `## Summary` (≤5 lines: result, tests passed/failed, anything stopped). Claude reads only that section.
+
+## Addendum after the capture (2026-10-12, Claude): binding on the redraft
+
+The capture is in `inbox/recipes-122.zip` (33 files, week **10/05–10/11/2026**, R365 days Completed; Toast net $12,550.25 = R365).
+Facts from the export headers that change steps 3 and the tests (capture file unchanged, no new capture):
+1. **No POS code anywhere.** `MNU-02.csv` (64,693 rows) has `Name, RecipeId, Recipe, EstimatedCost, …, MenuItemId, RecipeIsAssigned`.
+   R365 menu-item names are Toast names joined by `-`: `<Item>-<Size>-<Modifier>` (e.g. `*HOOK & LADDER-Medium-MIXED PEPPERS`),
+   `<Item>-<Modifier>` when there is no size (`*HOOK & LADDER SALAD-LITE CUCUMBERS`), and presumably `<Item>-<Size>` / `<Item>` `(?)`.
+   **Join rule:** build the key from `SAL-03.csv` columns (`Item, open item`, `Size modifier`, `Modifiers, special requests`) as that
+   pattern and match `MNU-02.Name` exactly (case and spaces as exported). Then `MNU-02.Recipe` = `RCP-02.Name` exactly. The note states
+   the rule with 5 real examples. A key that matches only after other changes is `(?) possible`, not mapped. Drop "POS code first".
+2. **Sold rows:** `SAL-03.csv` (product mix, all levels) is the row source; its total line ties to $12,550.25 / 1,294 qty. `SAL-05.csv`
+   (Top Modifiers, 591 rows, by modifier name only) is a cross-check, not joined (it has no item or size). `SAL-02.csv` is item-level.
+   Table rows are the SAL-03 item×size×modifier rows that have qty > 0 or net ≠ 0; the tie-out uses those rows.
+3. **Recipe cost column:** `RCP-02.csv` has `Cost` (0.00 on sampled rows) and `AvgCost` / `MinCost` / `MaxCost` (e.g. 7.9950).
+   Use **`AvgCost`** as recipe cost and say so. `MNU-02.EstimatedCost` (0.0000 on every row) is not recipe cost. `MI No Recipe Needed`
+   is its own class: count it in `## Totals` as `no recipe needed`, separately from `$0-cost`.
+4. **`MAP-03`** (Point of sale items, 64,866 rows) is a screenshot/text only, not exported; cite it for "where mapping lives".
+5. **Deviation:** the PC agent misclicked **+ Create** on R365 Recipes, opened a blank RecipeItemForm, typed nothing and closed it
+   (`RCP-02.txt` line 10). It is not in `pages.csv`. The note lists it under `## Deviations`; T5 also greps every `*.txt` for
+   `Create`/`form/` and must find exactly this one, closed without save. Post-merge P1 adds: R365 Recipes still shows **2,331**
+   (no new blank recipe).

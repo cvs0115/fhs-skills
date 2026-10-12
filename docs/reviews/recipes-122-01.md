@@ -4,7 +4,7 @@
 
 ## Verdict
 
-APPROVE. The verify-only research cycle, served-tree rules, live Toast/R365 read-only boundaries, real-data done-check, and brief scope align; Ops may commit the plan bundle and run capture after the owner gate.
+APPROVE. The redrafted verify-only research cycle matches the brief’s 2026-10-12 capture addendum, served-tree and clone rules, read-only live-system boundaries, and real-data done-checks; Ops may commit the plan bundle and run `prepare` after unzip.
 
 ## Majors
 
@@ -12,7 +12,9 @@ APPROVE. The verify-only research cycle, served-tree rules, live Toast/R365 read
 
 ## Minors
 
-- [docs/tests/recipes-122-01.md](docs/tests/recipes-122-01.md) T1 calls the sold-items table “8-column” but lists seven data columns (Type through Recipe cost); fix the wording so the tester’s row parser matches the task file.
-- [docs/prompts/recipes-122-01.md](docs/prompts/recipes-122-01.md) self-test 4 and T5 flag URL paths containing `update` while the plan/capture prose centers on **Update recipe costs**; capture’s longer forbidden-segment list is clearer—align researcher/test regex with capture test 4 or document the same exceptions.
-- [docs/prompts/recipes-122-01-capture.md](docs/prompts/recipes-122-01-capture.md) “must not” cites `C:\Users\mayur\.claude\skills`; harmless if accurate for this PC, but a generic “owner Claude skills path” note would age better if the username ever changes.
-- Plan template still says “Files the builder may edit”; this plan correctly says “researcher”—cosmetic only.
+- [docs/prompts/recipes-122-01-capture.md](docs/prompts/recipes-122-01-capture.md) still reads as an active PC hand-off (“Runs only after…”, full Steps) while the plan pre-start gate says capture is complete and forbids re-run; add a short “record only / do not run” banner at the top so it cannot be mistaken for the next step.
+- The same capture file still describes MNU/RCP filtering and columns around POS id/code; research join is name-key only per the addendum—harmless for this cycle if capture is not re-run, but stale vs plan § Join.
+- [scripts/build.sh](scripts/build.sh) `prepare` does not require `docs/prompts/recipes-122-01-capture.md` on `main`; plan sequence step 1 does—Ops must commit that file with the bundle or the clone will lack the filename record the task lists in “Read first.”
+- Researcher self-test 4 and test plan T5 flag URL paths containing `update` (case-insensitive); [docs/prompts/recipes-122-01-capture.md](docs/prompts/recipes-122-01-capture.md) test 4 uses the longer forbidden-segment list—if `pages.csv` trips false positives, align exceptions with capture test 4 (MenuItems / recipe-items `view`/`close` already documented).
+- Capture “must not” still cites `C:\Users\mayur\.claude\skills` ([docs/reviews/recipes-122-01-r1.md](docs/reviews/recipes-122-01-r1.md) carryover); a generic owner skills path would age better.
+- [docs/RUNBOOK.md](docs/RUNBOOK.md) row 17 still orders a new PC capture after r1; the plan says capture is already in `inbox/recipes-122.zip`—Ops should follow the plan sequence, not the stale runbook line.
