@@ -3,6 +3,13 @@
 
   "archive_root": "C:\\Users\\mayur\\DropboxCS\\Dropbox\\CMVK Food Services\\Locations",
   "pay_period_anchor": "2026-09-21",
+  "calendar": {
+    "_comment": "Business calendar for all stores and skills (owner, 2026-10-13). Pay periods are pay_period_weeks long, counted from pay_period_anchor.",
+    "week_start": "Monday",
+    "week_end": "Sunday",
+    "pay_period_weeks": 2,
+    "timezone": "America/New_York"
+  },
 
   "defaults": {
     "tip_receiver_jobs": ["Shift Leader", "Team Member", "ASM - Hourly", "Bev Attend"],

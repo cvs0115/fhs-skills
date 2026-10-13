@@ -13,6 +13,8 @@ Last reviewed: 2026-10-08. Mark anything unverified with (?) and confirm it in t
 | **Dropbox** | Report archive: `C:\Users\mayur\DropboxCS\Dropbox\CMVK Food Services\Locations\<store>\<year>\<MM MON>\Week <n>` | all | local sync |
 | Distributor(s) | Food/paper supply, invoices | 122: Cheney Brothers is the only invoiced vendor (2026-10-11 audit; owner). Some counted items (bottled soda and water, gallon milk, cookies, hot sauces, packets) come from store runs (Costco, grocery) paid by card or cash, with no R365 invoice (owner, 2026-10-12). 878 CAMDEN SQUARE: PFG (Performance Food Group, 58 rows) and Cheney (57 rows) in the R365 AP export (`items-122-captures/INV-02.csv`); no PFG rows for CARY 1 | R365 Accounting → Vendors; how invoices arrive (EDI/email/manual) still ? |
 
+**Business calendar (owner, 2026-10-13):** week Mon–Sun for both stores and the R365 count/accounting week; payroll = 2 weeks from Mon 9/21/2026; Eastern time. Config `calendar` + `pay_period_anchor`.
+
 ## Data flows (as they are now)
 
 ```
