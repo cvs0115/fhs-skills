@@ -9,7 +9,7 @@
 
 ## Who runs it
 
-- Store manager logs waste when it happens; the owner (or Claude, read-only) checks weekly: "Was waste logged, and is it plausible?"
+- Store manager logs waste on her external sheet, then enters it into R365; the owner (or Claude, read-only) checks weekly: "Was waste logged, and is it plausible?"
 
 ## Done when (measurable)
 
@@ -40,5 +40,6 @@
 
 ## Open questions
 
-- [NEEDS CLARIFICATION] Does the manager currently track waste on paper or anywhere else?
-- [NEEDS CLARIFICATION] Is the target waste log in R365, Toast voids, or both?
+- Answered (owner, 2026-10-13): the manager keeps an external sheet and then enters it into R365. So the R365 waste log is the target; the sheet is the source.
+- [NEEDS CLARIFICATION] Where is the sheet (file/app), how often is it entered, and why does R365 show only one log? Ask for a copy.
+- [NEEDS CLARIFICATION] Is Toast voids/food waste used at all, or only the R365 log?
