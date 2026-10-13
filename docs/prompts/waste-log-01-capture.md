@@ -33,7 +33,7 @@ Known URLs are only a start if the menu path matches. Mark anything you cannot c
 ## Hard rules (read twice)
 
 - **Read-only.** Allowed: view, filter, scroll, export/download, screenshots, saving page text, opening a detail page and closing it.
-- **Never click:** Save, Submit, Approve, Complete, Post, Create, New, Add, Edit, Delete, Import, Sync, Run, Send, Pay, any persistent toggle or checkbox, any settings edit. No user or permission changes. Do not open Ad hoc report.
+- **Never click:** Save, Submit, Approve, Complete, Post, Create, New, Add, Edit, Delete, Import, Map, Sync, Run, Send, Pay, any persistent toggle or checkbox, any settings edit. No user or permission changes. Do not open Ad hoc report. **One exception:** the single R365 control that opens the blank new waste-log form (Create/New/Add as labelled), clicked once to read the form's fields; then Cancel/Close, never Save.
 - **R365 new-log form:** open the blank new waste log **once**, read its fields, then **Cancel/Close**. Never Save. If it cannot be closed without saving, write `WL-nn-missing.txt`, **stop and ask the owner**; do not zip or send.
 - **AvT:** view only. Do not click Run on AvT Analysis if it asks for ToCount.
 - **Never type credentials.** A login or MFA prompt means stop and ask the owner to sign in. Do not zip or send until they answer.
@@ -82,7 +82,7 @@ Working directory: `C:\fhs\reports\waste-log-122`.
 1. `Get-ChildItem -File` → `pages.csv`, the supplied `POS-*`, and png/txt (or `-missing.txt`) for TWR, VDR, WL, ACC, AVT.
 2. `Get-Content pages.csv -TotalCount 1` → `time,URL,action`
 3. Unique `action` values in data rows → only `view`, `filter`, `scroll`, `export`, `close`
-4. No `pages.csv` URL with `save`, `submit`, `approve`, `complete`, `post`, `delete`, `import`, `sync`, `run`, `send`, `pay`, except the one blank new-log URL followed by a `close` row.
+4. No `pages.csv` URL path matching `save|submit|approve|complete|post|create|new|add|edit|delete|import|map|sync|run|send|pay` (case-insensitive), except Toast/R365 report or list URLs whose action is `view`, `filter`, `export` or `close`, and the one blank new-log URL, which must be followed by a `close` row.
 5. No `pages.csv` URL for ADP, a bank site, CAMDEN SQUARE / 878.
 6. After the send step: `send-report.ps1` printed `MATCH` (skip if you stopped at a login/MFA prompt or the Save gate and the owner has not said to send).
 
