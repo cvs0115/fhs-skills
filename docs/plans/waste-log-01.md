@@ -70,7 +70,7 @@ Capture files: `<area>-<nn>.png` / `.txt` (and allowed exports), plus `pages.csv
 ## Owner steps
 
 1. Sign in to Toast and R365 in Chrome and pick **00122 - Cary 1** / **CARY 1** where a store picker exists. No other lane may use the PC for capture at the same time.
-2. At the Cary 1 POS, screenshot the waste button, make **one** test waste (item, reason, $), then void it or mark it test as Toast allows. Put the screenshot and the item / reason / $ into `C:\fhs\reports\waste-log-122\`. If Toast has no waste button, stop the entry and say so.
+2. At the Cary 1 POS, screenshot the waste button, make **one** test waste (item, reason, $), then void it or mark it test as Toast allows. Put the screenshot, a short steps note (void vs mark as test) and the item / reason / $ into `C:\fhs\reports\waste-log-122\`. If Toast has no waste button, stop the entry and say so.
 3. On the PC, run the capture task (Claude Code + Claude in Chrome, read-only), zip `C:\fhs\reports\waste-log-122\`, and send the zip with `send-report.ps1` as `waste-log-122.zip` (agent jobs use `-SshHost dev-lxc-1-agent`) until it prints `MATCH`. If the R365 new-log form cannot be closed without saving, or a login / MFA prompt appears, stop and answer before anything else is opened.
 4. After merge, confirm nothing else changed: no R365 waste log **saved by the capture** (a new log that arrived by itself from Toast is a finding, not an agent write); the new-log form was not saved; Toast has only that one owner/manager test waste (voided or marked test as allowed). That post-merge case is not a merge gate.
 
