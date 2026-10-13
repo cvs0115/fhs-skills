@@ -141,6 +141,8 @@ Each Claude call re-reads the whole session, so a long session costs far more th
 
 - Commit small, one concern each. Commit messages end with the attribution line from the system prompt.
 - No secrets in git. `.env` (owner fills it in) holds them. Check for secrets before every commit.
+- Docs-only commits (`docs/`, `CLAUDE.md`, the runbook) to `main`: Claude commits them itself (owner, 2026-10-13). `skills/` and
+  `shared/config.json` changes still need their own OK.
 - No remote yet. Pushing anywhere, copying to Windows or Dropbox, and publishing artifacts each need an OK.
 - New skill: name `fhs-<topic>`, read `shared/config.json`, never copy store facts into the skill,
   add it to the library table in `skills/fhs-skills/SKILL.md`, the hub `skills` collection and the
