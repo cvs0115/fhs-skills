@@ -101,7 +101,9 @@ Confirmed from PC captures 2026-10-11 (CARY 1 / Toast 00122). Details: `docs/res
 - R365 Vendors: 114 company-wide. CARY 1 invoices and receipts in this audit are Cheney Brothers, Inc. See F2 and F3.
 - CARY 1 AP invoices arrive Modified by R365 Import with `-CARY` numbers; Supplyit and NDCP tiles are Disconnected; Documents to process shows no email-capture address. Newest three invoices (10/06 and 10/09 ×2) are Unapproved; 10/02 $1,832.25 is Approved. See F3.
 - R365 Recipes: 2,331. Menu Items: 64,670, visible rows mapped to `MI …` recipes, Estimated Cost $0.00, Target Profit % 0.00. See F4.
+- R365 POS-item → menu-item mapping lives at Sales & forecasting > Menu items > Point of sale items, `https://fhs4021089.restaurant365.com/react/sales-and-forecasting/point-of-sale-items` (`MAP-03`). See `docs/research/recipes-122.md`.
 - Toast Menu manager items Target = Firehouse Subs Group, 435 groups, 1 location; some items tagged Catering (ezCater) and Online ordering partners. See F4.
+- Toast sales export path for this check: Reports > Menus > Product mix, `https://www.toasttab.com/restaurants/admin/reports/menu/product-mix` (restaurant 00122 - Cary 1; dates 10/05–10/11/2026). All-levels CSV is `SAL-03.csv`. See `docs/research/recipes-122.md`.
 - CARY 1 storage locations include Unassigned 212, CHEMICAL & JANITORIAL 18, DRY 78, LINE 77, COOLER 40, plus beverage, chips, freezer, register, and others. See F5.
 - Count template **CARY 1 - FHS Weekly Inventory**: 207 items, On Demand, GL posting Yes, created by R365 DSS User. Last approved count 10/04/2026, $7,461.73. See F5.
 - R365 waste: one log in the last 30 days, WL-000002 on 09/28/2026, $0.92, Approved. Toast food waste this month $0. See F6.
