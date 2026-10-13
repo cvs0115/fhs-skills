@@ -73,8 +73,17 @@ note from that run is the reference once merged; this spec only uses what those 
 - Deposits are recorded **in R365 Daily Sales Summary** from now on, each entry with the owner's yes until the owner says otherwise.
 - The 122 bank account is the **owner's**, and the owner can download statements (CSV or PDF).
 
+## Research (cash-122-01, merged 74af592, 2026-10-13)
+
+- Note `docs/research/cash-122.md` (09/28–10/11/2026): Toast net sales = R365 DSS on all 14 days ($25,097.64); 12 of 14 card
+  payouts matched to a sales day (~2 days later); External −$932.32 is **Amex Direct** (Amex pays the store directly, not Toast);
+  Toast has **no cash deposit record** (Actual Deposit N/A; expected deposit = closeout − $250 starting cash).
+- R365 CARY 1 days are now **Completed with Total Deposit filled**. **Owner, 2026-10-13: the manager enters them.** So the skill
+  **checks** what the manager entered (vs Toast expected cash and, later, the bank); it does not type deposits. The P1 "enter the
+  daily deposit" write is dropped unless the owner asks for it again.
+
 ## Open questions
 
-- `(?)` What is the −$546.63 "External (not settled by Toast)" line? Research from Toast reports, no owner question.
+- ✅ The "External (not settled by Toast)" line is Amex Direct (cash-122-01).
 - `(?)` Why Toast payouts show "Firehouse Subs Management Group" when the account is the owner's (likely the Toast group name only). Research.
 - `(?)` How the R365 days up to 10/05/2026 were completed with $0 deposits. Ask the manager during research, not a design question.
