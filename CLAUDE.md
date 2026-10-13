@@ -59,7 +59,15 @@ Owner rules for *running* the skills (passwords, money, one yes per change) live
 6. **Verify by the real outcome.** Run it against a real week folder or a real R365 or Toast
    screen and compare the numbers. A clean run or a written file proves nothing. The writer
    doesn't grade its own work.
-7. **Merge, then report and stop.** One step per turn. Update the hub and plan page the same turn.
+7. **Merge, then report and stop.** One step per turn *per lane* (see Parallel lanes). Update the hub and plan page the same turn.
+
+## Parallel lanes (owner, 2026-10-13)
+
+- Each hub project that is in progress and doesn't depend on another is its own **lane**. Lanes run at the same time; inside a
+  lane, items go one at a time in priority order, each through the full loop.
+- Keep every independent lane moving: when one lane waits (on the owner, the PC or a review), start the next step in another.
+- Lanes never share a clone. Only one lane at a time uses the owner's PC capture, and merges to `main` go one at a time.
+- A lane that waits only on the owner shows that on its hub card; it doesn't block the others.
 
 ## Served trees (where a change goes live)
 
@@ -124,7 +132,7 @@ Owner rules for *running* the skills (passwords, money, one yes per change) live
 ## Token budget (Claude's session)
 
 Each Claude call re-reads the whole session, so a long session costs far more than its last step.
-- One step per session: after a merge or a hand-off, update the hub and runbook, then the owner starts a fresh session (`/clear`). The hub holds the state.
+- One step per lane per session: after a merge or a hand-off in each active lane, update the hub and runbook, then the owner starts a fresh session (`/clear`). The hub holds the state.
 - Read narrowly: `grep`, `sed -n` ranges and `tail -20`, never `cat` of plans, reports or logs. Large hub docs go through `out_dir`.
 - To understand a long file (a report, research, a big diff), ask `agent -p --mode ask --model composer-2.5` (or Grok for a Composer-written file) for a 10-line answer.
 - Pipe noisy commands through `| tail` or `>/dev/null`. Batch independent calls in one turn.

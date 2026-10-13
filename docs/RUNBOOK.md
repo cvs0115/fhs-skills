@@ -1,7 +1,7 @@
 # Runbook · what to run, in order
 
 Claude writes the plans and these hand-off files. You run each row by starting an agent and telling it one
-sentence. Do the rows in order, and don't start a row until the previous row's gate passes. If a gate fails,
+sentence. Rows in one lane go in order, and a row doesn't start until the previous row in its lane passes its gate. Independent lanes run in parallel (CLAUDE.md "Parallel lanes", owner 2026-10-13). If a gate fails,
 send the named report to Claude.
 
 **The command is `agent`** (Cursor's CLI; `cursor-agent` is the same program). Models:
@@ -49,6 +49,7 @@ Claude keeps both current. Build order for the store functions: `docs/specs/stor
 | 15b | ✅ closed 2026-10-12 with no build (owner): the 44 ticked lines stay on the CARY 1 sheet for now (this login can't remove them); store runs parked, since a bookkeeper records them in QuickBooks and typing them into R365 could double count. Owner asks the bookkeeper first | — | **count-sheet-122-02**: closed, no plan. Returns as a new row if the owner wants the 44 off (R365 support request) or after the bookkeeper answer (store runs) | — |
 | 16 | ✅ 2026-10-12, no build (owner chose "support request + move on"): F2 leftovers are all franchise / R365-support owned | Claude writes, **you** send | `docs/requests/r365-support-122-items.md`: remove 44 dead count lines, 59 $0-cost items (53 with stock), 7 unit conversions, 2 recipe lines with no vendor | you send it; the answer comes back as a new row |
 | 17 | next (Ops → Researcher): plan review r2 APPROVE 2026-10-12 (r1 APPROVE, then redrafted for the capture addendum: name-key join, AvgCost, + Create deviation). PC capture ✅ 2026-10-12, `inbox/recipes-122.zip` (week 10/05–10/11, Toast net $12,550.25 = R365). Next: Ops unzips to `/srv/fhs-build/reports/recipes-122-captures/` + `build.sh prepare recipes-122-01`, then the Researcher (Grok) runs `docs/prompts/recipes-122-01.md` | Claude (spec + brief) → Grok drafts → review → You (PC capture) → Ops → Researcher (Grok) → Tester | **recipes-122-01** (F4, verify-only): Toast items and modifiers with sales in the last complete week → mapped R365 recipe or unmapped; recipe cost present or $0 | per plan |
+| C1 | next (cash lane, parallel to row 17): plan review r2 APPROVE 2026-10-13 (r1 APPROVE AFTER FIXES: capture file missing, added). Next: commit the bundle to `main`, then **you** run the PC capture `docs/prompts/cash-122-01-capture.md` (not while another lane captures) → Ops unzip `inbox/cash-122.zip` + `build.sh prepare cash-122-01 --role research` → Researcher (Grok) → Tester | Claude (brief) → Grok drafts → review → You (PC capture) → Ops → Researcher (Grok) → Tester | **cash-122-01** (cash lane, research only): Cary 1 09/28–10/11/2026, Toast sales, tenders, payouts, External, cash drawers vs R365 DSS deposits | per plan |
 | 18+ | later | Claude plans each | store functions in order: waste → cash & deposits → food cost → daily flash → scheduling/OT → delivery → 878 migration. Each skips or shrinks based on the row 11 audit | per plan |
 
 How every build row runs (Ops follows `docs/prompts/ops-cycle.md`): plan review → `build.sh prepare` → Builder → fresh Tester →
