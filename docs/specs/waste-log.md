@@ -9,7 +9,7 @@
 
 ## Who runs it
 
-- Store manager logs waste on her external sheet, then enters it into R365; the owner (or Claude, read-only) checks weekly: "Was waste logged, and is it plausible?"
+- Associates record waste on the Toast POS (new process, owner is setting it up with the manager 2026-10-13). Before this the manager used an external sheet and typed it into R365; the owner (or Claude, read-only) checks weekly: "Was waste logged, and is it plausible?"
 
 ## Done when (measurable)
 
@@ -40,6 +40,7 @@
 
 ## Open questions
 
+- Direction (owner, 2026-10-13): associates log waste in Toast at the POS; the owner believes a waste button exists `(?)`. Toast becomes the source; the R365 log is no longer hand-typed. How Toast waste reaches R365 (integration, or manual) is unknown `(?)`.
+
 - Answered (owner, 2026-10-13): the manager keeps an external sheet and then enters it into R365. So the R365 waste log is the target; the sheet is the source.
 - [NEEDS CLARIFICATION] Where is the sheet (file/app), how often is it entered, and why does R365 show only one log? Ask for a copy.
-- [NEEDS CLARIFICATION] Is Toast voids/food waste used at all, or only the R365 log?
