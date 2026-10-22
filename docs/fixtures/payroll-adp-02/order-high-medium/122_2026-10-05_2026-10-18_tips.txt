@@ -1,0 +1,2 @@
+Employee|CC Tips
+Alex Rivera|45.00
