@@ -59,9 +59,11 @@ Offer the browser fallback only if they'd rather you pull it.
 ### 3. Extract into the standard files
 Read each report carefully and write the pipe-delimited files described in
 `references/extract-formats.md` (`_hours`, `_shifts`, `_totals`, and `_tips` / `_crosscheck_hours`
-when available). Copy names exactly as the source shows them; the script matches names loosely
-across systems. Always fill `_totals.txt` from the report's own grand totals - the script compares
-your extraction against them, which is how misreads get caught.
+when available). For `toast_r365` stores, also write `_tip_sources.txt` and `_tip_contributors.txt`
+(see `extract-formats.md`) so the R365 tip-contributor check can run. Copy names exactly as the
+source shows them; the script matches names loosely across systems. Always fill `_totals.txt` from
+the report's own grand totals - the script compares your extraction against them, which is how
+misreads get caught.
 
 ### 4. Calculate and check
 From the week folder:
@@ -93,12 +95,14 @@ How tips are decided (the script does this; know it so you can explain it):
 | High | Likely auto clock-out (e.g. 2:00 AM), very long shift (>12 h), missing clock-out, overlapping shifts |
 | High | Punch with no hours counted (in/out times but 0 paid) |
 | High | Shared login has hours or tips; tips not fully paid out to the cent |
+| High | Tip source missing from R365 contributors (Toast card tips that day, no matching contributor in R365) |
 | High | Fixed-100-hr employee under 100 hours |
 | Medium | Clock-in before open / clock-out after close (store hours ± buffer) |
 | Medium | **Stayed after everyone else left** - after close, still on the clock 15+ min after the last coworker |
 | Medium | **Repeated pattern** - same person, same flag 3+ times: one line listing the dates |
 | Medium | Very short shift (<0.75 h), shift much longer than the person's usual, overtime (except fixed-100) |
 | Medium | Tip payout differs from the tip rule by more than $1 (manager approval check) |
+| Medium | Tip contributor check not run (`_tip_sources.txt` or `_tip_contributors.txt` missing while `_tips.txt` is present) |
 | Info | Excluded people with hours, kiosk/non-employee tips, missing employee IDs |
 
 When presenting flags, give **dates and times** (owners act on specifics: "Eleanor 10/4 out 10:40 PM,
@@ -116,13 +120,21 @@ Walk the owner through the issues and decide each one. Typical fixes from past r
 After any fix, re-download/re-extract the affected report and rerun step 4 until the High list is clean
 or every remaining item is explicitly accepted by the owner.
 
-### 6. Present the ADP entry
+### 6. Save every source report (required before ADP entry)
+Export **every** source report used for this run into the store's Dropbox week folder, including
+reports you read in the browser (see `references/browser-recipes.md` for R365 PDF export). Use clear
+filenames with the period dates, e.g. `Labor Payroll Review (Detail) 10-05 to 10-18.pdf` and
+`Tip Automation Distributions Report 10-05 to 10-18.pdf`. In the concerns note for this period,
+**list each saved file by name** so the owner can find them later. Do not start ADP entry until this
+is done.
+
+### 7. Present the ADP entry
 Give a paste-ready table in **ADP's employee order** (ADP sorts by last name) and **ADP's column
 order: Regular Hours, Overtime Hours, CC Tips, Bonus**. Include zero rows for active ADP employees
 with no hours, and a TOTAL row. Apply the store's `adp_notes` (e.g. salaried Miguel = 80 hours on
 the salary line plus the bonus; Kevin on one line; Mayuri's salary needs nothing).
 
-### 7. Enter in ADP RUN and verify
+### 8. Enter in ADP RUN and verify
 Follow `references/adp-entry.md`. In short: the owner signs in; open the store's company →
 Run payroll for the right pay period; enter by clicking each cell directly (Tab is unreliable);
 never refresh the page (it wipes unsaved entries - use "Finish later" to save); read the grid back
@@ -130,10 +142,10 @@ and compare every line and the totals to the table. Then the owner clicks **Prev
 the Preview and check each gross = rate × hours + tips (+ bonus, + salary). Report "clear to approve"
 or the exact lines to fix. The owner clicks **Approve**.
 
-### 8. Write the concerns note, then move on
+### 9. Write the concerns note, then move on
 Save `<prefix>_concerns.md` in the week folder: what was fixed this run, what's still open, and
-follow-ups (e.g. R365 tip days not approved, settings to change, people to talk to). Then ask whether
-to continue with the next store.
+follow-ups (e.g. R365 tip days not approved, settings to change, people to talk to). Include the
+list of source-report PDFs saved in step 6. Then ask whether to continue with the next store.
 
 ## Store-specific rules you'll see in the shared config.json
 - `shared_logins`, `exclude_from_payroll`, `non_employee_accounts` (kiosk tips are real tips - split them)

@@ -1,0 +1,29 @@
+{
+  "defaults": {
+    "tip_receiver_jobs": ["Team Member"],
+    "non_employee_accounts": [],
+    "shared_logins": [],
+    "exclude_from_payroll": [],
+    "fixed_100_hour_employees": [],
+    "checks": {
+      "store_open": "10:00 AM",
+      "store_close": "9:00 PM",
+      "open_buffer_minutes": 60,
+      "close_buffer_minutes": 60,
+      "auto_clockout_times": ["2:00 AM"],
+      "max_shift_hours": 12,
+      "min_shift_hours": 0.75,
+      "unusual_vs_typical_ratio": 2.0,
+      "alone_after_minutes": 15,
+      "pattern_min_count": 3,
+      "crosscheck_tolerance_hours": 0.1,
+      "tip_validation_tolerance": 1.00
+    }
+  },
+  "stores": {
+    "122": {
+      "name": "Cary 1 Fixture",
+      "pos": "toast_r365"
+    }
+  }
+}

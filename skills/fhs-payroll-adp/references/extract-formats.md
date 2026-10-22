@@ -13,6 +13,8 @@ people too; the script decides who is paid.
 | `_totals.txt` | `Key\|Value` | yes | The report's own grand totals: `reg_hours`, `ot_hours`, `tips_collected`. Used to catch misreads. |
 | `_tips.txt` | `Employee\|CC Tips` | when available | Tip payouts per person (R365 Tip Automation Distributions or NCR Tip Income). Goes straight to ADP. |
 | `_crosscheck_hours.txt` | `Employee\|Total Hours` | Toast/R365 stores | Hours from the *other* system (Toast when R365 is the source) to catch shifts missing from one side. |
+| `_tip_sources.txt` | `Date\|Source\|Card Tips\|R365 Contributor` | toast_r365, optional | One line per tip source per day with card tips > 0, from Toast Labor Summary / Time Entries (same screens as shift tips). `Date` as `M/D/YYYY` (same shape as `_shifts` In/Out). `Source` = Toast name (e.g. kiosk). `R365 Contributor` = name as the R365 tip rule lists it (kiosk → `KIOSK USER`). |
+| `_tip_contributors.txt` | `Date\|Contributor\|Amount` | toast_r365, optional | Per-day contributors from the R365 Tip Automation Distributions Report **Daily Rules - Contributors** section: `Date Worked` → Date (`M/D/YYYY`), `Employee Name` → Contributor, `Basis Value` → Amount. |
 
 ## Reading each report
 
@@ -27,9 +29,11 @@ people too; the script decides who is paid.
 - `Charge Tips` grand total is tips rung by employees; kiosk tips aren't in it (no labor). Use the Toast
   Labor Summary total (or Sales Summary tips) for `tips_collected`.
 
-### R365 Tip Automation Distributions Report (→ `_tips`)
+### R365 Tip Automation Distributions Report (→ `_tips`, `_tip_contributors`)
 - "Daily Rules - Receivers" section: Employee, Job, Location, Labor Rule, Hours, Amount Received.
   Sum Amount Received per employee across the period → `_tips`.
+- **Daily Rules - Contributors** section (same PDF): one row per contributor per day worked. Columns
+  include Date Worked, Employee Name, and Basis Value → `_tip_contributors` (`Date|Contributor|Amount`).
 - Check the report covers **every day** of the period. If days are missing (not calculated/approved),
   don't write `_tips.txt`; tell the owner which days are missing and let the daily rule run instead.
 - Any amount to Cashier1/Cashier2 means the rule still lists Cashier as a receiver - flag it.

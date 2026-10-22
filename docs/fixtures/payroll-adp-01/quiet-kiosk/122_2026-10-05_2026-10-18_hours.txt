@@ -1,0 +1,3 @@
+Employee|Job|Reg Hours|OT Hours
+Alex Rivera|Team Member|30.00|9.00
+KIOSK KIOSK - 550|KIOSK|30.00|9.00

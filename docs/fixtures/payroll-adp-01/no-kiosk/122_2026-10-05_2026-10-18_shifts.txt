@@ -1,0 +1,6 @@
+Employee|Job|In|Out|Hours|Tips
+Alex Rivera|Team Member|10/5/2026 10:00 AM|10/5/2026 6:00 PM|8.00|0
+Alex Rivera|Team Member|10/6/2026 10:00 AM|10/6/2026 6:00 PM|8.00|0
+Alex Rivera|Team Member|10/7/2026 10:00 AM|10/7/2026 6:00 PM|8.00|0
+Alex Rivera|Team Member|10/8/2026 10:00 AM|10/8/2026 6:00 PM|8.00|0
+Alex Rivera|Team Member|10/9/2026 10:00 AM|10/9/2026 6:00 PM|8.00|0
