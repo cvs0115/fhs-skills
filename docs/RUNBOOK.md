@@ -37,6 +37,7 @@ Claude keeps both current. Build order for the store functions: `docs/specs/stor
 | 5 | ✅ merged `545863b` | Researcher / Tester | windows-research-01: how a PC agent works with the server | 14/14, review APPROVE |
 | 6 | ✅ merged `b79e362` | Ops / Builder / Tester | framework-setup-03: included Cursor models only (Composer builds, Cursor Grok reviews) | 10/10, review APPROVE |
 | 6b | ✅ merged `b7b80c0` | Claude runs Builder / Tester headless | framework-setup-04: Grok drafts plans from Claude's briefs (`scripts/draft.sh`), Composer reviews them (`review.sh --writer grok`), writers fix minors | 10/10 + T11/T12, review APPROVE |
+| 6c | ✅ merged `a750e1b` | Claude runs Drafter / Builder / Tester headless | framework-setup-05: `review.sh` retries an empty or verdict-less reviewer reply once, then exits 5 with no review file | T1–T10 PASS, diff review APPROVE; P1 (next real review writes a real verdict) open |
 | 7 | ⏸ parked | — | **browser-02** server browser: parked (owner, 2026-10-10: desktop first). Returns only when an unattended job needs it | — |
 | 8 | ✅ done | **You**, on the Windows PC | PC checklist answered; Git working; `git ls-remote dev-lxc-1:/root/fhs-skills HEAD` OK | — |
 | 9 | ✅ done | Builder → Ops → **you** | **windows-agent-02**: push hook, `inbox/`, PC clone, restricted key, alias, gated key in place. D3 test push PASS, D5 proven, D4 mirror refresh PASS 2026-10-11 (1 file, `matched=11 unmatched=0`, backup `C:\fhs\backups\skills-2026-10-11.zip`). PC needs `powershell -ExecutionPolicy Bypass -File …` for these scripts | — |
