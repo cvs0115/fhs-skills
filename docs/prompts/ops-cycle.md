@@ -37,6 +37,8 @@ owner to send it to Claude. Don't fix code, plans or tests yourself.
 - APPROVE AFTER FIXES on a Grok draft: rename the review to the next `-rN`, commit it, run `scripts/draft.sh --fix $PLAN`, then review again.
   Any line starting `CLAUDE:` (a major, a REJECT, a 3rd round, or a Claude-written plan) → stop and send it to Claude.
 - Claude-written plan, or a diff review with majors → stop and send it to Claude.
+- `review.sh` exit 5 (from framework-setup-05, 2026-10-22): the reviewer returned an empty or verdict-less reply twice; no review file
+  was written. Run the same `review.sh` command once more; if it exits 5 again, stop and tell the owner (not a verdict, not a round).
 
 ## A · Prepare the clone
 
