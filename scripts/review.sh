@@ -118,6 +118,45 @@ check_plan_drafter() {
   return 0
 }
 
+# Optional first arg: --workspace path for --diff reviews.
+run_reviewer() {
+  local workspace="${1:-}" agent_ec=0 try=0 kept=0 v="" tmp_content=""
+  invoke_reviewer() {
+    if [[ -n "$workspace" ]]; then
+      cursor-agent -p --mode plan --trust --model "$MODEL" --workspace "$workspace" --output-format text "$PROMPT" > "$OUT_TMP"
+    else
+      cursor-agent -p --mode plan --trust --model "$MODEL" --output-format text "$PROMPT" > "$OUT_TMP"
+    fi
+  }
+  for try in 1 2; do
+    agent_ec=0
+    invoke_reviewer || agent_ec=$?
+    kept=0
+    if [[ $agent_ec -eq 0 && -f "$OUT_TMP" ]]; then
+      if grep -q '[^[:space:]]' "$OUT_TMP"; then
+        v="$(verdict "$OUT_TMP")"
+        if [[ "$v" != "NONE" ]]; then
+          kept=1
+          break
+        fi
+      fi
+    fi
+  done
+  if [[ $kept -eq 1 ]]; then
+    mv "$OUT_TMP" "$OUT"
+    echo "Review written: ${OUT#"$REPO/"}"
+    verdict "$OUT"
+    return 0
+  fi
+  rm -f "$OUT_TMP"
+  {
+    echo 'review.sh: reviewer returned no verdict (empty or malformed output) after 2 tries'
+    echo "model: $MODEL"
+    echo "name: $NAME"
+  } >&2
+  exit 5
+}
+
 if [[ $DIFF -eq 1 ]]; then
   [[ -n "$BRANCH" ]] || { usage; exit 2; }
   git -C "$REPO" rev-parse --verify -q "$BRANCH" >/dev/null || { echo "No branch $BRANCH" >&2; exit 2; }
@@ -173,10 +212,7 @@ Majors include: a missing or wrong served tree; a contradiction with CLAUDE.md, 
 a live Toast/R365/ADP change not listed; a done-check that does not use real data; editing files the plan does not name.
 Do not invent scope: extra ideas are not majors. Close gaps yourself; gaps are findings, not questions for the owner.
 EOF
-  cursor-agent -p --mode plan --trust --model "$MODEL" --workspace "$WT" --output-format text "$PROMPT" > "$OUT_TMP"
-  mv "$OUT_TMP" "$OUT"
-  echo "Review written: ${OUT#"$REPO/"}"
-  verdict "$OUT"
+  run_reviewer "$WT"
 else
   [[ -n "$PLAN" ]] || { usage; exit 2; }
   if [[ -f "$REPO/$PLAN" ]]; then
@@ -233,8 +269,5 @@ a live Toast/R365/ADP change not listed; a done-check that does not use real dat
 Do not invent scope: extra ideas are not majors. Close gaps yourself; gaps are findings, not questions for the owner.
 EOF
   cd "$REPO"
-  cursor-agent -p --mode plan --trust --model "$MODEL" --output-format text "$PROMPT" > "$OUT_TMP"
-  mv "$OUT_TMP" "$OUT"
-  echo "Review written: ${OUT#"$REPO/"}"
-  verdict "$OUT"
+  run_reviewer
 fi
