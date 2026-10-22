@@ -152,3 +152,5 @@ Each Claude call re-reads the whole session, so a long session costs far more th
 
 <!-- Add rules learned while building, each with a one-line why. Keep this file under 200 lines. -->
 - R365 settings may be franchise-owned. Research says who owns a setting before a plan changes it. Why: corporate may push the item list and recipes.
+
+Disk cleanup follow-up: read [DISK-CLEANUP.md](DISK-CLEANUP.md) when asked to continue or clean up.
