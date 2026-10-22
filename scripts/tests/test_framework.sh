@@ -240,6 +240,163 @@ else
   fail "review-diff-existing-dir" "exit $rd_ec; sentinel=$([[ -f "$sentinel" ]] && echo present || echo missing); output: ${rd_out//$'\n'/ | }"
 fi
 
+# --- review.sh cursor-agent PATH shim (no real model) ----------------------
+SHIM_BIN="$TMP/shim-bin"
+mkdir -p "$SHIM_BIN"
+CURSOR_AGENT_CALLS_FILE="$TMP/cursor-agent-calls"
+cat > "$SHIM_BIN/cursor-agent" << 'SHIMEOF'
+#!/usr/bin/env bash
+echo 1 >> "$CURSOR_AGENT_CALLS_FILE"
+n=$(wc -l < "$CURSOR_AGENT_CALLS_FILE" | tr -d '[:space:]')
+mode="${CURSOR_AGENT_STUB_MODE:?}"
+fix="${FHS_TEST_FIX:?}"
+case "$mode" in
+empty) exit 0 ;;
+no-verdict) printf '# Review · x\n'; exit 0 ;;
+maybe) cat "$fix/review-maybe.md"; exit 0 ;;
+nonzero) exit 1 ;;
+retry-approve)
+  if [[ "$n" -lt 2 ]]; then exit 1; fi
+  cat "$fix/review-approve.md"
+  exit 0
+  ;;
+approve) cat "$fix/review-approve.md"; exit 0 ;;
+*) echo "bad stub mode: $mode" >&2; exit 99 ;;
+esac
+SHIMEOF
+chmod +x "$SHIM_BIN/cursor-agent"
+
+REVIEW_STUB_ERR='review.sh: reviewer returned no verdict (empty or malformed output) after 2 tries'
+REVIEW_STUB_MODEL='cursor-grok-4.6-xhigh'
+
+review_shim_env() {
+  local mode="$1"
+  shift
+  env -u REVIEW_MODEL \
+    CURSOR_AGENT_STUB_MODE="$mode" \
+    CURSOR_AGENT_CALLS_FILE="$CURSOR_AGENT_CALLS_FILE" \
+    FHS_TEST_FIX="$FIX" \
+    PATH="$SHIM_BIN:$PATH" \
+    "$@"
+}
+
+reset_agent_calls() { : > "$CURSOR_AGENT_CALLS_FILE"; }
+
+agent_calls() { wc -l < "$CURSOR_AGENT_CALLS_FILE" | tr -d '[:space:]'; }
+
+prep_review_diff_agent() {
+  rm -rf "$wt"
+  mkdir -p "$FHS_BUILD_ROOT/reports"
+  printf 'builder report\n' > "$FHS_BUILD_ROOT/reports/zz.md"
+  printf 'tester report\n' > "$FHS_BUILD_ROOT/reports/zz-test.md"
+}
+
+check_review_agent_fail() {
+  local label="$1" mode="$2" kind="$3"
+  local out_ec=0 out="" out_path="" review_name=""
+  reset_agent_calls
+  if [[ "$kind" == diff ]]; then
+    prep_review_diff_agent
+    out_path="$FHS_REPO/docs/reviews/zz-diff.md"
+    review_name="zz-diff"
+    out="$(review_shim_env "$mode" bash scripts/review.sh --diff feat/zz 2>&1)" || out_ec=$?
+  else
+    rm -f "$FHS_REPO/docs/reviews/zz-01.md" "$FHS_REPO/docs/reviews/zz-01.md.tmp"
+    out_path="$FHS_REPO/docs/reviews/zz-01.md"
+    review_name="zz-01"
+    out="$(review_shim_env "$mode" bash scripts/review.sh docs/plans/zz-01.md 2>&1)" || out_ec=$?
+  fi
+  if [[ $out_ec -eq 5 ]] \
+    && [[ "$out" == *"$REVIEW_STUB_ERR"* ]] \
+    && [[ "$out" == *"$REVIEW_STUB_MODEL"* ]] \
+    && [[ "$out" == *"$review_name"* ]] \
+    && [[ ! -f "$out_path" ]] \
+    && [[ ! -f "${out_path}.tmp" ]] \
+    && [[ "$(agent_calls)" == "2" ]]; then
+    pass "$label"
+  else
+    fail "$label" "ec=$out_ec calls=$(agent_calls); out: ${out//$'\n'/ | }"
+  fi
+  if [[ "$kind" == diff ]] && [[ -e "$wt" ]]; then
+    fail "${label}-worktree" "worktree still exists at $wt"
+  fi
+}
+
+check_review_agent_ok_first() {
+  local label="$1" kind="$2"
+  local out_ec=0 out="" out_path=""
+  reset_agent_calls
+  if [[ "$kind" == diff ]]; then
+    prep_review_diff_agent
+    out_path="$FHS_REPO/docs/reviews/zz-diff.md"
+    out="$(review_shim_env approve bash scripts/review.sh --diff feat/zz 2>&1)" || out_ec=$?
+  else
+    rm -f "$FHS_REPO/docs/reviews/zz-01.md" "$FHS_REPO/docs/reviews/zz-01.md.tmp"
+    out_path="$FHS_REPO/docs/reviews/zz-01.md"
+    out="$(review_shim_env approve bash scripts/review.sh docs/plans/zz-01.md 2>&1)" || out_ec=$?
+  fi
+  if [[ $out_ec -eq 0 ]] && [[ -f "$out_path" ]] && [[ "$out" == *APPROVE* ]] \
+    && [[ "$(agent_calls)" == "1" ]] && [[ ! -f "${out_path}.tmp" ]]; then
+    pass "$label"
+  else
+    fail "$label" "ec=$out_ec calls=$(agent_calls); out: ${out//$'\n'/ | }"
+  fi
+}
+
+check_review_agent_retry_ok() {
+  local label="$1" kind="$2"
+  local out_ec=0 out="" out_path=""
+  reset_agent_calls
+  if [[ "$kind" == diff ]]; then
+    prep_review_diff_agent
+    out_path="$FHS_REPO/docs/reviews/zz-diff.md"
+    out="$(review_shim_env retry-approve bash scripts/review.sh --diff feat/zz 2>&1)" || out_ec=$?
+  else
+    rm -f "$FHS_REPO/docs/reviews/zz-01.md" "$FHS_REPO/docs/reviews/zz-01.md.tmp"
+    out_path="$FHS_REPO/docs/reviews/zz-01.md"
+    out="$(review_shim_env retry-approve bash scripts/review.sh docs/plans/zz-01.md 2>&1)" || out_ec=$?
+  fi
+  if [[ $out_ec -eq 0 ]] && [[ -f "$out_path" ]] && [[ "$out" == *APPROVE* ]] \
+    && [[ "$(agent_calls)" == "2" ]]; then
+    pass "$label"
+  else
+    fail "$label" "ec=$out_ec calls=$(agent_calls); out: ${out//$'\n'/ | }"
+  fi
+}
+
+check_review_agent_preserve_out() {
+  local label="$1" kind="$2"
+  local out_ec=0 out="" out_path="" prior="$TMP/prior-review.md"
+  reset_agent_calls
+  if [[ "$kind" == diff ]]; then
+    prep_review_diff_agent
+    out_path="$FHS_REPO/docs/reviews/zz-diff.md"
+    printf 'unchanged prior diff review\n' > "$prior"
+    cp "$prior" "$out_path"
+    out="$(review_shim_env empty bash scripts/review.sh --diff feat/zz 2>&1)" || out_ec=$?
+  else
+    out_path="$FHS_REPO/docs/reviews/zz-01.md"
+    printf 'unchanged prior plan review\n' > "$prior"
+    cp "$prior" "$out_path"
+    out="$(review_shim_env empty bash scripts/review.sh docs/plans/zz-01.md 2>&1)" || out_ec=$?
+  fi
+  if [[ $out_ec -eq 5 ]] && cmp -s "$prior" "$out_path" && [[ "$(agent_calls)" == "2" ]]; then
+    pass "$label"
+  else
+    fail "$label" "ec=$out_ec calls=$(agent_calls); cmp=$([[ -f "$out_path" ]] && cmp -s "$prior" "$out_path" && echo ok || echo bad)"
+  fi
+}
+
+for kind in plan diff; do
+  check_review_agent_fail "review-agent-${kind}-empty" empty "$kind"
+  check_review_agent_fail "review-agent-${kind}-no-verdict" no-verdict "$kind"
+  check_review_agent_fail "review-agent-${kind}-maybe" maybe "$kind"
+  check_review_agent_fail "review-agent-${kind}-nonzero" nonzero "$kind"
+  check_review_agent_retry_ok "review-agent-${kind}-retry-approve" "$kind"
+  check_review_agent_ok_first "review-agent-${kind}-approve-once" "$kind"
+  check_review_agent_preserve_out "review-agent-${kind}-preserve-out" "$kind"
+done
+
 # --- collect prints the report --------------------------------------------
 coll_repo="$TMP/collect-repo"
 coll_clone="$FHS_BUILD_ROOT/zz"
