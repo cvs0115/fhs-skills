@@ -14,7 +14,7 @@ people too; the script decides who is paid.
 | `_tips.txt` | `Employee\|CC Tips` | when available | Tip payouts per person (R365 Tip Automation Distributions or NCR Tip Income). Goes straight to ADP. |
 | `_crosscheck_hours.txt` | `Employee\|Total Hours` | Toast/R365 stores | Hours from the *other* system (Toast when R365 is the source) to catch shifts missing from one side. |
 | `_tip_sources.txt` | `Date\|Source\|Card Tips\|R365 Contributor` | toast_r365, optional | One line per tip source per day with card tips > 0, from Toast Labor Summary / Time Entries (same screens as shift tips). `Date` as `M/D/YYYY` (same shape as `_shifts` In/Out). `Source` = Toast name (e.g. kiosk). `R365 Contributor` = name as the R365 tip rule lists it (kiosk → `KIOSK USER`). |
-| `_tip_contributors.txt` | `Date\|Contributor\|Amount` | toast_r365, optional | Per-day contributors from the R365 Tip Automation Distributions Report **Daily Rules - Contributors** section: `Date Worked` → Date (`M/D/YYYY`), `Employee Name` → Contributor, `Basis Value` → Amount. |
+| `_tip_contributors.txt` | `Date\|Contributor\|Amount` | toast_r365, optional | Per-day contributors from the R365 Tip Automation Distributions Report **Daily Rules - Contributors** section: `Date Worked` → Date (`M/D/YYYY`), `Labor Rule` → Contributor (tip-rule name, e.g. `KIOSK USER` or `Cashier` — **not** `Employee Name`, which is the labor account such as `KIOSK KIOSK - 550` or `Cashier2 Cashier2`), `Card Tips` (overflow pages) → Amount (informational only; payroll.py does not use Amount for the contributor check). |
 
 ## Reading each report
 
@@ -32,8 +32,11 @@ people too; the script decides who is paid.
 ### R365 Tip Automation Distributions Report (→ `_tips`, `_tip_contributors`)
 - "Daily Rules - Receivers" section: Employee, Job, Location, Labor Rule, Hours, Amount Received.
   Sum Amount Received per employee across the period → `_tips`.
-- **Daily Rules - Contributors** section (same PDF): one row per contributor per day worked. Columns
-  include Date Worked, Employee Name, and Basis Value → `_tip_contributors` (`Date|Contributor|Amount`).
+- **Daily Rules - Contributors** section (same PDF): one row per contributor per day worked. Main pages
+  show `Date Worked`, `Employee Name` (labor account — not the match key), `Labor Rule` (tip-rule name →
+  Contributor), `Net Sales`, and `Basis Value`. Overflow pages continue the section with `Card Tips` (and
+  related tip columns) aligned to those rows → `Amount` when you fill the file (optional; the check matches
+  on Contributor only).
 - Check the report covers **every day** of the period. If days are missing (not calculated/approved),
   don't write `_tips.txt`; tell the owner which days are missing and let the daily rule run instead.
 - Any amount to Cashier1/Cashier2 means the rule still lists Cashier as a receiver - flag it.

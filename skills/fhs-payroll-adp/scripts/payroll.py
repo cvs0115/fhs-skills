@@ -11,6 +11,8 @@ Input files (pipe-delimited, first line is a header; see references/extract-form
     <prefix>_shifts.txt    Employee|Job|In|Out|Hours|Tips            (required, drives the checks)
     <prefix>_totals.txt    Key|Value  report grand totals: reg_hours, ot_hours, tips_collected
     <prefix>_tips.txt      Employee|CC Tips   tip payouts from R365 Tip Automation / NCR Tip Income
+    <prefix>_tip_sources.txt       Date|Source|Card Tips|R365 Contributor   Toast tip sources (toast_r365 contributor check)
+    <prefix>_tip_contributors.txt  Date|Contributor|Amount   R365 Tip Automation contributors per day (toast_r365 contributor check)
     <prefix>_crosscheck_hours.txt  Employee|Total Hours  second system's hours (e.g. Toast for an R365 store)
 
 Tips: if _tips.txt exists it is used for ADP, and (when shifts carry tips) the R365 daily rule is

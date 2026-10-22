@@ -34,8 +34,9 @@ The report covers all locations unless filtered - filter rows to the store's `r3
 When saving a report to the week folder (Labor Payroll Review, Tip Automation Distributions, etc.):
 1. Open the report in the viewer (RUN / ReportViewer iframe).
 2. Click the **Export** icon (real click, not a JS-only click — that does not start the download).
-3. Set Page Scaling to **Adjust 100%**.
-4. Click **EXPORT** and save the PDF into the store's Dropbox week folder with the date range in the filename
+3. Choose **PDF**.
+4. Set Page Scaling to **Adjust 100%**.
+5. Click **EXPORT** and save the PDF into the store's Dropbox week folder with the date range in the filename
    (e.g. `Tip Automation Distributions Report 10-05 to 10-18.pdf`).
 
 ## R365 Tip Automation
