@@ -1,0 +1,2 @@
+Date|Contributor|Amount
+10/5/2026|KIOSK USER|5.00

@@ -1,0 +1,2 @@
+Employee|Job|Reg Hours|OT Hours
+Alex Rivera|Team Member|40.00|0.00

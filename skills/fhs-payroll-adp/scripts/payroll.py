@@ -11,6 +11,8 @@ Input files (pipe-delimited, first line is a header; see references/extract-form
     <prefix>_shifts.txt    Employee|Job|In|Out|Hours|Tips            (required, drives the checks)
     <prefix>_totals.txt    Key|Value  report grand totals: reg_hours, ot_hours, tips_collected
     <prefix>_tips.txt      Employee|CC Tips   tip payouts from R365 Tip Automation / NCR Tip Income
+    <prefix>_tip_sources.txt       Date|Source|Card Tips|R365 Contributor   Toast tip sources (toast_r365 contributor check)
+    <prefix>_tip_contributors.txt  Date|Contributor|Amount   R365 Tip Automation contributors per day (toast_r365 contributor check)
     <prefix>_crosscheck_hours.txt  Employee|Total Hours  second system's hours (e.g. Toast for an R365 store)
 
 Tips: if _tips.txt exists it is used for ADP, and (when shifts carry tips) the R365 daily rule is
@@ -122,6 +124,57 @@ def load_amounts(path):
     return None if data is None else {key(c[0]): (c[0], num(c[1])) for c in data if len(c) >= 2}
 
 
+def parse_tip_date(s):
+    for fmt in ("%m/%d/%Y", "%m/%d/%y", "%Y-%m-%d"):
+        try:
+            return datetime.strptime(s.strip(), fmt).date()
+        except ValueError:
+            pass
+    raise ValueError(f"Unrecognized tip date: {s!r} (use M/D/YYYY)")
+
+
+def load_tip_sources(path):
+    data = rows(path)
+    if data is None:
+        return None
+    return [{"date": parse_tip_date(c[0]), "source": c[1], "card_tips": num(c[2]), "contributor": c[3]}
+            for c in data if len(c) >= 4]
+
+
+def load_tip_contributors(path):
+    data = rows(path)
+    if data is None:
+        return None
+    return [{"date": parse_tip_date(c[0]), "contributor": c[1], "amount": num(c[2])}
+            for c in data if len(c) >= 3]
+
+
+def tip_contributor_issues(cfg, tips_path, sources_path, contributors_path):
+    if cfg.get("pos") != "toast_r365":
+        return []
+    if not tips_path.exists():
+        return []
+    sources = load_tip_sources(sources_path)
+    contributors = load_tip_contributors(contributors_path)
+    if sources is None or contributors is None:
+        return [{"severity": MEDIUM, "employee": "(tips)", "issue": "Tip contributor check not run",
+                 "detail": "Save _tip_sources.txt and _tip_contributors.txt (see extract-formats.md)"}]
+    by_date = {}
+    for row in contributors:
+        by_date.setdefault(row["date"], set()).add(key(row["contributor"]))
+    issues = []
+    for row in sources:
+        if row["card_tips"] <= 0:
+            continue
+        names = by_date.get(row["date"])
+        if not names or key(row["contributor"]) not in names:
+            d = f"{row['date'].month}/{row['date'].day}/{row['date'].year}"
+            issues.append({"severity": HIGH, "employee": row["source"], "issue": "Tip source missing from R365 contributors",
+                           "detail": f"{d} {row['source']} card tips ${row['card_tips']:.2f} - "
+                           f"no {row['contributor']} on that date in R365 Tip Automation contributors"})
+    return issues
+
+
 # ---------- tips ----------
 
 def round_to_total(raw, total):
@@ -192,6 +245,7 @@ def find_issues(people, shifts, totals, tips_file, rule_tips, crosscheck, cfg):
         {"severity": sev, "employee": who, "issue": what, "detail": detail})
     fmt = lambda s: f"{s['in']:%a %m/%d %I:%M %p} - " + (f"{s['out']:%I:%M %p}" if s["out"] else "NO CLOCK-OUT")
     shared, excluded = cfg["shared_logins_keys"], cfg["exclude_from_payroll_keys"]
+    non_emp = cfg["non_employee_accounts_keys"]
     fixed = cfg["fixed_100_hour_employees_keys"]
     open_t = datetime.strptime(c["store_open"], "%I:%M %p").time()
     close_t = datetime.strptime(c["store_close"], "%I:%M %p").time()
@@ -226,6 +280,8 @@ def find_issues(people, shifts, totals, tips_file, rule_tips, crosscheck, cfg):
             continue
         if k in excluded:
             add(INFO, name, "Excluded from payroll", f"{total:.2f} hrs on the clock, left off per rules")
+            continue
+        if k in non_emp:
             continue
         if k not in people:
             add(HIGH, name, "Has shifts but missing from hours report", f"{total:.2f} hrs in shift detail")
@@ -262,7 +318,7 @@ def find_issues(people, shifts, totals, tips_file, rule_tips, crosscheck, cfg):
     alone_min = c.get("alone_after_minutes", 15)
     days = {}
     for s in shifts:
-        if s["out"] and s["key"] not in shared | excluded:
+        if s["out"] and s["key"] not in shared | excluded | non_emp:
             days.setdefault(s["in"].date(), []).append(s)
     for day, ds in days.items():
         ds.sort(key=lambda s: s["out"])
@@ -290,7 +346,7 @@ def find_issues(people, shifts, totals, tips_file, rule_tips, crosscheck, cfg):
                 f"{', '.join(dates)} - routine? If so, adjust the store's buffer; if not, talk to them")
 
     for k, p in people.items():
-        if k in shared | excluded:
+        if k in shared | excluded | non_emp:
             continue
         reg = sum(j[0] for j in p["jobs"].values())
         ot = sum(j[1] for j in p["jobs"].values())
@@ -428,6 +484,7 @@ def main():
 
     adp = build_adp_rows(people, tips, cfg)
     issues = find_issues(people, shifts, totals, tips_file, rule_tips, crosscheck, cfg)
+    issues.extend(tip_contributor_issues(cfg, f("tips"), f("tip_sources"), f("tip_contributors")))
 
     paid = round(sum(float(r["CC Tips"]) for r in adp), 2)
     leftover = round(tips_collected - paid, 2)
