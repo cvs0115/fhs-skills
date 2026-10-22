@@ -44,7 +44,7 @@
       "r365_tip_rule": "Cary1  Tip Rule",
       "adp_company": "Firehouse Subs 122",
       "shared_logins": ["Cashier1 Cashier1", "Cashier2 Cashier2"],
-      "non_employee_accounts": ["KIOSK - 550, KIOSK"],
+      "non_employee_accounts": ["KIOSK - 550, KIOSK", "KIOSK KIOSK - 550"],
       "exclude_from_payroll": ["Cary NC", "SURATI, MAYURIBEN"],
       "fixed_100_hour_employees": ["Miguel Cabanzo Huerta"],
       "_salary_comment": "Biweekly salary from ADP ($1,375 as of 10/4/2026), used for the over-100-hr bonus. Update if ADP changes.",
