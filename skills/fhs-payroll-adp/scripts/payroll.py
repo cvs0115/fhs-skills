@@ -36,6 +36,7 @@ DATA = Path.cwd()
 # Shared settings for all fhs skills (Dropbox). Override with the FHS_SKILLS_HOME environment variable.
 FHS_HOME = Path(os.environ.get("FHS_SKILLS_HOME", r"C:\Users\mayur\DropboxCS\Dropbox\CMVK Food Services\fhs-skills"))
 HIGH, MEDIUM, INFO = "High", "Medium", "Info"
+ISSUE_SORT_ORDER = {HIGH: 0, MEDIUM: 1, INFO: 2}
 TIME_FORMATS = ("%m/%d/%Y %I:%M %p", "%m/%d/%y %I:%M %p")
 
 
@@ -384,8 +385,7 @@ def find_issues(people, shifts, totals, tips_file, rule_tips, crosscheck, cfg):
             add(HIGH, tips_file[k][0], "Tips paid to a shared login",
                 f"${tips_file[k][1]:.2f} - redistribute; remove Cashier-type jobs from the tip rule receivers")
 
-    order = {HIGH: 0, MEDIUM: 1, INFO: 2}
-    return sorted(issues, key=lambda i: (order[i["severity"]], i["employee"]))
+    return sorted(issues, key=lambda i: (ISSUE_SORT_ORDER[i["severity"]], i["employee"]))
 
 
 # ---------- output ----------
@@ -485,6 +485,7 @@ def main():
     adp = build_adp_rows(people, tips, cfg)
     issues = find_issues(people, shifts, totals, tips_file, rule_tips, crosscheck, cfg)
     issues.extend(tip_contributor_issues(cfg, f("tips"), f("tip_sources"), f("tip_contributors")))
+    issues.sort(key=lambda i: (ISSUE_SORT_ORDER[i["severity"]], i["employee"]))
 
     paid = round(sum(float(r["CC Tips"]) for r in adp), 2)
     leftover = round(tips_collected - paid, 2)

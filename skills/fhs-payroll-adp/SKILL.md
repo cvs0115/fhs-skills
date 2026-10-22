@@ -120,13 +120,13 @@ Walk the owner through the issues and decide each one. Typical fixes from past r
 After any fix, re-download/re-extract the affected report and rerun step 4 until the High list is clean
 or every remaining item is explicitly accepted by the owner.
 
-### 6. Save every source report and list it in the concerns note (required before ADP entry)
+### 6. Save every source report and list saved file names in run notes (required before ADP entry)
 Export every source report used for this run into the store's Dropbox week folder, including
 reports you read in the browser (see `references/browser-recipes.md` for R365 PDF export). Use clear
 filenames with the period dates, e.g. `Labor Payroll Review (Detail) 10-05 to 10-18.pdf` and
-`Tip Automation Distributions Report 10-05 to 10-18.pdf`. In the concerns note for this period,
-**list each saved file by name** so the owner can find them later. Do not start ADP entry until this
-is done.
+`Tip Automation Distributions Report 10-05 to 10-18.pdf`. **List each saved file by name in your
+reply to the owner** as part of the run notes so they can find the files later. Do not start ADP
+entry until this is done.
 
 ### 7. Present the ADP entry
 Give a paste-ready table in **ADP's employee order** (ADP sorts by last name) and **ADP's column
@@ -144,8 +144,9 @@ or the exact lines to fix. The owner clicks **Approve**.
 
 ### 9. Write the concerns note, then move on
 Save `<prefix>_concerns.md` in the week folder: what was fixed this run, what's still open, and
-follow-ups (e.g. R365 tip days not approved, settings to change, people to talk to). Include the
-list of source-report PDFs saved in step 6. Then ask whether to continue with the next store.
+follow-ups (e.g. R365 tip days not approved, settings to change, people to talk to). Copy the list
+of saved source-report file names from step 6 into the note. Then ask whether to continue with the
+next store.
 
 ## Store-specific rules you'll see in the shared config.json
 - `shared_logins`, `exclude_from_payroll`, `non_employee_accounts` (kiosk tips are real tips - split them)

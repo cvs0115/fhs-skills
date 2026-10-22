@@ -1,0 +1,4 @@
+Key|Value
+reg_hours|60.00
+ot_hours|18.00
+tips_collected|45.00
