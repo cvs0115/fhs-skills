@@ -11,4 +11,4 @@ Whenever data is captured for a period, export each original report and save it 
 - Example (10/21/2026, store 122): `Labor Payroll Review (Detail) 10-05 to 10-18.pdf`, `Tip Automation Distributions Report 10-05 to 10-18.pdf`.
 
 **Why:** on 10/21/2026 the owner caught that the 122 source reports had not been saved after Claude read them in the browser; without them the period can't be re-checked later.
-**How to apply:** treat "reports saved and listed" as part of every payroll run, before ADP entry. The fhs-payroll-adp change in `docs/briefs/payroll-adp-02.md` makes it a skill step. Related: [[payroll-rules]], [[payroll-skill]]
+**How to apply:** treat "reports saved and listed" as part of every payroll run, before ADP entry. The fhs-payroll-adp change in `docs/briefs/payroll-adp-01.md` makes it a skill step. Related: [[payroll-rules]], [[payroll-skill]]
