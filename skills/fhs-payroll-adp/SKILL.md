@@ -120,7 +120,7 @@ Walk the owner through the issues and decide each one. Typical fixes from past r
 After any fix, re-download/re-extract the affected report and rerun step 4 until the High list is clean
 or every remaining item is explicitly accepted by the owner.
 
-### 6. Save every source report (required before ADP entry)
+### 6. Save every source report and list it in the concerns note (required before ADP entry)
 Export every source report used for this run into the store's Dropbox week folder, including
 reports you read in the browser (see `references/browser-recipes.md` for R365 PDF export). Use clear
 filenames with the period dates, e.g. `Labor Payroll Review (Detail) 10-05 to 10-18.pdf` and
