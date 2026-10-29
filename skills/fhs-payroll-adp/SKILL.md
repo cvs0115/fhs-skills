@@ -25,7 +25,10 @@ anything you'd assume. Other fhs skills use the same file, so keep store facts t
   (e.g. 122, 9/21-10/4/2026 → `00122\2026\10 OCT\Week 40`). The owner downloads reports there;
   the extracts, ADP entry file, discrepancy report and concerns note are saved there too.
 - **Source of truth**: R365 for Toast/R365 stores (Toast must be kept aligned as a cross-check);
-  NCR reports for NCR stores (878 until it migrates).
+  NCR reports for NCR days (878 through 10/20/2026). 878 moved to Toast + R365 on 10/21/2026, so a
+  pay period that spans the cut-over (10/19-11/1/2026) uses NCR files for 10/19-10/20 and R365 for 10/21 on.
+  Tips for 10/19-10/20 come from NCR Tip Income, not R365 (R365 has no distribution for those days).
+  See `docs/research/tip-automation-878.md`.
 - **Data comes from files the owner downloads**, not from scraping. Browser pulling is a fallback
   only (see `references/browser-recipes.md`) - it's slow and fragile.
 - **Never enter usernames/passwords.** Open the login page and let the owner sign in.
