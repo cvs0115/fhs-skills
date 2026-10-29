@@ -1,15 +1,15 @@
 # Tech stack map
 
-Last reviewed: 2026-10-08. Mark anything unverified with (?) and confirm it in the system.
+Last reviewed: 2026-10-08; 878 cut-over to Toast and tip automation updated 2026-10-28. Mark anything unverified with (?) and confirm it in the system.
 
 ## Systems
 
 | System | Role | Stores | Login (owner signs in) |
 |---|---|---|---|
-| **Toast POS** | Front of house: sales, menu, kiosk, time clock, tips collected | 122 (878 later) | https://www.toasttab.com/restaurants/admin/reports/home |
-| **Restaurant365 (R365)** | Back office, via Firehouse franchise: labor/payroll review, tip automation, scheduling (not set up), inventory/recipes/AP/food cost (status: see tracker) | 122 (878 has location "CAMDEN SQUARE" but still on NCR) | https://fhs4021089.restaurant365.com/ |
+| **Toast POS** | Front of house: sales, menu, kiosk, time clock, tips collected | 122; 878 from 10/21/2026 (Toast data starts 10/21; restaurant 00878, ID 367024) | https://www.toasttab.com/restaurants/admin/reports/home |
+| **Restaurant365 (R365)** | Back office, via Firehouse franchise: labor/payroll review, tip automation, scheduling (not set up), inventory/recipes/AP/food cost (status: see tracker) | 122; 878 CAMDEN SQUARE (Toast feed live since 10/21/2026, Toast POS employees and jobs created in R365 10/22) | https://fhs4021089.restaurant365.com/ |
 | **ADP RUN** | Payroll processing, employee master (rates, pay type) | 122, 878 (separate companies) | https://online.adp.com/signin/v1/?APPID=RUN&productId=80e309c3-70c3-bae1-e053-3505430b5495 |
-| **NCR / Aloha** | POS + time clock at 878 until it moves to Toast | 878 | (reports downloaded by owner) |
+| **NCR / Aloha** | POS + time clock at 878 through 10/20/2026 (history only after that; NCR tips are $0 from 10/21) | 878 | (reports downloaded by owner) |
 | **Dropbox** | Report archive: `C:\Users\mayur\DropboxCS\Dropbox\CMVK Food Services\Locations\<store>\<year>\<MM MON>\Week <n>` | all | local sync |
 | Distributor(s) | Food/paper supply, invoices | 122: Cheney Brothers is the only invoiced vendor (2026-10-11 audit; owner). Some counted items (bottled soda and water, gallon milk, cookies, hot sauces, packets) come from store runs (Costco, grocery) paid by card or cash, with no R365 invoice (owner, 2026-10-12). 878 CAMDEN SQUARE: PFG (Performance Food Group, 58 rows) and Cheney (57 rows) in the R365 AP export (`items-122-captures/INV-02.csv`); no PFG rows for CARY 1 | R365 Accounting → Vendors; how invoices arrive (EDI/email/manual) still ? |
 
@@ -18,8 +18,8 @@ Last reviewed: 2026-10-08. Mark anything unverified with (?) and confirm it in t
 ## Data flows (as they are now)
 
 ```
-Toast (122) --sales, PMIX, punches, tips--> R365 --Labor Payroll Review, Tip Distributions--> (owner downloads) --> payroll skill --> ADP RUN
-NCR (878) --Time Clock Detail, Tip Income (owner downloads)--> payroll skill --> ADP RUN
+Toast (122, and 878 from 10/21/2026) --sales, PMIX, punches, tips--> R365 --Labor Payroll Review, Tip Distributions--> (owner downloads) --> payroll skill --> ADP RUN
+NCR (878, through 10/20/2026 only) --Time Clock Detail, Tip Income (owner downloads)--> payroll skill --> ADP RUN
 Distributor --invoices--> ? (to confirm: paper / email / EDI into R365)
 ```
 
@@ -35,7 +35,8 @@ Weekly count (R365 mobile) --> actual usage --> AvT + COGS --> food-cost check -
 | Data | Source of truth | Cross-check |
 |---|---|---|
 | Hours, tips (122) | R365 | Toast |
-| Hours, tips (878) | NCR | - |
+| Hours, tips (878) from 10/21/2026 | R365 (tip distributions, labor details) | Toast |
+| Hours, tips (878) through 10/20/2026 | NCR (Time Clock Detail, Tip Income) | R365 shows the NCR tips as collected tips but never attributed them to people |
 | Pay rates, pay type, employee list | ADP | flag mismatches with Toast/R365 |
 | Sales, menu | Toast | R365 sales import |
 | Item costs, recipes, inventory, COGS | R365 (once set up) | invoices |
@@ -63,7 +64,7 @@ Check `## Store 122 audit (2026-10-11)` below and `docs/research/store-audit-122
 - Main distributor for recent Cary invoices is Cheney Brothers. Invoices are in R365 (28 for CARY 1 from 08/11/2026 to 10/10/2026). An approved invoice's lines are matched to R365 items and carry Cheney item numbers. The screen does not name EDI, email, or manual entry.
 - Does Firehouse corporate push a master item list / recipes into R365? The recipe view is named "Recipes - R365" and the item MEAT TURKEY - 1001190 has a numeric code. Ownership is still unconfirmed.
 - 878 store hours: assumed same as 122 (10 AM-9 PM).
-- 878 move to Toast + R365: date unknown.
+- 878 move to Toast + R365: done. Toast live 10/21/2026 (manager); see `## 878 Toast cut-over and tip automation (2026-10-28)` below.
 
 ## Server browser (research 2026-10-10)
 - `@playwright/mcp` 0.0.83 (npm, 2026-10-10) depends on `playwright` and `playwright-core` `1.64.0-alpha-1790635538000`. Pin those three. See `docs/research/browser-stack.md` section 1.
@@ -135,3 +136,17 @@ Confirmed from PC captures 2026-10-11 (CARY 1 / Toast 00122). Details: `docs/res
 - Toast has no cash deposit / “cash out / deposit” record for those days. Deposit Totals Overview (`#overview` under legacy deposits) is card settlements, not cash. See `docs/research/cash-122.md`.
 - R365 DSS Deposits (CARY 1 10/05, view only): Deposit #1 with Total Deposit, bill counts, Total Cash / Coin / Check, Unpaid Cash Tips. Over/Short formula is not shown on the day panel. Status/Complete: the day is Completed and locked; the control seen is UNLOCK (not clicked); no Complete button was on that panel. Who/when completed is not shown. Expanding Deposits enabled Save; Save was not clicked. See `docs/research/cash-122.md`.
 
+
+## 878 Toast cut-over and tip automation (2026-10-28)
+
+Details, checks and open items: `docs/research/tip-automation-878.md`.
+
+- **Go-live:** Toast data for 878 starts 10/21/2026 (sales, orders, time entries). R365 created 878's 37 Toast POS employees and its Toast jobs on 10/22/2026 3:23 AM. NCR carried 10/18 to 10/20.
+- **Two job sets in R365:** old jobs (names like TeamMember, Shift Lead, numeric or blank POS ID) and Toast jobs (GUID POS ID, 10/22/2026). Toast punches use the Toast jobs.
+- **The tip rule job picker only lists jobs with a Tip designation.** Toast jobs created by the sync have none until set under Workforce > Employees > Jobs. Cary's are Directly Tipped.
+- **Owner rule:** hourly tipped roles use Tip designation Directly Tipped and GL 7105 HOURLY WAGES PAID. Salaried roles are not Directly Tipped, with one owner-approved exception: 878 GM - Salary (to pool Toni Langley's 10/21 to 10/24 tips).
+- **878 rule "Camden Square"** (effective 10/21/2026, Tips, Job Title, Worked Hours): contributors Shift Leader, Cashier, KIOSK USER, GM - Hourly, GM - Salary, ASM - Hourly; receivers Shift Leader, Team Member, GM - Hourly, GM - Salary, ASM - Hourly. Verified 10/21 to 10/27: pool equals Toast tips each day ($196.02 total).
+- **Cary1 Tip Rule** (from the payroll notes, `memory/payroll-rules.md`; the 2026-10-28 screen read showed only the first jobs, so treat the full lists there as authoritative): contributors include Shift Leader, Cashier, KIOSK USER, ASM - Hourly, Team Member, Bread, Bev Attend; receivers include Shift Leader, Team Member, ASM - Hourly, Bev Attend, Cashier; declared tips paid with payroll on; effective 9/21/2026.
+- **Behaviour to know:** saving a rule regenerates all pending distributions; moving the effective date drops earlier days; the business day runs 4:00 AM to 3:59 AM; R365 pays out within a cent a day (rounding).
+- **NCR tips 10/19 ($36.83) and 10/20 ($71.26)** are paid from NCR Tip Income, not R365.
+- **Toni Langley** is GM - Hourly at $16.80 (owner, 2026-10-28). R365 still has three Toni records until the sync. ADP not yet changed.

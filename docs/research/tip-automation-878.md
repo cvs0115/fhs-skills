@@ -34,8 +34,11 @@ Requirement (owner): hourly tipped roles are Directly Tipped with GL 7105 HOURLY
 
 ## Rules
 
-- Cary1 Tip Rule (works): contributors Shift Leader, Cashier; receivers Shift Leader, Team Member; Declared tips paid with payroll ON;
-  effective 9/21/2026; hours basis.
+- Cary1 Tip Rule (works): effective 9/21/2026, hours basis, Declared tips paid with payroll ON. **Correction:** an early read
+  of this rule showed only the first jobs (Shift Leader, Cashier / Shift Leader, Team Member) because the picker was collapsed.
+  The payroll notes (`memory/payroll-rules.md`) have the fuller lists: contributors Shift Leader, Cashier x2, Kiosk, ASM - Hourly,
+  Bread, Team Member, Bev Attend, KIOSK USER; receivers Shift Leader, Team Member, ASM - Hourly, Bev Attend, Cashier. Re-read
+  the expanded lists before copying anything from Cary (?).
 - Camden Square rule (final, 10/28): contribution based on Tips, funding on Job Title, divided by Worked Hours,
   100% pool, Declared tips OFF, effective **10/21/2026**.
   - Contributors: Shift Leader, Cashier, KIOSK USER, GM - Hourly, GM - Salary, ASM - Hourly.
