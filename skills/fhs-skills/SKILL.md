@@ -15,7 +15,7 @@ way, one checked step at a time.
 |---|---|
 | `fhs-skills` (this one) | Front door: explain the stack, route work, setup playbooks, food cost checks |
 | `fhs-payroll-adp` | Biweekly payroll for NCR and Toast/R365 stores → checks → ADP RUN |
-| *Planned, built when the work starts* | `fhs-food-cost` (split out once inventory is live), `fhs-r365-setup`, `fhs-store-migration` (878 NCR → Toast/R365) |
+| *Planned, built when the work starts* | `fhs-food-cost` (split out once inventory is live), `fhs-r365-setup`, `fhs-store-migration` (checklist for moving a store NCR → Toast/R365; 878 already moved 10/21/2026) |
 
 New skills follow the same pattern: name starts with `fhs-`, read the shared config, never duplicate
 store facts, add a row here and a pointer in the owner's memory.

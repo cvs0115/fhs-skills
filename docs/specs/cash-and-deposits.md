@@ -39,7 +39,7 @@ note from that run is the reference once merged; this spec only uses what those 
   Toast payouts and the cash deposit record → list differences. Read-only in Toast and R365.
 - **P1:** entering the daily deposit in R365 Daily Sales Summary (a write: needs the owner's yes per the Rules
   in `skills/fhs-skills/SKILL.md`), and explaining the −$546.63 "External" line (third-party delivery or other tenders).
-- **P2:** 878 Camden Square, on NCR until it moves (`docs/specs/store-migration.md`: build at 122 first); bank
+- **P2:** 878 Camden Square, moved to Toast + R365 on 10/21/2026 (`docs/specs/store-migration.md`: build at 122 first); bank
   reconciliation in R365; weekly summary for the daily flash (`projects/daily-flash`).
 
 ## Out of scope (parked on the hub)

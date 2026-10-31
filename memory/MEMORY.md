@@ -1,5 +1,5 @@
 - [Payroll rules](payroll-rules.md) — Toast→ADP RUN process, Miguel 100-hr rule, Cashier tips, R365 tip gap, Toast wages, Eleanor
-- [Payroll skill](payroll-skill.md) — fhs-payroll-adp: Dropbox config (keep aligned with repo copy), week folders, 878 on NCR
+- [Payroll skill](payroll-skill.md) — fhs-payroll-adp: Dropbox config (keep aligned with repo copy), week folders, 878 on NCR to 10/20, Toast+R365 from 10/21
 - [fhs-skills library](tech-stack-agent.md) — fhs-* skill library; fhs-skills front door; built via App Framework (CLAUDE.md loop); R365 inventory first
 - [Login URLs](login-urls.md) — Toast and R365 login/start URLs (no credentials); more R365 sites may be added
 - [Agent hand-off workflow](agent-handoff-workflow.md) — owner drives cursor agents; Claude briefs, Grok drafts plans, Claude runs agents headless (CLAUDE.md Roles)
