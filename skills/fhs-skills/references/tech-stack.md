@@ -19,7 +19,7 @@ Last reviewed: 2026-10-08; 878 cut-over to Toast and tip automation updated 2026
 
 ```
 Toast (122, and 878 from 10/21/2026) --sales, PMIX, punches, tips--> R365 --Labor Payroll Review, Tip Distributions--> (owner downloads) --> payroll skill --> ADP RUN
-NCR (878, through 10/20/2026 only) --Time Clock Detail, Tip Income (owner downloads)--> payroll skill --> ADP RUN
+NCR (878, through 10/20/2026 only) --history only; not read by the payroll skill (owner enters those days in ADP by hand)
 Distributor --invoices--> ? (to confirm: paper / email / EDI into R365)
 ```
 

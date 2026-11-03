@@ -26,8 +26,11 @@ anything you'd assume. Other fhs skills use the same file, so keep store facts t
   the extracts, ADP entry file, discrepancy report and concerns note are saved there too.
 - **Source of truth**: R365 (Toast must be kept aligned as a cross-check). Both stores are on Toast + R365;
   878 moved on 10/21/2026 (`docs/research/tip-automation-878.md`). **NCR is not supported** (owner, 2026-10-31):
-  for 878's 10/19-10/20/2026 days, tell the owner those two days are entered in ADP by hand from the NCR reports.
-  The NCR version of this skill is in git history before the "Drop NCR support" commit.
+  for 878's 10/19-11/1/2026 period, **only extract 10/21 to 11/1**: ask the owner to run the R365 reports from 10/21
+  (not 10/19), write the `_hours`, `_shifts`, `_tips` and tip-source extracts for those days only, and tell the owner
+  that 10/19 and 10/20 (hours and NCR tips) are entered in ADP by hand from the NCR reports. Do not enter those
+  two days from R365 as well, or they will be counted twice. A missing R365 tip day before 10/21 is expected there:
+  it is not a reason to drop `_tips.txt`.
 - **Data comes from files the owner downloads**, not from scraping. Browser pulling is a fallback
   only (see `references/browser-recipes.md`) - it's slow and fragile.
 - **Never enter usernames/passwords.** Open the login page and let the owner sign in.
@@ -48,7 +51,7 @@ folder (created if missing). Use the last completed period unless the owner name
 Confirm the period with the owner if it's at all ambiguous (e.g. running late).
 
 ### 2. Make sure the reports are in the folder
-List the folder. Required reports depend on `pos` in config:
+List the folder. These reports are needed (every store is Toast + R365):
 
 | pos | Reports the owner downloads into the week folder |
 |---|---|
