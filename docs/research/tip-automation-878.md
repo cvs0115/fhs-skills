@@ -85,3 +85,14 @@ Toni Langley (GM - Salary 10/21–10/24, ASM - Hourly 10/27). No Team Member or 
 - R365 Labor Details is a Kendo grid in a nested iframe; `dataSource` can be filtered and read in the page.
 - Toast legacy report `Reports > Orders` has Server and Tip columns; paging needs the numbered links.
 - The R365 distribution page lists contributors (POS tips) and receivers (hours worked, tips owed).
+
+## PC read-only check (2026-11-03, owner's PC, nothing changed)
+
+- **Kiosk:** `KIOSK KIOSK - 550`, job `KIOSK USER`, $0 rate, same name in Toast and R365. A punch every day 10/21 to 11/1 (12 R365 rows, 140.09 hours). Toast flagged 10/21 and 10/22 AUTO CLOCK-OUT (out 2:00 AM, 16.00 and 11.40 hours); R365 was corrected to 11.00 and 6.40.
+- **Other non-person accounts:** `Terminal2 Cashier2` (job RM, NCR-era shared login; 24.09 hours on 10/18-10/20, none after 10/21); `TST User (Do Not Delete)` (job Toast TST, 0.02 hours on 10/21); `KDS KDS - 660`, `RTG RTG Login`, a "General Login" (no hours). The General Login name field holds a note that looks like a password: owner should clean it up and change that password.
+- **Toast location:** `00878 - Camden Square` under group `00878 - Firehouse Subs`. Toast "Restaurant ID" 367024 (not confirmed as the restaurant group id `(?)`). R365 location id for Camden Square `973d061c-93f4-4407-b26e-83efa9e77da3`.
+- **R365 holds hours for 10/19 and 10/20** under NCR job names (ARM, RM, TeamMember): 39.53 hours on 10/19 (6 rows), 43.52 on 10/20 (6 rows), 83.05 total. Toast has nothing for those days. A period run must not include them if those days are entered by hand.
+- **Cross-over shifts:** Toni Langley (ARM) in 10/20 7:58 PM, out 10/21 1:48 AM (5.83 hours), dated 10/20 in R365 (NCR side). Eleanor Adams (Shift Leader) in 10/21 1:48 AM, out 4:00 PM, 14.20 hours in R365; Toast shows 1:45 AM to 3:58 PM, 14.23. The 1:48 AM start looks like a leftover of the NCR night punch `(?)`; ask Eleanor or Toni.
+- **Tip distributions:** R365 Approved tab lists Camden Square 10/21 to 11/1, all calculated 10/29 or later; Pending is empty (this closes the "approve 10/21-10/27" open item).
+- **Toni Langley:** Toast job GM - Salary through 10/25, ASM - Hourly from 10/26; the Toast employee list now says GM - Hourly; R365 shows a GM - Hourly entry of 3.18 hours on 11/1. ADP not checked `(?)`.
+- **Dropbox:** 878 Week 43 and Week 44 folders are empty.

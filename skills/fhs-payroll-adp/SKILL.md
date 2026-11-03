@@ -29,7 +29,10 @@ anything you'd assume. Other fhs skills use the same file, so keep store facts t
   for 878's 10/19-11/1/2026 period, **only extract 10/21 to 11/1**: ask the owner to run the R365 reports from 10/21
   (not 10/19), write the `_hours`, `_shifts`, `_tips` and tip-source extracts for those days only, and tell the owner
   that 10/19 and 10/20 (hours and NCR tips) are entered in ADP by hand from the NCR reports. Do not enter those
-  two days from R365 as well, or they will be counted twice. A missing R365 tip day before 10/21 is expected there:
+  two days from R365 as well, or they will be counted twice. (R365 does hold hours for 10/19 and 10/20 under the old
+  NCR job names ARM, RM and TeamMember - 83.05 hours - so leave those rows out, and the `Terminal2 Cashier2` login with them.)
+  Two overnight shifts cross the cut-over: Toni Langley (in 10/20 7:58 PM, out 10/21 1:48 AM, R365 dates it 10/20, so it is
+  one of the hand-entered days) and Eleanor Adams (in 10/21 1:48 AM). Ask the owner which period Eleanor's 1:48 AM start belongs to. A missing R365 tip day before 10/21 is expected there:
   it is not a reason to drop `_tips.txt`.
 - **Data comes from files the owner downloads**, not from scraping. Browser pulling is a fallback
   only (see `references/browser-recipes.md`) - it's slow and fragile.
