@@ -62,6 +62,7 @@
       "_pos_comment": "Toast + R365 since 10/21/2026. NCR is not supported by the skills (owner, 2026-10-31). toast_location and toast_restaurant_group_id not captured yet.",
       "r365_location": "CAMDEN SQUARE",
       "r365_tip_rule": "Camden Square",
+      "tip_receiver_jobs": ["Shift Leader", "Team Member", "GM - Hourly", "GM - Salary", "ASM - Hourly"],
       "adp_company": "Firehouse Subs 878",
       "_hours_comment": "Same store hours as 122 (10 AM - 9 PM, 1-hr buffers) per owner 10/7/2026.",
       "adp_notes": [
