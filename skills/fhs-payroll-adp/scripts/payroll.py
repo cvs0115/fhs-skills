@@ -10,7 +10,7 @@ Input files (pipe-delimited, first line is a header; see references/extract-form
     <prefix>_hours.txt     Employee|Job|Reg Hours|OT Hours           (required, source of truth)
     <prefix>_shifts.txt    Employee|Job|In|Out|Hours|Tips            (required, drives the checks)
     <prefix>_totals.txt    Key|Value  report grand totals: reg_hours, ot_hours, tips_collected
-    <prefix>_tips.txt      Employee|CC Tips   tip payouts from R365 Tip Automation / NCR Tip Income
+    <prefix>_tips.txt      Employee|CC Tips   tip payouts from R365 Tip Automation
     <prefix>_tip_sources.txt       Date|Source|Card Tips|R365 Contributor   Toast tip sources (toast_r365 contributor check)
     <prefix>_tip_contributors.txt  Date|Contributor|Amount   R365 Tip Automation contributors per day (toast_r365 contributor check)
     <prefix>_crosscheck_hours.txt  Employee|Total Hours  second system's hours (e.g. Toast for an R365 store)
@@ -474,7 +474,7 @@ def main():
         rule_tips, unattributed = daily_rule_tips(shifts, tips_collected, cfg)
     if tips_file is not None:
         tips = {k: v for k, (_, v) in tips_file.items()}
-        tip_source = "tip payout file (R365 / NCR)"
+        tip_source = "tip payout file (R365)"
     elif rule_tips is not None:
         tips = rule_tips
         tip_source = f"daily rule (${unattributed:.2f} not tied to a shift, split by period hours)"

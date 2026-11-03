@@ -58,9 +58,10 @@
     },
     "878": {
       "name": "Camden Square",
-      "pos": "ncr",
-      "_pos_comment": "Still on NCR (Aloha). Moving to Toast + R365 later - then switch pos to toast_r365 and fill in the Toast/R365 fields.",
+      "pos": "toast_r365",
+      "_pos_comment": "Toast + R365 since 10/21/2026. NCR is not supported by the skills (owner, 2026-10-31). toast_location and toast_restaurant_group_id not captured yet.",
       "r365_location": "CAMDEN SQUARE",
+      "r365_tip_rule": "Camden Square",
       "adp_company": "Firehouse Subs 878",
       "_hours_comment": "Same store hours as 122 (10 AM - 9 PM, 1-hr buffers) per owner 10/7/2026.",
       "adp_notes": [

@@ -1,6 +1,6 @@
 ---
 name: fhs-payroll-adp
-description: Part of the fhs-skills library. Run biweekly payroll for the owner's Firehouse Subs stores (122 Cary 1, 878 Camden Square, and any store in the shared fhs-skills config) on either POS - NCR/Aloha or Toast + R365 - pull hours and tips from the reports in the store's Dropbox week folder, check for discrepancies (auto clock-outs, shared logins, missing shifts, hours that disagree between systems, tip payouts that don't follow the rule), calculate ADP figures (regular hours, OT, CC tips, Miguel's over-100-hour bonus), enter them in ADP RUN, and verify the Preview before the owner approves. Use this whenever the user mentions running payroll, doing payroll for a store or "all stores", the pay period / week folder, Toast or R365 labor or tip reports, NCR Time Clock Detail or Tip Income, ADP RUN entry, or tips/hours discrepancies - even if they don't say "skill".
+description: Part of the fhs-skills library. Run biweekly payroll for the owner's Firehouse Subs stores (122 Cary 1, 878 Camden Square, and any store in the shared fhs-skills config) on Toast + R365 - pull hours and tips from the reports in the store's Dropbox week folder, check for discrepancies (auto clock-outs, shared logins, missing shifts, hours that disagree between systems, tip payouts that don't follow the rule), calculate ADP figures (regular hours, OT, CC tips, Miguel's over-100-hour bonus), enter them in ADP RUN, and verify the Preview before the owner approves. Use this whenever the user mentions running payroll, doing payroll for a store or "all stores", the pay period / week folder, Toast or R365 labor or tip reports, ADP RUN entry, or tips/hours discrepancies - even if they don't say "skill".
 ---
 
 # Firehouse Subs payroll: reports → checks → ADP RUN
@@ -24,11 +24,10 @@ anything you'd assume. Other fhs skills use the same file, so keep store facts t
   `...\CMVK Food Services\Locations\<store 5 digits>\<year>\<MM MON>\Week <ISO week of the period's last Sunday>`
   (e.g. 122, 9/21-10/4/2026 → `00122\2026\10 OCT\Week 40`). The owner downloads reports there;
   the extracts, ADP entry file, discrepancy report and concerns note are saved there too.
-- **Source of truth**: R365 for Toast/R365 stores (Toast must be kept aligned as a cross-check);
-  NCR reports for NCR days (878 through 10/20/2026). 878 moved to Toast + R365 on 10/21/2026, so a
-  pay period that spans the cut-over (10/19-11/1/2026) uses NCR files for 10/19-10/20 and R365 for 10/21 on.
-  Tips for 10/19-10/20 come from NCR Tip Income, not R365 (R365 has no distribution for those days).
-  See `docs/research/tip-automation-878.md`.
+- **Source of truth**: R365 (Toast must be kept aligned as a cross-check). Both stores are on Toast + R365;
+  878 moved on 10/21/2026 (`docs/research/tip-automation-878.md`). **NCR is not supported** (owner, 2026-10-31):
+  for 878's 10/19-10/20/2026 days, tell the owner those two days are entered in ADP by hand from the NCR reports.
+  The NCR version of this skill is in git history before the "Drop NCR support" commit.
 - **Data comes from files the owner downloads**, not from scraping. Browser pulling is a fallback
   only (see `references/browser-recipes.md`) - it's slow and fragile.
 - **Never enter usernames/passwords.** Open the login page and let the owner sign in.
@@ -54,7 +53,6 @@ List the folder. Required reports depend on `pos` in config:
 | pos | Reports the owner downloads into the week folder |
 |---|---|
 | `toast_r365` | R365 **Labor Payroll Review** (PDF; Detail view preferred - it has shifts and per-shift charge tips), R365 **Tip Automation Distributions Report** (PDF) if the manager approved tips, Toast **Labor Summary** or **Time Entries** export (cross-check + shift tips) |
-| `ncr` | NCR **3.01 Time Clock Detail**, **Tip Income**, **Tips Breakout** (and Breakout W1/W2 if made) |
 
 If something is missing, tell the owner exactly which report and date range to download, and wait.
 Offer the browser fallback only if they'd rather you pull it.
@@ -79,7 +77,7 @@ ones that look real. If the script reports extraction totals don't match, re-rea
 showing anything.
 
 How tips are decided (the script does this; know it so you can explain it):
-- `_tips.txt` present (R365 Tip Automation Distributions, or NCR Tip Income "Tip Share Earned") → those
+- `_tips.txt` present (R365 Tip Automation Distributions) → those
   amounts go to ADP. When shift-level tips exist, the script also recomputes the R365 daily rule and
   flags anyone whose payout differs by more than $1 - this is how we check the manager approved tips
   correctly. The owner wants R365 tips used **and** independently validated.

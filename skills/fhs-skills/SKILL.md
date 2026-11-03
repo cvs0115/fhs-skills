@@ -14,7 +14,7 @@ way, one checked step at a time.
 | Skill | Role |
 |---|---|
 | `fhs-skills` (this one) | Front door: explain the stack, route work, setup playbooks, food cost checks |
-| `fhs-payroll-adp` | Biweekly payroll for NCR and Toast/R365 stores → checks → ADP RUN |
+| `fhs-payroll-adp` | Biweekly payroll for Toast/R365 stores → checks → ADP RUN |
 | *Planned, built when the work starts* | `fhs-food-cost` (split out once inventory is live), `fhs-r365-setup`, `fhs-store-migration` (checklist for moving a store NCR → Toast/R365; 878 already moved 10/21/2026) |
 
 New skills follow the same pattern: name starts with `fhs-`, read the shared config, never duplicate
@@ -80,7 +80,7 @@ their way and note the decision in the tracker.
 3. **Every Toast menu item and modifier mapped to an R365 recipe** - unmapped items make AvT wrong.
 4. **Invoices come in electronically** (distributor EDI or R365 invoice capture), not typed by hand.
 5. **Count sheets ordered by shelf location** so a count takes under an hour.
-6. **Store 122 first, then copy to 878** when 878 moves off NCR.
+6. **Store 122 first, then copy to 878** (878 moved to Toast + R365 on 10/21/2026).
 7. **Measure: food cost %, AvT gap $, labor %, prime cost %** each week; flag, don't auto-fix.
 
 ## Keeping this skill current

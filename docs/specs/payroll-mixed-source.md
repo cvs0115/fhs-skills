@@ -1,5 +1,7 @@
 # Spec · payroll-mixed-source · Payroll for a pay period that spans a POS cut-over (878: NCR to Toast + R365)
 
+> **SUPERSEDED 2026-10-31 (owner):** NCR support is dropped from the payroll skill, and 878 is set to `toast_r365`. The skill no longer handles NCR days. For 10/19-10/20/2026 the owner enters 878's hours and tips in ADP by hand from the NCR reports. Kept for the record; no plan will be written from it.
+
 2026-10-31 · Hub project: `projects/payroll-mixed-source` (not yet on the board) · Plan page: none yet
 
 ## Problem and today
