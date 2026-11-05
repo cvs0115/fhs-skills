@@ -64,7 +64,7 @@
       "r365_tip_rule": "Camden Square",
       "tip_receiver_jobs": ["Shift Leader", "Team Member", "GM - Hourly", "GM - Salary", "ASM - Hourly"],
       "toast_location": "00878 - Camden Square",
-      "non_employee_accounts": ["KIOSK KIOSK - 550", "KIOSK - 550, KIOSK", "TST User (Do Not Delete)", "KDS KDS - 660", "RTG RTG Login"],
+      "non_employee_accounts": ["KIOSK KIOSK - 550", "KIOSK - 550, KIOSK", "TST User (Do Not Delete)", "TST User (Do Not Delete) DO NOT DELETE", "DO NOT DELETE, TST User (Do Not Delete)", "KDS KDS - 660", "RTG RTG Login"],
       "shared_logins": ["Terminal2 Cashier2"],
       "adp_company": "Firehouse Subs 878",
       "_hours_comment": "Same store hours as 122 (10 AM - 9 PM, 1-hr buffers) per owner 10/7/2026.",
