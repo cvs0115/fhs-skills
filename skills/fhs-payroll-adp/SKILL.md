@@ -31,6 +31,11 @@ anything you'd assume. Other fhs skills use the same file, so keep store facts t
   that 10/19 and 10/20 (hours and NCR tips) are entered in ADP by hand from the NCR reports. Do not enter those
   two days from R365 as well, or they will be counted twice. (R365 does hold hours for 10/19 and 10/20 under the old
   NCR job names ARM, RM and TeamMember - 83.05 hours - so leave those rows out, and the `Terminal2 Cashier2` login with them.)
+  **Overtime spans the two blocks.** The workweek is Monday to Sunday (10/19-10/25), and R365 keeps 10/19-10/20 on old
+  NCR employee records, so it never adds them to the 10/21-on hours. For everyone with hours on 10/19 or 10/20, add the hand-entered
+  hours to the 10/21-on hours of that week, work out the overtime past 40 for the whole week, enter the hand-entered days as
+  regular, and put all of that week's overtime on the electronic line (take it off that line's regular hours). Pull R365's Labor
+  Payroll Review for 10/19 to the end of the period to get each person's week total, and check it against the NCR report.
   Two overnight shifts cross the cut-over: Toni Langley (in 10/20 7:58 PM, out 10/21 1:48 AM, R365 dates it 10/20, so it is
   one of the hand-entered days) and Eleanor Adams (in 10/21 1:48 AM). Ask the owner which period Eleanor's 1:48 AM start belongs to. A missing R365 tip day before 10/21 is expected there:
   it is not a reason to drop `_tips.txt`.

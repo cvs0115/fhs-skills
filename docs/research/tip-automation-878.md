@@ -96,3 +96,11 @@ Toni Langley (GM - Salary 10/21–10/24, ASM - Hourly 10/27). No Team Member or 
 - **Tip distributions:** R365 Approved tab lists Camden Square 10/21 to 11/1, all calculated 10/29 or later; Pending is empty (this closes the "approve 10/21-10/27" open item).
 - **Toni Langley:** Toast job GM - Salary through 10/25, ASM - Hourly from 10/26; the Toast employee list now says GM - Hourly; R365 shows a GM - Hourly entry of 3.18 hours on 11/1. ADP not checked `(?)`.
 - **Dropbox:** 878 Week 43 and Week 44 folders are empty.
+
+## Overtime across the cut-over (PC check, 2026-11-05)
+
+R365 holds 10/19-10/20 on old NCR employee records, so it shows 0.00 OT for the week 10/19-10/25 even when the combined week is over 40.
+Combined week 1: Toni 20.39 + 32.47 = 52.86 h, OT 12.86 (5.65 on 10/23, 7.21 on 10/24); Eleanor 14.84 + 26.60 = 41.44 h, OT 1.44 (10/25);
+Josean 35.46, Jason 21.85, Alonda 14.18 (no OT). Toni's period total: 80.00 regular, 25.54 OT (week 2 is all electronic: 40.00 + 12.68).
+Entry rule: hand-enter 10/19-10/20 as regular and put the week's OT on the electronic line (Toni 59.61 reg / 25.54 OT electronic; Eleanor 62.96 / 1.44).
+Not yet checked against the printed NCR Time Clock Detail. Toni's GM - Salary hours (10/21-10/24) are an open owner decision that changes her numbers `(?)`.
